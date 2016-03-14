@@ -8,6 +8,10 @@ module Spree
           @quantity = arguments[:quantity]
           @total = arguments[:total]
         end
+
+        def track
+          CartEvent.create(attributes)
+        end
       end
     end
   end

@@ -2,9 +2,9 @@ module Spree
   module Event
     class Tracker
 
-      INSTANCE_VARIABLES_KEYS = [:activity, :actor, :actor_type, :object, :object_type, :referrer]
+      INSTANCE_VARIABLES_KEYS = [:activity, :actor, :object, :referrer]
 
-      def initialize(arguments: {})
+      def initialize(arguments = {})
         set_instance_variables(arguments)
       end
 

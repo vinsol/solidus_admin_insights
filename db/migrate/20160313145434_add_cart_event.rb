@@ -7,6 +7,8 @@ class AddCartEvent < ActiveRecord::Migration
       t.string :referrer
       t.integer :quantity
       t.decimal :total, precision: 16, scale: 4
+      t.string :session_id
+      t.timestamps null: false
     end
   end
 end

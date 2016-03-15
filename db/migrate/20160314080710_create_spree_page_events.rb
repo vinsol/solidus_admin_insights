@@ -6,6 +6,8 @@ class CreateSpreePageEvents < ActiveRecord::Migration
       t.string :activity
       t.string :referrer
       t.string :search_keywords
+      t.string :session_id
+      t.timestamps null: false
     end
   end
 end

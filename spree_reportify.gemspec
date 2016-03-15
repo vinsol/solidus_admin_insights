@@ -2,8 +2,8 @@ Gem::Specification.new do |s|
   s.platform    = Gem::Platform::RUBY
   s.name        = 'spree_reportify'
   s.version     = '3.0.7'
-  s.summary     = 'TODO: Add gem summary here'
-  s.description = 'TODO: Add (optional) gem description here'
+  s.summary     = 'Add gem summary here'
+  s.description = 'Add (optional) gem description here'
   s.required_ruby_version = '>= 2.1.0'
 
   s.author    = 'You'

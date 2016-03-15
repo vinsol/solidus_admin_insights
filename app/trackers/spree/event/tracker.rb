@@ -11,6 +11,10 @@ module Spree
       def set_instance_variables(arguments = {})
         INSTANCE_VARIABLES_KEYS.each { |key| instance_variable_set("@#{ key.to_s }", arguments[key]) }
       end
+
+      def track
+        raise '#track should be implemented in a sub-class of Event::Tracker'
+      end
     end
   end
 end

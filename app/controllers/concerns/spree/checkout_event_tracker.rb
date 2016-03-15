@@ -1,8 +1,8 @@
 module Spree
-  module CheckoutEventRecorder
+  module CheckoutEventTracker
     extend ActiveSupport::Concern
 
-    def create_tracker_entry(attributes)
+    def track_activity(attributes)
       default_attributes = { referrer: request.referrer,
                              actor: spree_current_user,
                              object: @order,

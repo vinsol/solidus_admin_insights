@@ -1,6 +1,6 @@
 Spree::OrdersController.class_eval do
 
-  include ::Spree::CheckoutEventRecorder
+  include Spree::CheckoutEventRecorder
 
   after_action :track_return_to_cart, only: :edit, if: :current_order
   after_action :track_empty_cart_activity, only: :empty

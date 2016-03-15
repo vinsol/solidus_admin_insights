@@ -1,6 +1,6 @@
 Spree::CheckoutController.class_eval do
 
-  include ::Spree::CheckoutEventRecorder
+  include Spree::CheckoutEventRecorder
 
   after_action :track_order_state_change, only: :edit
   after_action :track_order_completion, only: :update

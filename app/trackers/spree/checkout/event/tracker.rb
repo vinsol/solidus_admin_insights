@@ -6,7 +6,7 @@ module Spree
         def initialize(arguments = {})
           super(arguments)
           @previous_state = arguments[:previous_state]
-          @new_state = arguments[:new_state]
+          @next_state = arguments[:next_state]
         end
 
         def track

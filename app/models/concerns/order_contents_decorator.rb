@@ -1,21 +1,16 @@
 module Spree
   module OrderContentsWithTracker
 
+    # Override: since order's line_items were overridden
     def update_cart(params)
       if order.update_attributes(filter_order_items(params))
         order.line_items.select(&:changed?).each do |line_item|
           if line_item.previous_changes.keys.include?('quantity')
-            previous_quantity_changes = line_item.previous_changes[:quantity]
-            changed_quantity = changed_quantity(previous_quantity_changes)
-            Spree::Cart::Event::Tracker.new(
-              activity: activity(changed_quantity, line_item, options = {}),
-              actor: order,
-              object: line_item,
-              quantity: changed_quantity,
-              total: order.total
-            ).track
+            Spree::Cart::Event::Tracker.new(actor: order, object: line_item, total: order.total).track
           end
         end
+        # line_items which have 0 quantity will be lost and couldn't be tracked
+        # so tracking is done before the execution of next statement
         order.line_items = order.line_items.select { |li| li.quantity > 0 }
         persist_totals
         PromotionHandler::Cart.new(order).activate
@@ -30,26 +25,9 @@ module Spree
     private
 
     def after_add_or_remove(line_item, options = {})
-      line_item = super(line_item, options = {})
-      previous_quantity_changes = line_item.previous_changes[:quantity]
-      changed_quantity = changed_quantity(previous_quantity_changes)
-      Spree::Cart::Event::Tracker.new(activity: options[:line_item_created] ? :add : activity(changed_quantity, line_item, options = {}),
-        actor: order, object: line_item, quantity: changed_quantity, total: order.total).track
+      line_item = super
+      Spree::Cart::Event::Tracker.new(actor: order, object: line_item, total: order.total).track
       line_item
-    end
-
-    def changed_quantity(previous_quantity_changes)
-      previous_quantity_changes.last.to_i - previous_quantity_changes.first.to_i
-    end
-
-    def activity(changed_quantity, line_item, options = {})
-      if (changed_quantity > 0 && changed_quantity == line_item.quantity)
-        :add
-      elsif (changed_quantity < 0 && line_item.quantity == 0)
-        :remove
-      elsif changed_quantity
-        :update
-      end
     end
   end
 end

@@ -1,8 +1,12 @@
 module Spree
   class PageEvent < Spree::Base
-    belongs_to :actor, polymorphic: true
-    belongs_to :target, polymorphic: true
+
+    with_options polymorphic: true do
+      belongs_to :actor
+      belongs_to :target
+    end
 
     validates :referrer, :session_id, :activity, presence: true
+
   end
 end

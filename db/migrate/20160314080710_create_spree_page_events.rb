@@ -1,8 +1,8 @@
 class CreateSpreePageEvents < ActiveRecord::Migration
   def change
     create_table :spree_page_events do |t|
-      t.references :actor, polymorphic: true
-      t.references :target, polymorphic: true
+      t.belongs_to :actor, polymorphic: true, index: true
+      t.belongs_to :target, polymorphic: true, index: true
       t.string :activity
       t.string :referrer
       t.string :search_keywords

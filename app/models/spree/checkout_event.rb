@@ -6,7 +6,9 @@ module Spree
       belongs_to :target
     end
 
-    validates :target, :session_id, :activity, presence: true
+    validates :activity,
+              :session_id,
+              :target, presence: true
 
   end
 end

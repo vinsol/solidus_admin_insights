@@ -5,3 +5,22 @@
 <% content_for :header do %>
   <%= javascript_include_tag "https://www.google.com/jsapi", "chartkick" %>
 <% end %>
+
+<table class="table table-bordered admin-insights">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Description</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @reports.each do |report_name| %>
+      <tr>
+        <td><%= Spree.t(report_name, scope: [:reports]) %></td>
+        <td><%= Spree.t("#{ report_name }_description", scope: [:reports]) %></td>
+        <td><%= link_to 'Show', admin_insight_path(report_name) %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

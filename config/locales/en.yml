@@ -1,1 +1,6 @@
 en:
+  spree:
+    reports:
+      not_found: Report not found.
+      product_views: Product Views
+      product_views_description: To fetch the number of times Product Show page is viewed by the Customers.

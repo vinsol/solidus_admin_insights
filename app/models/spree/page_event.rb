@@ -7,7 +7,6 @@ module Spree
     end
 
     validates :activity,
-              :referrer,
               :session_id, presence: true
 
   end

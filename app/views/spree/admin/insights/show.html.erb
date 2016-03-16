@@ -1,0 +1,22 @@
+<% content_for :page_title do %>
+  <%= Spree.t(@report_name) %>
+<% end %>
+
+<table class="table table-bordered admin-insight">
+  <thead>
+    <tr>
+      <% @headers.each do |_header_| %>
+        <th><%= Spree.t(_header_, scope: [@report_name]) %></th>
+      <% end %>
+    </tr>
+  </thead>
+  <tbody>
+    <% @stats.each do |stat| %>
+      <tr>
+        <% @headers.each do |_header_| %>
+          <td><%= stat.public_send(_header_) %></td>
+        <% end %>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

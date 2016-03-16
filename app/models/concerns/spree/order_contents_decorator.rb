@@ -6,7 +6,7 @@ module Spree
       if order.update_attributes(filter_order_items(params))
         order.line_items.select(&:changed?).each do |line_item|
           if line_item.previous_changes.keys.include?('quantity')
-            Spree::Cart::Event::Tracker.new(actor: order, object: line_item, total: order.total).track
+            Spree::Cart::Event::Tracker.new(actor: order, target: line_item, total: order.total).track
           end
         end
         # line_items which have 0 quantity will be lost and couldn't be tracked
@@ -26,7 +26,7 @@ module Spree
 
     def after_add_or_remove(line_item, options = {})
       line_item = super
-      Spree::Cart::Event::Tracker.new(actor: order, object: line_item, total: order.total).track
+      Spree::Cart::Event::Tracker.new(actor: order, target: line_item, total: order.total).track
       line_item
     end
   end

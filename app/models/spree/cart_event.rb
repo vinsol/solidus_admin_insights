@@ -2,12 +2,12 @@ module Spree
   class CartEvent < Spree::Base
     with_options polymorphic: true do
       belongs_to :actor
-      belongs_to :object
+      belongs_to :target
     end
 
     validates :activity,
               :actor,
-              :object,
+              :target,
               :quantity,
               :total, presence: true
   end

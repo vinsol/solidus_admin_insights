@@ -3,10 +3,10 @@ module Spree
 
     with_options polymorphic: true do
       belongs_to :actor
-      belongs_to :object
+      belongs_to :target
     end
 
-    validates :object, :session_id, :activity, presence: true
+    validates :target, :session_id, :activity, presence: true
 
   end
 end

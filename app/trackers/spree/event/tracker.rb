@@ -4,7 +4,7 @@ module Spree
       def initialize(arguments = {})
         @activity = arguments[:activity]
         @actor = arguments[:actor]
-        @object = arguments[:object]
+        @target = arguments[:target]
         @referrer = arguments[:referrer]
         @session_id = arguments[:session_id]
       end

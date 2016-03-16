@@ -2,7 +2,7 @@ module Spree
   module Cart
     module Event
       class Tracker < Spree::Event::Tracker
-        attr_reader :object
+        attr_reader :target
         attr_accessor :activity, :quantity
 
         def initialize(arguments = {})
@@ -12,8 +12,8 @@ module Spree
         end
 
         def track
-          changed_quantity = changed_quantity(object.previous_changes[:quantity].map(&:to_i))
-          self.activity = activity(changed_quantity, object)
+          changed_quantity = changed_quantity(target.previous_changes[:quantity].map(&:to_i))
+          self.activity = activity(changed_quantity, target)
           self.quantity = changed_quantity
           CartEvent.create(instance_values)
         end

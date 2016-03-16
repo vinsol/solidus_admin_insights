@@ -14,7 +14,7 @@ module Spree
           session_id: session.id,
           referrer: request.referrer,
           actor: current_spree_user,
-          object: instance_variable_get("@#{ controller_name.singularize }"),
+          target: instance_variable_get("@#{ controller_name.singularize }"),
           activity: get_activity,
           search_keywords: get_keywords
         ).track

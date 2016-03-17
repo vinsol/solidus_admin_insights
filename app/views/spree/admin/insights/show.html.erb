@@ -6,11 +6,15 @@
   <%= link_to_with_icon 'arrow-left', Spree.t(:back_to_resource_list, resource: Spree.t(:report)), admin_insights_url, class: 'btn btn-default' %>
 <% end %>
 
-<table class="table table-bordered admin-insight">
+<% content_for :table_filter do %>
+  <%= render partial: (@report_name.to_s + '_search') %>
+<% end %>
+
+<table class="table admin-insight" id="admin-insight" data-hook>
   <thead>
     <tr>
       <% @headers.each do |_header_| %>
-        <th><%= Spree.t(_header_, scope: [@report_name]) %></th>
+        <th><%= Spree.t(_header_, scope: [:reports, @report_name]) %></th>
       <% end %>
     </tr>
   </thead>

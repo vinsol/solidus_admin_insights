@@ -1,6 +1,16 @@
 en:
   spree:
+    insights: Insights
     reports:
       not_found: Report not found.
-      product_views: Product Views
-      product_views_description: To fetch the number of times Product Show page is viewed by the Customers.
+      product_views:
+        title: Product Views
+        description: To fetch the number of times Product Show page is viewed by the Customers.
+      cart_additions:
+        product_name: Product
+        addition_count: Addition Count
+        description: Will project the data about how many times product has been added to the cart.
+        name: Product Name
+        quantity_change: Quantity Change
+        title: Product Add to cart
+

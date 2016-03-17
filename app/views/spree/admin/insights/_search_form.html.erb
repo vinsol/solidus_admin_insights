@@ -1,0 +1,36 @@
+<div data-hook="admin_insights_sidebar">
+  <%= search_form_for @search, url: admin_insight_path(id: @report_name) do |f| %>
+    <div class="row">
+      <div class="date-range-filter col-md-8">
+        <div class="form-group">
+          <%= label_tag :q_created_at_gt, Spree.t(:date_range) %>
+          <div class="row no-padding-bottom">
+            <div class="col-md-6">
+              <div class="input-group">
+                <%= f.text_field :created_at_gt, class: 'datepicker datepicker-from form-control', value: params[:q][:created_at_gt], placeholder: Spree.t(:start) %>
+                <span class="input-group-addon">
+                  <i class="icon icon-calendar"></i>
+                </span>
+              </div>
+
+            </div>
+            <div class="col-md-6">
+              <div class="input-group">
+                <%= f.text_field :created_at_lt, class: 'datepicker datepicker-to form-control', value: params[:q][:created_at_lt], placeholder: Spree.t(:stop) %>
+                <span class="input-group-addon">
+                  <i class="icon icon-calendar"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="form-actions" data-hook="admin_insights_index_search_buttons">
+      <%= button Spree.t(:search), 'search' %>
+    </div>
+
+  <% end %>
+</div>

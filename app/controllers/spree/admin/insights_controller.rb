@@ -6,7 +6,9 @@ module Spree
 
       def show
         @headers = ReportGenerationService::REPORTS[@report_name][:headers]
-        @stats = ReportGenerationService.public_send(@report_name)
+        # params[:q] can be blank upon pagination
+        params[:q] = {} if params[:q].blank?
+        @search, @stats = ReportGenerationService.public_send(@report_name, params)
       end
 
       private

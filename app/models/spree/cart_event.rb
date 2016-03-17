@@ -13,5 +13,9 @@ module Spree
               :target,
               :total,
               :variant, presence: true
+
+    scope :events, ->(type)  { where(activity: type) }
+
+    delegate :product, to: :variant, allow_blank: true
   end
 end

@@ -18,7 +18,7 @@
     <tbody>
       <% @reports.each do |report_name| %>
         <tr>
-          <td><%= Spree.t(:title, scope: [:reports, report_name]) %></td>
+          <td><%= Spree.t(:title, scope: [:reports, report_name], default: report_name) %></td>
           <td><%= Spree.t(:description, scope: [:reports, report_name]) %></td>
           <td><%= link_to 'Show', admin_insight_path(report_name) %></td>
         </tr>

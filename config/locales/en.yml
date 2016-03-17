@@ -13,4 +13,7 @@ en:
         name: Product Name
         quantity_change: Quantity Change
         title: Product Add to cart
+      product_views_to_cart_additions:
+        title: Product Views Vs Cart Additions
+        description: Ratio of number of views (on product show page) to number of times product has been added to the cart after view.
 

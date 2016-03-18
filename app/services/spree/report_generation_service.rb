@@ -22,6 +22,9 @@ module Spree
       best_selling_products: {
         headers: [:product_name, :sold_count]
       },
+      unique_purchases: {
+        headers: [:product_name, :sold_count, :users]
+      },
       users_not_converted: {
         headers: [:user_email, :signup_date]
       },
@@ -111,6 +114,18 @@ module Spree
       [search, best_selling_products]
     end
 
+    def self.unique_purchases(options = {})
+      unique_purchases_view = Struct.new(*REPORTS[:unique_purchases][:headers])
+      search = LineItem.of_completed_orders.ransack(options[:q])
+      unique_purchases_views = search.result.group_by(&:product).map do |product, line_items|
+        view = unique_purchases_view.new(product.name)
+        view.sold_count = line_items.sum(&:quantity)
+        view.users = line_items.reject(&:user).size + line_items.select(&:user).uniq(&:user).size
+        view
+      end
+      [search, unique_purchases_views]
+    end
+
     def self.users_not_converted(options = {})
       users_not_converted_view = Struct.new(*REPORTS[:users_not_converted][:headers])
       search = Spree.user_class.ransack(options[:q])
@@ -149,14 +164,6 @@ module Spree
         )
       end
       [search, users_who_have_not_purchased_recently]
-    end
-
-    def self.payment_method_transactions(options = {})
-      payment_method_transactions_view = Struct.new(*REPORTS[:payment_method_transactions][:headers])
-      payment_method_transactions = Spree::PaymentMethod.all.map do |payment_method|
-        view = payment_method_transactions_view.new(payment_method.name, payment_method.payments.size)
-      end
-      [nil, payment_method_transactions]
     end
 
     def self.payment_method_transactions(options = {})

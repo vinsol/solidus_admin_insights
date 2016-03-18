@@ -16,5 +16,21 @@ module SpreeReportify
     end
 
     config.to_prepare &method(:activate).to_proc
+
+    # Overridden since in ransack methods on user are overridden in Spree::Core::Engine.
+    # https://github.com/spree/spree/blob/3-0-stable/core/config/initializers/user_class_extensions.rb#L1
+    config.after_initialize do
+      if Spree.user_class
+        Spree.user_class.class_eval do
+          def self.ransackable_attributes(auth_object=nil)
+            %w[id email created_at]
+          end
+
+          def self.ransackable_associations(auth_object=nil)
+            %w[bill_address ship_address orders]
+          end
+        end
+      end
+    end
   end
 end

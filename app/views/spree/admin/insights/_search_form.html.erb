@@ -1,5 +1,6 @@
 <div data-hook="admin_insights_sidebar">
   <%= search_form_for @search, url: admin_insight_path(id: @report_name) do |f| %>
+    <%= yield :quick_search_form %>
     <div class="row">
       <div class="date-range-filter col-md-8">
         <div class="form-group">

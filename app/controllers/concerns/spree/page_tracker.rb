@@ -34,7 +34,7 @@ module Spree
     end
 
     def get_keywords
-      { search: @searcher && (@searcher.search.to_s + @searcher.keywords.to_s), query_string: request.query_string }
+      { search: @searcher && (@searcher.search.to_s + @searcher.keywords.to_s), query_string: request.query_string }.to_json
     end
 
     def event_trackable?

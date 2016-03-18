@@ -7,7 +7,9 @@
 <% end %>
 
 <% content_for :table_filter do %>
-  <%= render partial: (@report_name.to_s + '_search') %>
+  <% if lookup_context.exists?((@report_name.to_s + '_search'), ['spree/admin/insights'], true) %>
+    <%= render partial: (@report_name.to_s + '_search') %>
+  <% end %>
 <% end %>
 
 <table class="table admin-insight tablesorter" id="admin-insight" data-hook>

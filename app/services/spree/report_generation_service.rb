@@ -30,6 +30,9 @@ module Spree
       },
       users_who_have_not_purchased_recently: {
         headers: [:user_email, :last_purchase_date, :last_purchased_order_number]
+      },
+      payment_method_transactions: {
+        headers: [:payment_method_name, :payment_count]
       }
     }
 
@@ -146,6 +149,22 @@ module Spree
         )
       end
       [search, users_who_have_not_purchased_recently]
+    end
+
+    def self.payment_method_transactions(options = {})
+      payment_method_transactions_view = Struct.new(*REPORTS[:payment_method_transactions][:headers])
+      payment_method_transactions = Spree::PaymentMethod.all.map do |payment_method|
+        view = payment_method_transactions_view.new(payment_method.name, payment_method.payments.size)
+      end
+      [nil, payment_method_transactions]
+    end
+
+    def self.payment_method_transactions(options = {})
+      payment_method_transactions_view = Struct.new(*REPORTS[:payment_method_transactions][:headers])
+      payment_method_transactions = Spree::PaymentMethod.all.map do |payment_method|
+        view = payment_method_transactions_view.new(payment_method.name, payment_method.payments.size)
+      end
+      [nil, payment_method_transactions]
     end
 
     class << self

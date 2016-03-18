@@ -16,6 +16,12 @@ module Spree
       product_views_to_cart_additions: {
         headers: [:product_name, :views, :cart_additions]
       },
+      product_views_to_purchases: {
+        headers: [:product_name, :views, :purchases]
+      },
+      best_selling_products: {
+        headers: [:product_name, :sold_count]
+      },
       users_not_converted: {
         headers: [:user_email, :signup_date]
       },
@@ -29,7 +35,7 @@ module Spree
 
     def self.product_views(options = {})
       product_view = Struct.new(*REPORTS[:product_views][:headers])
-      search = Spree::PageEvent.product_pages.ransack(options[:q])
+      search = PageEvent.product_pages.activity(PageEvent::ACTIVITIES[:view]).ransack(options[:q])
       product_views = search.result.group_by(&:target_id).map do |_id, page_events|
         view = product_view.new(Spree::Product.find_by(id: _id).name)
         view.views = page_events.size
@@ -50,7 +56,7 @@ module Spree
 
     def self.cart_updations(options = {})
       cart_additions_view = Struct.new(*REPORTS[:cart_updations][:headers])
-      search = Spree::CartEvent.events(:update).ransack(options[:q])
+      search = CartEvent.events(:update).ransack(options[:q])
       cart_additions = search.result.group_by(&:product).map do |product, cart_events|
         view = cart_additions_view.new(product.name, cart_events.size)
         quantity_change = cart_events.map(&:quantity)
@@ -68,12 +74,38 @@ module Spree
       end
 
       self.cart_additions(options).second.each do |cart_addition|
-        product_view_cart_addition = product_views_to_cart_additions.find(ifnone = product_to_cart_view.new(cart_addition.product_name, 0)) do |view|
+        product_view_cart_addition = product_views_to_cart_additions.
+        find(ifnone = product_to_cart_view.new(cart_addition.product_name)) do |view|
           view.product_name == cart_addition.product_name
         end
         product_view_cart_addition.cart_additions = cart_addition.additions
       end
       [self.product_views(options).first, product_views_to_cart_additions]
+    end
+
+    def self.product_views_to_purchases(options = {})
+      product_purchases_view = Struct.new(*REPORTS[:product_views_to_purchases][:headers])
+      search = PageEvent.product_pages.activity(PageEvent::ACTIVITIES[:view]).ransack(options[:q])
+      search_results = search.result
+      sold_line_items = LineItem.of_completed_orders.for_products(search_results.map(&:target_id))
+      product_views_to_purchases = sold_line_items.group_by(&:product).map do |product, line_items|
+        view = product_purchases_view.new(product.name)
+        view.views = search_results.select { |product_view| product_view.target_id == product.id }.size
+        view.purchases = line_items.sum(&:quantity)
+        view
+      end
+      [search, product_views_to_purchases]
+    end
+
+    def self.best_selling_products(options = {})
+      best_selling_view = Struct.new(*REPORTS[:best_selling_products][:headers])
+      search = LineItem.of_completed_orders.ransack(options[:q])
+      best_selling_products = search.result.group_by(&:product).map do |product, line_items|
+        view = best_selling_view.new(product.name)
+        view.sold_count = line_items.sum(&:quantity)
+        view
+      end.sort_by(&:sold_count).reverse.first(10)
+      [search, best_selling_products]
     end
 
     def self.users_not_converted(options = {})
@@ -120,7 +152,7 @@ module Spree
       private
         def cart_based_events(report_type, event_type, options = {})
           cart_additions_view = Struct.new(*REPORTS[report_type][:headers])
-          search = Spree::CartEvent.events(event_type).ransack(options[:q])
+          search = CartEvent.events(event_type).ransack(options[:q])
           cart_additions = search.result.group_by(&:product).map do |product, cart_events|
             view = cart_additions_view.new(product.name)
             view[REPORTS[report_type][:headers].second] = cart_events.size

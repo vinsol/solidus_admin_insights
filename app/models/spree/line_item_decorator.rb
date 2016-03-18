@@ -1,0 +1,6 @@
+Spree::LineItem.class_eval do
+  scope :of_completed_orders, -> { includes(:order).where(spree_orders: { state: :complete }) }
+  scope :for_products, ->(product_ids) { includes(:product).where(spree_products: { id: product_ids }) }
+
+  self.whitelisted_ransackable_attributes += ['created_at']
+end

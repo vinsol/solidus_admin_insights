@@ -30,6 +30,9 @@ module Spree
       },
       users_who_have_not_purchased_recently: {
         headers: [:user_email, :last_purchase_date, :last_purchased_order_number]
+      },
+      unique_purchases: {
+        headers: [:product_name, :sold_count, :users]
       }
     }
 
@@ -146,6 +149,18 @@ module Spree
         )
       end
       [search, users_who_have_not_purchased_recently]
+    end
+
+    def self.unique_purchases(options = {})
+      unique_purchases_view = Struct.new(*REPORTS[:unique_purchases][:headers])
+      search = LineItem.of_completed_orders.ransack(options[:q])
+      unique_purchases_views = search.result.group_by(&:product).map do |product, line_items|
+        view = unique_purchases_view.new(product.name)
+        view.sold_count = line_items.sum(&:quantity)
+        view.users = line_items.reject(&:user).size + line_items.select(&:user).uniq(&:user).size
+        view
+      end
+      [search, unique_purchases_views]
     end
 
     class << self

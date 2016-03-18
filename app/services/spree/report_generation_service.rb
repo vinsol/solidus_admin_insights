@@ -18,12 +18,15 @@ module Spree
       },
       product_views_to_purchases: {
         headers: [:product_name, :views, :purchases]
+      },
+      best_selling_products: {
+        headers: [:product_name, :sold_count]
       }
     }
 
     def self.product_views(options = {})
       product_view = Struct.new(*REPORTS[:product_views][:headers])
-      search = PageEvent.product_pages.ransack(options[:q])
+      search = PageEvent.product_pages.activity(PageEvent::ACTIVITIES[:view]).ransack(options[:q])
       product_views = search.result.group_by(&:target_id).map do |_id, page_events|
         view = product_view.new(Spree::Product.find_by(id: _id).name)
         view.views = page_events.size
@@ -75,7 +78,7 @@ module Spree
 
     def self.product_views_to_purchases(options = {})
       product_purchases_view = Struct.new(*REPORTS[:product_views_to_purchases][:headers])
-      search = PageEvent.product_pages.ransack(options[:q])
+      search = PageEvent.product_pages.activity(PageEvent::ACTIVITIES[:view]).ransack(options[:q])
       search_results = search.result
       sold_line_items = LineItem.of_completed_orders.for_products(search_results.map(&:target_id))
       product_views_to_purchases = sold_line_items.group_by(&:product).map do |product, line_items|
@@ -85,6 +88,17 @@ module Spree
         view
       end
       [search, product_views_to_purchases]
+    end
+
+    def self.best_selling_products(options = {})
+      best_selling_view = Struct.new(*REPORTS[:best_selling_products][:headers])
+      search = LineItem.of_completed_orders.ransack(options[:q])
+      best_selling_products = search.result.group_by(&:product).map do |product, line_items|
+        view = best_selling_view.new(product.name)
+        view.sold_count = line_items.sum(&:quantity)
+        view
+      end.sort_by(&:sold_count).reverse.first(10)
+      [search, best_selling_products]
     end
 
     class << self

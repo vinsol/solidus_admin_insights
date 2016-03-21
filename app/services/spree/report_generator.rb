@@ -25,6 +25,9 @@ module Spree
       unique_purchases: {
         headers: [:product_name, :sold_count, :users]
       },
+      trending_searches: {
+        headers: [:searched_term, :occurrences]
+      },
       users_not_converted: {
         headers: [:user_email, :signup_date]
       },
@@ -113,7 +116,7 @@ module Spree
         view = best_selling_view.new(product.name)
         view.sold_count = line_items.sum(&:quantity)
         view
-      end.sort_by(&:sold_count).reverse.first(10)
+      end.sort_by(&:sold_count).reverse
       [search, best_selling_products]
     end
 
@@ -123,10 +126,22 @@ module Spree
       unique_purchases_views = search.result.group_by(&:product).map do |product, line_items|
         view = unique_purchases_view.new(product.name)
         view.sold_count = line_items.sum(&:quantity)
-        view.users = line_items.reject(&:user).size + line_items.select(&:user).uniq(&:user).size
+        partitioned_line_items = line_items.partition(&:user)
+        view.users = partitioned_line_items.second.size + partitioned_line_items.first.uniq(&:user).size
         view
       end
       [search, unique_purchases_views]
+    end
+
+    def self.trending_searches(options = {})
+      trending_searches_view = Struct.new(*REPORTS[:trending_searches][:headers])
+      search = PageEvent.activity(PageEvent::ACTIVITIES[:search]).ransack(options[:q])
+      trending_searches = search.result.group_by { |page_event| JSON.parse(page_event.search_keywords)['search'] }.map do |search_term, page_events|
+        view = trending_searches_view.new(search_term)
+        view.occurrences = page_events.size
+        view
+      end.sort_by(&:occurrences).reverse
+      [search, trending_searches]
     end
 
     def self.users_not_converted(options = {})

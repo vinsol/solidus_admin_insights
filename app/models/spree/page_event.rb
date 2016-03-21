@@ -13,6 +13,7 @@ module Spree
     scope :product_pages, -> { where(target_type: Spree::Product) }
     scope :activity, ->(type) { where(activity: type) }
 
-    self.whitelisted_ransackable_attributes = %w[created_at]
+    self.whitelisted_ransackable_attributes = %w[created_at search_keywords]
+
   end
 end

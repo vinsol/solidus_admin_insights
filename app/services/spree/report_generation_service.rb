@@ -45,6 +45,9 @@ module Spree
       },
       promotional_cost: {
         headers: [:promotion_name, :usage_count, :promotion_discount]
+      },
+      sales_performance: {
+        headers: [:revenue, :tax, :shipping_charges, :refund_amount]
       }
     }
 
@@ -215,6 +218,18 @@ module Spree
         view
       end
       [search, promotional_cost_views]
+    end
+
+    def self.sales_performance(options = {})
+      sales_performance_view = Struct.new(*REPORTS[:sales_performance][:headers])
+      search = Order.complete.ransack(options[:q])
+      orders = search.result
+      view = sales_performance_view.new
+      view.revenue = orders.sum(:total)
+      view.shipping_charges = orders.sum(:shipment_total)
+      view.tax = orders.sum(:included_tax_total) + orders.sum(:additional_tax_total)
+      view.refund_amount = Refund.ransack(options[:q]).result.sum(:amount)
+      [search, [view]]
     end
 
     class << self

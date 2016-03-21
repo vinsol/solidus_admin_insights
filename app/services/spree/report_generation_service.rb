@@ -182,8 +182,8 @@ module Spree
         view = users_who_recently_purchased_view.new(
           user.email,
           completed_orders.size,
-          completed_orders.last.completed_at,
-          completed_orders.last.number
+          completed_orders.last.try(:completed_at),
+          completed_orders.last.try(:number)
         )
       end
       [search, users_who_recently_purchased]
@@ -196,8 +196,8 @@ module Spree
         completed_orders = user.orders.complete.ransack(options[:q]).result.order(:completed_at)
         view = users_who_have_not_purchased_recently_view.new(
           user.email,
-          completed_orders.last.completed_at,
-          completed_orders.last.number
+          completed_orders.last.try(:completed_at),
+          completed_orders.last.try(:number)
         )
       end
       [search, users_who_have_not_purchased_recently]

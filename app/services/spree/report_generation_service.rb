@@ -249,10 +249,10 @@ module Spree
       private
         def cart_based_events(report_type, event_type, options = {})
           cart_additions_view = Struct.new(*REPORTS[options[:type].to_sym][report_type][:headers])
-          search = CartEvent.events(event_type).ransack(options[:q])
+          search = Spree::CartEvent.events(event_type).ransack(options[:q])
           cart_additions = search.result.group_by(&:product).map do |product, cart_events|
             view = cart_additions_view.new(product.name)
-            view[REPORTS[report_type][:headers].second] = cart_events.size
+            view[REPORTS[options[:type].to_sym][report_type][:headers].second] = cart_events.size
             view.quantity_change = cart_events.map(&:quantity).sum
             view
           end

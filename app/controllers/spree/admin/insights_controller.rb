@@ -24,7 +24,8 @@ module Spree
         end
 
         def get_reports_type
-          params[:type] = params[:type] ? params[:type].to_sym : ReportGenerationService::REPORTS.keys.first
+          params[:type] = params[:type] ? params[:type].to_sym : (session[:report_category].to_sym || ReportGenerationService::REPORTS.keys.first)
+          session[:report_category] = params[:type]
         end
 
         def set_default_completed_at

@@ -4,9 +4,9 @@
     <div class="row">
       <div class="date-range-filter col-md-8">
         <div class="form-group">
-          <%= label_tag :q_created_at_gt, Spree.t(:date_range) %>
           <div class="row no-padding-bottom">
             <div class="col-md-6">
+              <%= f.label :created_at_lt, Spree.t(:start_date) %>
               <div class="input-group">
                 <%= f.text_field :created_at_gt, class: 'datepicker datepicker-from form-control js-filterable', value: params[:q][:created_at_gt], placeholder: Spree.t(:start) %>
                 <span class="input-group-addon">
@@ -16,6 +16,7 @@
 
             </div>
             <div class="col-md-6">
+              <%= f.label :created_at_lt, Spree.t(:end_date) %>
               <div class="input-group">
                 <%= f.text_field :created_at_lt, class: 'datepicker datepicker-to form-control js-filterable', value: params[:q][:created_at_lt], placeholder: Spree.t(:stop) %>
                 <span class="input-group-addon">

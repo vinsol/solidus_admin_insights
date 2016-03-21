@@ -3,13 +3,14 @@
     <div class="row">
       <div class="form-group">
         <%= f.label Spree.t(:email) %>
-        <%= f.text_field :email_cont, class: "form-control js-quick-search-target" %>
+        <%= f.text_field :email_cont, class: "form-control js-quick-search-target js-filterable" %>
       </div>
 
       <div class="date-range-filter col-md-8">
         <div class="form-group">
           <div class="row no-padding-bottom">
             <div class="col-md-6">
+              <%= f.label :orders_completed_at_lt, Spree.t(:completed_at) %>
               <div class="input-group">
                 <%= f.text_field :orders_completed_at_lt, class: 'datepicker datepicker-to form-control js-filterable', value: params[:q][:orders_created_at_gt], placeholder: Spree.t(:stop) %>
                 <span class="input-group-addon">

@@ -1,5 +1,5 @@
 <% content_for :page_title do %>
-  <%= Spree.t(:insights) %>
+  <%= Spree.t(:insights_heading, type: params[:type].to_s.humanize) %>
 <% end %>
 
 <% content_for :header do %>
@@ -20,7 +20,7 @@
         <tr>
           <td><%= Spree.t(:title, scope: [:reports, report_name], default: report_name) %></td>
           <td><%= Spree.t(:description, scope: [:reports, report_name]) %></td>
-          <td><%= link_to 'Show', admin_insight_path(report_name) %></td>
+          <td><%= link_to 'Show', admin_insight_path(report_name, type: params[:type]) %></td>
         </tr>
       <% end %>
     </tbody>

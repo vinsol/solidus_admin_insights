@@ -1,6 +1,7 @@
 en:
   spree:
     insights: Insights
+    insights_heading: 'Insights: %{type}'
     reports:
       not_found: Report not found.
       product_views:

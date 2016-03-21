@@ -6,7 +6,7 @@ module Spree
       before_action :load_reports, only: :index
 
       def show
-        @headers = ReportGenerationService::REPORTS[@report_name][:headers]
+        @headers = ReportGenerationService::REPORTS[get_reports_type][@report_name][:headers]
         # params[:q] can be blank upon pagination
         params[:q] = {} if params[:q].blank?
         @search, @stats = ReportGenerationService.public_send(@report_name, params)
@@ -16,11 +16,15 @@ module Spree
         def ensure_report_exists
           @report_name = params[:id].to_sym
           redirect_to admin_insights_path,
-            alert: Spree.t(:not_found, scope: [:reports]) unless ReportGenerationService::REPORTS.include? @report_name
+            alert: Spree.t(:not_found, scope: [:reports]) unless ReportGenerationService::REPORTS[get_reports_type].include? @report_name
         end
 
         def load_reports
-          @reports = ReportGenerationService::REPORTS.keys
+          @reports = ReportGenerationService::REPORTS[get_reports_type].keys
+        end
+
+        def get_reports_type
+          params[:type] = params[:type] ? params[:type].to_sym : ReportGenerationService::REPORTS.keys.first
         end
 
         def set_default_completed_at

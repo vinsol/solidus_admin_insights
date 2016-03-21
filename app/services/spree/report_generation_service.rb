@@ -1,5 +1,5 @@
 module Spree
-  class ReportGenerator
+  class ReportGenerationService
     REPORTS = {
       product_views: {
         headers: [:product_name, :views, :users, :guest_sessions]
@@ -42,6 +42,9 @@ module Spree
       },
       payment_method_transactions_conversion_rate: {
         headers: [:payment_method_name, :successful_payments_count, :failed_payments_count]
+      },
+      promotional_cost: {
+        headers: [:promotion_name, :usage_count, :promotion_discount]
       }
     }
 
@@ -200,6 +203,18 @@ module Spree
         view = payment_method_transactions_view.new(payment_method.name, payment_method.payments.completed.size, payment_method.payments.failed.size)
       end
       [search, payment_method_transactions_conversion_rate]
+    end
+
+    def self.promotional_cost(options = {})
+      promotional_cost_view = Struct.new(*REPORTS[:promotional_cost][:headers])
+      search = Adjustment.promotion.ransack(options[:q])
+      promotional_cost_views = search.result.group_by(&:promotion).map do |promotion, adjustments|
+        view = promotional_cost_view.new(promotion.name)
+        view.promotion_discount = adjustments.sum(&:amount).abs
+        view.usage_count = adjustments.size
+        view
+      end
+      [search, promotional_cost_views]
     end
 
     class << self

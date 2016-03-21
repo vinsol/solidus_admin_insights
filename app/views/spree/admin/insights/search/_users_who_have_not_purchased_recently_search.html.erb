@@ -12,7 +12,7 @@
             <div class="col-md-6">
               <%= f.label :orders_completed_at_lt, Spree.t(:completed_at) %>
               <div class="input-group">
-                <%= f.text_field :orders_completed_at_lt, class: 'datepicker datepicker-to form-control js-filterable', value: params[:q][:orders_created_at_gt], placeholder: Spree.t(:stop) %>
+                <%= f.text_field :orders_completed_at_lt, class: 'datepicker datepicker-to form-control js-filterable', value: params[:q][:orders_completed_at_gt], placeholder: Spree.t(:stop) %>
                 <span class="input-group-addon">
                   <i class="icon icon-calendar"></i>
                 </span>

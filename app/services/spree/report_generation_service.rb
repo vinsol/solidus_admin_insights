@@ -212,7 +212,7 @@ module Spree
       promotional_cost_view = Struct.new(*REPORTS[:promotional_cost][:headers])
       search = Adjustment.promotion.ransack(options[:q])
       promotional_cost_views = search.result.group_by(&:promotion).map do |promotion, adjustments|
-        view = promotional_cost_view.new(promotion.name)
+        view = promotional_cost_view.new(promotion.try(:name))
         view.promotion_discount = adjustments.sum(&:amount).abs
         view.usage_count = adjustments.size
         view

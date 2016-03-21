@@ -18,6 +18,6 @@ module Spree
 
     delegate :product, to: :variant, allow_blank: true
 
-    self.whitelisted_ransackable_attributes = ['created_at']
+    self.whitelisted_ransackable_attributes = %w[created_at]
   end
 end

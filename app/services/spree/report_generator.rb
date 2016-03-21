@@ -1,5 +1,5 @@
 module Spree
-  class ReportGenerationService
+  class ReportGenerator
     REPORTS = {
       product_views: {
         headers: [:product_name, :views, :users, :guest_sessions]
@@ -36,6 +36,9 @@ module Spree
       },
       payment_method_transactions: {
         headers: [:payment_method_name, :payment_count]
+      },
+      payment_method_transactions_conversion_rate: {
+        headers: [:payment_method_name, :successful_payments_count, :failed_payments_count]
       }
     }
 
@@ -168,10 +171,20 @@ module Spree
 
     def self.payment_method_transactions(options = {})
       payment_method_transactions_view = Struct.new(*REPORTS[:payment_method_transactions][:headers])
-      payment_method_transactions = Spree::PaymentMethod.all.map do |payment_method|
+      search = Spree::PaymentMethod.ransack(options[:q])
+      payment_method_transactions = search.result.map do |payment_method|
         view = payment_method_transactions_view.new(payment_method.name, payment_method.payments.size)
       end
-      [nil, payment_method_transactions]
+      [search, payment_method_transactions]
+    end
+
+    def self.payment_method_transactions_conversion_rate(options = {})
+      payment_method_transactions_view = Struct.new(*REPORTS[:payment_method_transactions_conversion_rate][:headers])
+      search = Spree::PaymentMethod.ransack(options[:q])
+      payment_method_transactions_conversion_rate = search.result.map do |payment_method|
+        view = payment_method_transactions_view.new(payment_method.name, payment_method.payments.completed.size, payment_method.payments.failed.size)
+      end
+      [search, payment_method_transactions_conversion_rate]
     end
 
     class << self

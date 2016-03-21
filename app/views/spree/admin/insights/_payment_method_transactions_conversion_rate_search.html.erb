@@ -1,27 +1,22 @@
-<div data-hook="admin_users_index_search">
+<div data-hook="admin_insights_sidebar">
   <%= search_form_for @search, url: admin_insight_path(id: @report_name) do |f| %>
     <div class="row">
-      <div class="form-group">
-        <%= f.label Spree.t(:email) %>
-        <%= f.text_field :email_cont, class: "form-control js-quick-search-target" %>
-      </div>
-
       <div class="date-range-filter col-md-8">
         <div class="form-group">
           <%= label_tag :q_created_at_gt, Spree.t(:date_range) %>
           <div class="row no-padding-bottom">
             <div class="col-md-6">
               <div class="input-group">
-                <%= f.text_field :created_at_gt, class: 'datepicker datepicker-from form-control js-filterable', value: params[:q][:created_at_gt], placeholder: Spree.t(:start) %>
+                <%= f.text_field :payments_created_at_gt, class: 'datepicker datepicker-from form-control js-filterable', value: params[:q][:payments_created_at_gt], placeholder: Spree.t(:start) %>
                 <span class="input-group-addon">
                   <i class="icon icon-calendar"></i>
                 </span>
               </div>
-            </div>
 
+            </div>
             <div class="col-md-6">
               <div class="input-group">
-                <%= f.text_field :created_at_lt, class: 'datepicker datepicker-to form-control js-filterable', value: params[:q][:created_at_lt], placeholder: Spree.t(:stop) %>
+                <%= f.text_field :payments_created_at_lt, class: 'datepicker datepicker-to form-control js-filterable', value: params[:q][:payments_created_at_lt], placeholder: Spree.t(:stop) %>
                 <span class="input-group-addon">
                   <i class="icon icon-calendar"></i>
                 </span>
@@ -30,10 +25,12 @@
           </div>
         </div>
       </div>
+
     </div>
 
-    <div data-hook="admin_users_index_search_buttons" class="form-actions">
+    <div class="form-actions" data-hook="admin_insights_index_search_buttons">
       <%= button Spree.t(:search), 'search' %>
     </div>
+
   <% end %>
 </div>

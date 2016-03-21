@@ -16,7 +16,7 @@
   <thead>
     <tr>
       <% @headers.each do |_header_| %>
-        <th><%= Spree.t(_header_, scope: [:reports, @report_name]) %></th>
+        <th><%= Spree.t(_header_, scope: [:reports, @report_name], default: _header_) %></th>
       <% end %>
     </tr>
   </thead>

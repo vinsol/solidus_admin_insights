@@ -60,3 +60,18 @@ en:
         failed_payments_count: Failed Transaction Count
         payment_method_name: Payment Method
         successful_payments_count: Successful Transaction Count
+      promotional_cost:
+        title: Promotional Cost
+        description: Total money invested on a particular promotion  - Admin will view total money invested, total revenue and profit from a particular promotion.
+      sales_performance:
+        title: Sales Performance
+        description: Info about revenue, tax, shipment total and return amount.
+      unique_purchases:
+        title: Unique Purchases
+        description: Will project the data about how many unique users have purchased a particular product.
+      best_selling_products:
+        title: Best Selling Products
+        description: Best/least Selling Products as per maximum quantities purchased.
+      product_views_to_purchases:
+        title: Product Views To Purchases
+        description: Ratio of number of views (on product show page) to number of times product has been purchased after view.

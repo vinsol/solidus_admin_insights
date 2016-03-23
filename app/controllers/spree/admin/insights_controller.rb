@@ -6,7 +6,7 @@ module Spree
       before_action :load_reports, only: :index
 
       def show
-        @headers = ReportGenerationService::REPORTS[get_reports_type][@report_name][:headers]
+        @headers = Spree.const_get((@report_name.to_s + '_report').classify)::HEADERS
         # params[:q] can be blank upon pagination
         params[:q] = {} if params[:q].blank?
         @search, @stats = ReportGenerationService.public_send(@report_name, params)
@@ -20,7 +20,7 @@ module Spree
         end
 
         def load_reports
-          @reports = ReportGenerationService::REPORTS[get_reports_type].keys
+          @reports = ReportGenerationService::REPORTS[get_reports_type]
         end
 
         def get_reports_type

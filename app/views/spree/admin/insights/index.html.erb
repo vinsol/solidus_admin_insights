@@ -1,5 +1,5 @@
 <% content_for :page_title do %>
-  <%= Spree.t(:insights_heading, type: params[:type].to_s.humanize) %>
+  <%= Spree.t(:heading, type: params[:type].to_s.titleize, scope: :insights) %>
 <% end %>
 
 <% content_for :header do %>
@@ -18,8 +18,8 @@
     <tbody>
       <% @reports.each do |report_name| %>
         <tr>
-          <td><%= link_to Spree.t(:title, scope: [:reports, report_name], default: report_name), admin_insight_path(report_name, type: params[:type]) %></td>
-          <td><%= Spree.t(:description, scope: [:reports, report_name]) %></td>
+          <td><%= link_to Spree.t(:title, scope: [:insights, report_name], default: report_name), admin_insight_path(report_name, type: params[:type]) %></td>
+          <td><%= Spree.t(:description, scope: [:insights, report_name]) %></td>
         </tr>
       <% end %>
     </tbody>

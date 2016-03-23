@@ -3,7 +3,12 @@ module Spree
 
     REPORTS = {
       finance_analysis:           [:payment_method_transactions, :payment_method_transactions_conversion_rate],
-      product_analysis:           [:cart_additions, :cart_removals, :cart_updations],
+      product_analysis:           [
+                                    :cart_additions, :cart_removals, :cart_updations,
+                                    :product_views, :product_views_to_cart_additions,
+                                    :product_views_to_purchases, :unique_purchases,
+                                    :best_selling_products
+                                  ],
       sales_performance_analysis: [:sales_performance],
       trending_search_analysis:   [:trending_search],
       user_analysis:              [:users_not_converted, :users_who_recently_purchased, :users_who_have_not_recently_purchased]
@@ -72,18 +77,11 @@ module Spree
     #   }
     # }
 
-    # def self.product_views(options = {})
-    #   product_view = Struct.new(*REPORTS[options[:type].to_sym][:product_views][:headers])
-    #   search = PageEvent.product_pages.activity(PageEvent::ACTIVITIES[:view]).ransack(options[:q])
-    #   product_views = search.result.group_by(&:target_id).map do |_id, page_events|
-    #     view = product_view.new(Spree::Product.find_by(id: _id).name)
-    #     view.views = page_events.size
-    #     view.users = page_events.select(&:actor_id?).uniq(&:actor_id).size
-    #     view.guest_sessions = page_events.reject(&:actor_id?).uniq(&:session_id).size
-    #     view
-    #   end
-    #   [search, product_views]
-    # end
+    def self.product_views(options = {})
+      search = PageEvent.product_pages.activity(PageEvent::ACTIVITIES[:view]).ransack(options[:q])
+      product_views = Spree::ProductViewsReport.generate(options).all
+      [search, product_views]
+    end
 
     def self.cart_additions(options = {})
       search = CartEvent.events(:add).ransack(options[:q])
@@ -103,59 +101,28 @@ module Spree
       [search, cart_updations]
     end
 
-    # def self.product_views_to_cart_additions(options = {})
-    #   product_to_cart_view = Struct.new(*REPORTS[options[:type].to_sym][:product_views_to_cart_additions][:headers])
-    #   product_views_to_cart_additions = self.product_views(options).second.map do |product_view|
-    #     product_to_cart_view.new(product_view.product_name, product_view.views)
-    #   end
+    def self.product_views_to_cart_additions(options = {})
+      product_views_to_cart_additions = Spree::ProductViewsToCartAdditionsReport.generate(options).all
+      [self.product_views(options).first, product_views_to_cart_additions]
+    end
 
-    #   self.cart_additions(options).second.each do |cart_addition|
-    #     product_view_cart_addition = product_views_to_cart_additions.
-    #     find(ifnone = product_to_cart_view.new(cart_addition.product_name)) do |view|
-    #       view.product_name == cart_addition.product_name
-    #     end
-    #     product_view_cart_addition.cart_additions = cart_addition.additions
-    #   end
-    #   [self.product_views(options).first, product_views_to_cart_additions]
-    # end
+    def self.product_views_to_purchases(options = {})
+      search = PageEvent.product_pages.activity(PageEvent::ACTIVITIES[:view]).ransack(options[:q])
+      product_views_to_purchases = Spree::ProductViewsToPurchasesReport.generate(options).all
+      [search, product_views_to_purchases]
+    end
 
-    # def self.product_views_to_purchases(options = {})
-    #   product_purchases_view = Struct.new(*REPORTS[options[:type].to_sym][:product_views_to_purchases][:headers])
-    #   search = PageEvent.product_pages.activity(PageEvent::ACTIVITIES[:view]).ransack(options[:q])
-    #   search_results = search.result
-    #   sold_line_items = LineItem.of_completed_orders.for_products(search_results.map(&:target_id))
-    #   product_views_to_purchases = sold_line_items.group_by(&:product).map do |product, line_items|
-    #     view = product_purchases_view.new(product.name)
-    #     view.views = search_results.select { |product_view| product_view.target_id == product.id }.size
-    #     view.purchases = line_items.sum(&:quantity)
-    #     view
-    #   end
-    #   [search, product_views_to_purchases]
-    # end
+    def self.best_selling_products(options = {})
+      search = LineItem.of_completed_orders.ransack(options[:q])
+      best_selling_products = Spree::BestSellingProductsReport.generate(options).all
+      [search, best_selling_products]
+    end
 
-    # def self.best_selling_products(options = {})
-    #   best_selling_view = Struct.new(*REPORTS[options[:type].to_sym][:best_selling_products][:headers])
-    #   search = LineItem.of_completed_orders.ransack(options[:q])
-    #   best_selling_products = search.result.group_by(&:product).map do |product, line_items|
-    #     view = best_selling_view.new(product.name)
-    #     view.sold_count = line_items.sum(&:quantity)
-    #     view
-    #   end.sort_by(&:sold_count).reverse
-    #   [search, best_selling_products]
-    # end
-
-    # def self.unique_purchases(options = {})
-    #   unique_purchases_view = Struct.new(*REPORTS[options[:type].to_sym][:unique_purchases][:headers])
-    #   search = LineItem.of_completed_orders.ransack(options[:q])
-    #   unique_purchases_views = search.result.group_by(&:product).map do |product, line_items|
-    #     view = unique_purchases_view.new(product.name)
-    #     view.sold_count = line_items.sum(&:quantity)
-    #     partitioned_line_items = line_items.partition(&:user)
-    #     view.users = partitioned_line_items.second.size + partitioned_line_items.first.uniq(&:user).size
-    #     view
-    #   end
-    #   [search, unique_purchases_views]
-    # end
+    def self.unique_purchases(options = {})
+      search = LineItem.of_completed_orders.ransack(options[:q])
+      unique_purchases_views = Spree::UniquePurchasesReport.generate(options).all
+      [search, unique_purchases_views]
+    end
 
     def self.trending_search(options = {})
       search = PageEvent.activity(PageEvent::ACTIVITIES[:search]).ransack(options[:q])

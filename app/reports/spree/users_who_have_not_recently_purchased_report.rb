@@ -9,14 +9,14 @@ module Spree
       or(Sequel.~(orders__completed_at: nil)).
       order(Sequel.desc(:orders__completed_at)).
       select(
-        :users__email,
-        :orders__number,
-        :orders__completed_at
+        :users__email___user_email,
+        :orders__number___last_purchased_order_number,
+        :orders__completed_at___last_purchase_date
       ).as(:all_orders_with_users)
 
       SpreeReportify::ReportDb[all_orders_with_users].
       select_all.
-      group(:all_orders_with_users__email)
+      group(:all_orders_with_users__user_email)
     end
   end
 end

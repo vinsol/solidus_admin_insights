@@ -2,10 +2,11 @@ module Spree
   class ReportGenerationService
 
     REPORTS = {
-      finance_analysis:         [:payment_method_transactions, :payment_method_transactions_conversion_rate],
-      product_analysis:         [:cart_additions, :cart_removals, :cart_updations],
-      trending_search_analysis: [:trending_search]
-      # user_analysis:            [:users_not_converted, :users_who_recently_purchased, :users_who_have_not_recently_purchased]
+      finance_analysis:           [:payment_method_transactions, :payment_method_transactions_conversion_rate],
+      product_analysis:           [:cart_additions, :cart_removals, :cart_updations],
+      sales_performance_analysis: [:sales_performance],
+      trending_search_analysis:   [:trending_search],
+      user_analysis:              [:users_not_converted, :users_who_recently_purchased, :users_who_have_not_recently_purchased]
     }
 
     # REPORTS = {
@@ -204,17 +205,11 @@ module Spree
     #   [search, promotional_cost_views]
     # end
 
-    # def self.sales_performance(options = {})
-    #   sales_performance_view = Struct.new(*REPORTS[options[:type].to_sym][:sales_performance][:headers])
-    #   search = Order.complete.ransack(options[:q])
-    #   orders = search.result
-    #   view = sales_performance_view.new
-    #   view.revenue = orders.sum(:total)
-    #   view.shipping_charges = orders.sum(:shipment_total)
-    #   view.tax = orders.sum(:included_tax_total) + orders.sum(:additional_tax_total)
-    #   view.refund_amount = Refund.ransack(options[:q]).result.sum(:amount)
-    #   [search, [view]]
-    # end
+    def self.sales_performance(options = {})
+      search = Order.complete.ransack(options[:q])
+      sales_performances, refunds = Spree::SalesPerformanceReport.generate(options)
+      [search, [sales_performances.all.first.merge(refunds.all.first)]]
+    end
 
   end
 end

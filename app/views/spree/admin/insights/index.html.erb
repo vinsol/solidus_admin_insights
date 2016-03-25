@@ -2,30 +2,30 @@
   <%= Spree.t(:heading, type: params[:type].to_s.titleize, scope: :insights) %>
 <% end %>
 
-<% content_for :header do %>
-  <%= javascript_include_tag "https://www.google.com/jsapi", "chartkick" %>
-<% end %>
+<%= javascript_include_tag 'spree/backend/spree_reportify' %>
 
-<% if @reports.present? %>
-  <table class="table admin-insights" id="admin-insights" data-hook>
+<%= select_tag :reports, options_for_select(@reports.map { |report_name| [report_name.to_s.humanize, report_name, data: { url: admin_insight_url(report_name, type: params[:type]) }] }), include_blank: 'Select a report', class: 'select2' %>
+
+<div id='report-div'>
+</div>
+
+<script type="text/x-tmpl" id="tmpl">
+  <table class="table admin-insight tablesorter" id="admin-insight">
     <thead>
       <tr>
-        <th>Name</th>
-        <th>Description</th>
-        <th></th>
+        {% for(var i = 0; i < o['headers'].length; i++) { %}
+          <th>{%= o['headers'][i].name %}</th>
+        {% } %}
       </tr>
     </thead>
     <tbody>
-      <% @reports.each do |report_name| %>
+      {% for(var i = 0; i < o['stats'].length; i++) { %}
         <tr>
-          <td><%= link_to Spree.t(:title, scope: [:insights, report_name], default: report_name), admin_insight_path(report_name, type: params[:type]) %></td>
-          <td><%= Spree.t(:description, scope: [:insights, report_name]) %></td>
+          {% for(var j = 0; j < o['headers'].length; j++) { %}
+            <td>{%= o['stats'][i][o['headers'][j].value] %}</td>
+          {% } %}
         </tr>
-      <% end %>
+      {% } %}
     </tbody>
   </table>
-<% else %>
-  <div class="alert alert-info no-objects-found">
-    <%= Spree.t(:no_resource_found, resource: Spree.t(:insights)) %>,
-  </div>
-<% end %>
+</script>

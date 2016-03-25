@@ -6,10 +6,10 @@ module Spree
       SpreeReportify::ReportDb[:spree_page_events___page_events].
       where(page_events__activity: 'search').
       group(:searched_term).
-      order(Sequel.desc(:occurences)).
+      order(Sequel.desc(:occurrences)).
       select{[
         :search_keywords___searched_term,
-        Sequel.as(count(:search_keywords), :occurences)
+        Sequel.as(count(:search_keywords), :occurrences)
       ]}
     end
   end

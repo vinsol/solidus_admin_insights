@@ -7,9 +7,16 @@ module Spree
 
       def show
         @headers = Spree.const_get((@report_name.to_s + '_report').classify)::HEADERS
-        # params[:q] can be blank upon pagination
-        params[:q] = {} if params[:q].blank?
         @search, @stats = ReportGenerationService.public_send(@report_name, params)
+        respond_to do |format|
+          format.html
+          format.json {
+            render json: {
+              headers: @headers.map { |header| { name: header.to_s.humanize, value: header } },
+              stats: @stats
+            }
+          }
+        end
       end
 
       private

@@ -1,5 +1,6 @@
 en:
   spree:
+    insight: Insight
     insights:
       heading: 'Insights: %{type}'
       tab_heading: Insights

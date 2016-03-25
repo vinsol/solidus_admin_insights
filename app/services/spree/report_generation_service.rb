@@ -9,6 +9,7 @@ module Spree
                                     :product_views_to_purchases, :unique_purchases,
                                     :best_selling_products
                                   ],
+      promotion_analysis:         [:promotional_cost],
       sales_performance_analysis: [:sales_performance],
       trending_search_analysis:   [:trending_search],
       user_analysis:              [:users_not_converted, :users_who_recently_purchased, :users_who_have_not_recently_purchased]
@@ -160,17 +161,11 @@ module Spree
       [search, payment_method_transactions_conversion_rate]
     end
 
-    # def self.promotional_cost(options = {})
-    #   promotional_cost_view = Struct.new(*REPORTS[options[:type].to_sym][:promotional_cost][:headers])
-    #   search = Adjustment.promotion.ransack(options[:q])
-    #   promotional_cost_views = search.result.group_by(&:promotion).map do |promotion, adjustments|
-    #     view = promotional_cost_view.new(promotion.try(:name))
-    #     view.promotion_discount = adjustments.sum(&:amount).abs
-    #     view.usage_count = adjustments.size
-    #     view
-    #   end
-    #   [search, promotional_cost_views]
-    # end
+    def self.promotional_cost(options = {})
+      search = Adjustment.promotion.ransack(options[:q])
+      promotional_cost_views = Spree::PromotionalCostReport.generate(options).all
+      [search, promotional_cost_views]
+    end
 
     def self.sales_performance(options = {})
       search = Order.complete.ransack(options[:q])

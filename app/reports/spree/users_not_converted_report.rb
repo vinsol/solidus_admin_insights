@@ -2,10 +2,17 @@ module Spree
   class UsersNotConvertedReport < Spree::Report
     HEADERS = [:user_email, :signup_date]
 
+    def self.assign_search_params(options)
+      super
+      @email_cont = @search[:email_cont].present? ? "%#{ @search[:email_cont] }%" : '%'
+    end
+
     def self.generate(options = {})
+      assign_search_params(options)
       SpreeReportify::ReportDb[:spree_users___users].
       left_join(:spree_orders___orders, user_id: :id).
       where(orders__completed_at: nil, orders__number: nil).
+      where(users__created_at: @start_date..@end_date).where(Sequel.ilike(:users__email, @email_cont)). #filter by params
       order(Sequel.desc(:orders__completed_at)).
       select(
         :users__email___user_email,

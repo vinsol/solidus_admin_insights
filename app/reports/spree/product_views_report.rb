@@ -2,6 +2,11 @@ module Spree
   class ProductViewsReport < Spree::Report
     HEADERS = [:product_name, :views, :users, :guest_sessions]
 
+    def self.assign_search_params(options)
+      super
+      @name = @search[:name].present? ? "%#{ @search[:name] }%" : '%'
+    end
+
     def self.generate(options = {})
       assign_search_params(options)
       unique_session_results = ::SpreeReportify::ReportDb[:spree_products___products].
@@ -24,15 +29,6 @@ module Spree
       ]}.group(:product_name)
     end
 
-    def self.assign_search_params(options)
-      search = options.fetch(:search, {})
-      start_date = search[:start_date]
-      @start_date = start_date.present? ? Date.parse(start_date) : Date.new
 
-      end_date = search[:end_date]
-      @end_date = end_date.present? ? Date.parse(end_date) : Date.today
-
-      @name = search[:name].present? ? "% #{ search[:name] }%" : '%'
-    end
   end
 end

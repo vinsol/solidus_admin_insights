@@ -3,11 +3,13 @@ module Spree
     HEADERS = [:product_name, :views, :purchases]
 
     def self.generate(options = {})
+      assign_search_params(options)
       line_items = ::SpreeReportify::ReportDb[:spree_line_items___line_items].
       join(:spree_orders___orders, id: :order_id).
       join(:spree_variants___variants, variants__id: :line_items__variant_id).
       join(:spree_products___products, products__id: :variants__product_id).
       where(orders__state: 'complete').
+      where(orders__created_at: @start_date..@end_date). #filter by params
       select{[line_items__quantity,
       line_items__id,
       line_items__variant_id,

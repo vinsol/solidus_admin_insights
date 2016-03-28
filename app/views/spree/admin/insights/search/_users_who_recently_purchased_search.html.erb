@@ -1,30 +1,16 @@
-<div data-hook="admin_users_index_search">
-  <%= search_form_for @search, url: admin_insight_path(id: @report_name, type: params[:type]) do |f| %>
-    <div class="row">
-      <div class="form-group">
-        <%= f.label Spree.t(:email) %>
-        <%= f.text_field :email_cont, class: "form-control js-quick-search-target js-filterable" %>
-      </div>
-
-      <div class="date-range-filter col-md-8">
-        <div class="form-group">
-          <div class="row no-padding-bottom">
-            <div class="col-md-6">
-              <%= f.label :orders_completed_at_gt, Spree.t(:completed_at) %>
-              <div class="input-group">
-                <%= f.text_field :orders_completed_at_gt, class: 'datepicker datepicker-from form-control js-filterable', value: params[:q][:orders_completed_at_gt], placeholder: Spree.t(:start) %>
-                <span class="input-group-addon">
-                  <i class="icon icon-calendar"></i>
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
+<% content_for :quick_search_form do %>
+  <div class="row">
+    <div class="col col-md-6">
+      <div data-hook="admin_insight_index_search" class="form-group">
+        <%= label_tag :email_cont, Spree.t(:email) %>
+        <%= text_field_tag 'search[email_cont]', '', class: "form-control js-quick-search-target js-filterable" %>
       </div>
     </div>
 
-    <div data-hook="admin_users_index_search_buttons" class="form-actions">
-      <%= button Spree.t(:search), 'search' %>
+    <div class="col-md-6">
     </div>
-  <% end %>
-</div>
+  </div>
+<% end %>
+
+<%= render partial: 'spree/admin/insights/search/search_form' %>
+

@@ -6,6 +6,29 @@
 
 <%= select_tag :reports, options_for_select(@reports.map { |report_name| [report_name.to_s.humanize, report_name, data: { url: admin_insight_url(report_name, type: params[:type]) }] }), include_blank: 'Select a report', class: 'select2' %>
 
+<div id='search-div' class='hide'>
+  <div class="filter-wrap row">
+    <div class="col-sm-12">
+      <div class="input-group index-filter-button">
+        <span class="input-group-btn">
+          <button class="btn btn-default js-show-index-filters" type="button">
+            <span class="icon icon-chevron-right"></span>
+            <%= Spree.t(:filter) %>
+          </button>
+        </span>
+        <%= form_tag form_action(@report_name, params[:type]), id: "quick-search" do %>
+          <%= text_field_tag :quick_search, nil, class: "form-control js-quick-search", placeholder: Spree.t(:quick_search) %>
+        <% end %>
+      </div>
+      <div id="table-filter" data-hook class="well filter-well">
+        <%= render partial: 'spree/admin/insights/search/search_form' %>
+      </div>
+    </div>
+  </div>
+
+  <div class="table-active-filters js-filters"></div>
+</div>
+
 <div id='report-div'>
 </div>
 

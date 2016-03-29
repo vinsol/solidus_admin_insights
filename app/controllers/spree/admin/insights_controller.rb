@@ -7,13 +7,14 @@ module Spree
 
       def show
         @headers = Spree.const_get((@report_name.to_s + '_report').classify)::HEADERS
-        @search, @stats = ReportGenerationService.public_send(@report_name, params)
+        @stats = ReportGenerationService.public_send(@report_name, params)
         respond_to do |format|
           format.html
           format.json {
             render json: {
               headers: @headers.map { |header| { name: header.to_s.humanize, value: header } },
-              stats: @stats
+              stats: @stats,
+              request_fullpath: request.fullpath
             }
           }
         end

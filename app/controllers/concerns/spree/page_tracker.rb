@@ -16,7 +16,8 @@ module Spree
           actor: current_spree_user,
           target: instance_variable_get("@#{ controller_name.singularize }"),
           activity: get_activity,
-          search_keywords: get_keywords
+          search_keywords: get_keywords,
+          query_string: request.query_string
         ).track
       end
     end
@@ -34,7 +35,7 @@ module Spree
     end
 
     def get_keywords
-      { search: @searcher && (@searcher.search.to_s + @searcher.keywords.to_s), query_string: request.query_string }.to_json
+      @searcher && (@searcher.search.to_s + @searcher.keywords.to_s)
     end
 
     def event_trackable?

@@ -7,6 +7,7 @@ module Spree
         def initialize(arguments = {})
           super(arguments)
           @search_keywords = arguments[:search_keywords]
+          @query_string = arguments[:query_string]
         end
 
         def track

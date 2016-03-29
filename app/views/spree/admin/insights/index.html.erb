@@ -2,8 +2,6 @@
   <%= Spree.t(:heading, type: params[:type].to_s.titleize, scope: :insights) %>
 <% end %>
 
-<%= javascript_include_tag 'spree/backend/spree_reportify' %>
-
 <%= select_tag :reports, options_for_select(@reports.map { |report_name| [report_name.to_s.humanize, report_name, data: { url: admin_insight_url(report_name, type: params[:type]) }] }), include_blank: 'Select a report', class: 'select2' %>
 
 <div id='search-div' class='hide'>

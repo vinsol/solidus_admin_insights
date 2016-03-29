@@ -1,4 +1,4 @@
-//= require spree/backend/spree_reportify/jquery.tablesorter.min
+//= require spree/backend/jquery.tablesorter.min
 
 $(document).ready(function()
   {

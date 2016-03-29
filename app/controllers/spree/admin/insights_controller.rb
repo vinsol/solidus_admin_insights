@@ -4,17 +4,22 @@ module Spree
       before_action :ensure_report_exists, only: :show
       before_action :set_default_completed_at, only: :show
       before_action :load_reports, only: :index
+      before_action :set_default_pagination, only: :show
 
       def show
         @headers = Spree.const_get((@report_name.to_s + '_report').classify)::HEADERS
-        @stats = ReportGenerationService.public_send(@report_name, params)
+        @stats, @total_records = ReportGenerationService.public_send(@report_name, params.merge(@pagination_hash))
+        get_total_pages
+
         respond_to do |format|
           format.html
           format.json {
             render json: {
               headers: @headers.map { |header| { name: header.to_s.humanize, value: header } },
               stats: @stats,
-              request_fullpath: request.fullpath
+              request_fullpath: request.fullpath,
+              total_pages: @total_pages,
+              url: request.url
             }
           }
         end
@@ -46,6 +51,20 @@ module Spree
             params[:q][:orders_completed_at_lt] = Date.current.end_of_month
           end
         end
+
+        def set_default_pagination
+          @pagination_hash = {}
+          @pagination_hash[:records_per_page] = 3
+          @pagination_hash[:offset] = params[:page].to_i * @pagination_hash[:records_per_page]
+        end
+
+        def get_total_pages
+          @total_pages = @total_records/@pagination_hash[:records_per_page]
+          if @total_records % @pagination_hash[:records_per_page] == 0
+            @total_pages -= 1
+          end
+        end
+
     end
   end
 end

@@ -1,3 +1,5 @@
+//= require spree/backend/spree_reportify/paginator
+
 function ReportLoader(inputs) {
   this.$selectList = inputs.reportsSelectBox;
   this.$insightsTableList = inputs.insightsDiv;
@@ -47,11 +49,22 @@ ReportLoader.prototype.loadChart = function($selected_option) {
     dataType: 'json',
     success: function(data) {
       _this.populateInsightsData(data);
+      _this.initializePaginator(data);
       _this.$filters.removeClass('hide');
       _this.setFormActions(_this.$quickSearchForm, requestPath);
       _this.setFormActions(_this.$filterForm, requestPath);
     }
   });
+};
+
+ReportLoader.prototype.initializePaginator = function(data) {
+  var paginatorInputs = {
+    // pageLinks: $('.pagination-link'),
+    paginatorDiv: $('#paginator-div'),
+    insightsDiv: this.$insightsTableList,
+    reportData: data
+  };
+  new Paginator(paginatorInputs).bindEvents();
 };
 
 ReportLoader.prototype.setFormActions = function($form, path) {

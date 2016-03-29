@@ -32,6 +32,9 @@
 <div id='report-div'>
 </div>
 
+<div id='paginator-div'>
+</div>
+
 <script type="text/x-tmpl" id="tmpl">
   <table class="table admin-insight tablesorter" id="admin-insight">
     <thead>
@@ -51,4 +54,13 @@
       {% } %}
     </tbody>
   </table>
+
+</script>
+
+<script type="text/x-tmpl" id="paginator-tmpl">
+  {% if(o['total_pages'] > 0) { %}
+    {% for(var i = 0; i <= o['total_pages']; i++) { %}
+      <a href="{%= o['url'] %}&page={%= i %}" class="pagination-link">{%= i+1 %}</a>
+    {% } %}
+  {% } %}
 </script>

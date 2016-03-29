@@ -21,12 +21,17 @@ module Spree
         page_events__actor_id.as(actor_id)
       ]}.as(:unique_session_results)
 
-      ::SpreeReportify::ReportDb[unique_session_results].select{[
+      ::SpreeReportify::ReportDb[unique_session_results].
+      group(:product_name)
+    end
+
+    def self.select_columns(dataset)
+      dataset.select{[
         product_name,
         sum(total_views_per_session).as(views),
         count(DISTINCT actor_id).as(users),
         (COUNT(DISTINCT session_id) - COUNT(actor_id)).as(guest_sessions)
-      ]}.group(:product_name)
+      ]}
     end
   end
 end

@@ -26,8 +26,11 @@ module Spree
       ]}
 
       ::SpreeReportify::ReportDb[total_views_results].
-      join(cart_additions, product_name: :product_name).
-      select{[
+      join(cart_additions, product_name: :product_name)
+    end
+
+    def self.select_columns(dataset)
+      dataset.select{[
         cart_additions__product_name,
         views,
         cart_additions__cart_additions

@@ -10,12 +10,15 @@ module Spree
       join(:spree_products___products, products__id: :variants__product_id).
       where(orders__state: 'complete').
       where(orders__completed_at: @start_date..@end_date). #filter by params
-      select{[
+      group(:products__name)
+    end
+
+    def self.select_columns(dataset)
+      dataset.select{[
         products__name.as(product_name),
         sum(quantity).as(sold_count),
         (count(distinct orders__user_id) + count(orders__id) - count(orders__user_id)).as(users)
-      ]}.
-      group(:products__name)
+      ]}
     end
   end
 end

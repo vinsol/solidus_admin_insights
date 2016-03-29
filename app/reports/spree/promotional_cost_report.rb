@@ -9,8 +9,11 @@ module Spree
       join(:spree_promotions___promotions, id: :promotion_id).
       where(adjustments__source_type: "Spree::PromotionAction").
       where(promotions__created_at: @start_date..@end_date). #filter by params
-      group(:promotions__id).
-      select{[
+      group(:promotions__id)
+    end
+
+    def self.select_columns(dataset)
+      dataset.select{[
         Sequel.as(abs(sum(:amount)), :promotion_discount),
         Sequel.as(count(:promotions__id), :usage_count),
         :promotions__name___promotion_name

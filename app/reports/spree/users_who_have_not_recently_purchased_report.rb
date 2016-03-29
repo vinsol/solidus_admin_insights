@@ -22,9 +22,11 @@ module Spree
       ).as(:all_orders_with_users)
 
       SpreeReportify::ReportDb[all_orders_with_users].
-      select_all.
       group(:all_orders_with_users__user_email)
     end
 
+    def self.select_columns(dataset)
+      dataset.select_all
+    end
   end
 end

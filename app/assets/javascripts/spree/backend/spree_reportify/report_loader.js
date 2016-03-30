@@ -1,4 +1,5 @@
 //= require spree/backend/spree_reportify/searcher
+//= require spree/backend/spree_reportify/table_sorter
 
 function ReportLoader(inputs) {
   this.$selectList = inputs.reportsSelectBox;
@@ -21,6 +22,10 @@ ReportLoader.prototype.initializeSearcher = function($selectedOption) {
   new Searcher(searcherInputs).bindEvents();
 };
 
+ReportLoader.prototype.initializeTableSorter = function() {
+  new TableSorter(this.$insightsTableList).bindEvents();
+};
+
 ReportLoader.prototype.loadChart = function($selectedOption) {
   var requestPath = $selectedOption.data('url'),
     _this = this;
@@ -31,6 +36,7 @@ ReportLoader.prototype.loadChart = function($selectedOption) {
     success: function(data) {
       _this.populateInsightsData(data);
       _this.initializeSearcher($selectedOption);
+      _this.initializeTableSorter();
     }
   });
 };

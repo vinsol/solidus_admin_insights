@@ -2,8 +2,7 @@ module Spree
   class UniquePurchasesReport < Spree::Report
     HEADERS = [:product_name, :sold_count, :users]
 
-    def self.generate(options = {})
-      assign_search_params(options)
+    def generate(options = {})
       ::SpreeReportify::ReportDb[:spree_line_items___line_items].
       join(:spree_orders___orders, id: :order_id).
       join(:spree_variants___variants, variants__id: :line_items__variant_id).
@@ -13,7 +12,7 @@ module Spree
       group(:products__name)
     end
 
-    def self.select_columns(dataset)
+    def select_columns(dataset)
       dataset.select{[
         products__name.as(product_name),
         sum(quantity).as(sold_count),

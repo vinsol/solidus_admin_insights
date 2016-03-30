@@ -2,8 +2,7 @@ module Spree
   class CartUpdationsReport < Spree::Report
     HEADERS = [:product_name, :updations, :quantity_increase, :quantity_decrease]
 
-    def self.generate(options = {})
-      assign_search_params(options)
+    def generate
       SpreeReportify::ReportDb[:spree_cart_events___cart_events].
       join(:spree_variants___variants, id: :variant_id).
       join(:spree_products___products, id: :product_id).
@@ -12,7 +11,7 @@ module Spree
       group(:product_name)
     end
 
-    def self.select_columns(dataset)
+    def select_columns(dataset)
       dataset.select{[
         :products__name___product_name,
         Sequel.as(count(:products__name), :updations),

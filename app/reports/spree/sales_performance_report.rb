@@ -2,8 +2,7 @@ module Spree
   class SalesPerformanceReport < Spree::Report
     HEADERS = [:revenue, :tax, :shipping_charges, :refund_amount]
 
-    def self.generate(options = {})
-      assign_search_params(options)
+    def generate(options = {})
       [
         SpreeReportify::ReportDb[:spree_orders___orders].
         exclude(completed_at: nil).

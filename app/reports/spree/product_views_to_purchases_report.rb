@@ -2,8 +2,7 @@ module Spree
   class ProductViewsToPurchasesReport < Spree::Report
     HEADERS = [:product_name, :views, :purchases]
 
-    def self.generate(options = {})
-      assign_search_params(options)
+    def generate(options = {})
       line_items = ::SpreeReportify::ReportDb[:spree_line_items___line_items].
       join(:spree_orders___orders, id: :order_id).
       join(:spree_variants___variants, variants__id: :line_items__variant_id).
@@ -24,7 +23,7 @@ module Spree
       group(:product_name)
     end
 
-    def self.select_columns(dataset)
+    def select_columns(dataset)
       dataset.select{[product_name, count('*').as(views), purchases]}
     end
   end

@@ -2,8 +2,7 @@ module Spree
   class PromotionalCostReport < Spree::Report
     HEADERS = [:promotion_name, :usage_count, :promotion_discount]
 
-    def self.generate(options = {})
-      assign_search_params(options)
+    def generate(options = {})
       SpreeReportify::ReportDb[:spree_adjustments___adjustments].
       join(:spree_promotion_actions___promotion_actions, id: :source_id).
       join(:spree_promotions___promotions, id: :promotion_id).
@@ -12,7 +11,7 @@ module Spree
       group(:promotions__id)
     end
 
-    def self.select_columns(dataset)
+    def select_columns(dataset)
       dataset.select{[
         Sequel.as(abs(sum(:amount)), :promotion_discount),
         Sequel.as(count(:promotions__id), :usage_count),

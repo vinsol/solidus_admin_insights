@@ -2,8 +2,7 @@ module Spree
   class ProductViewsToCartAdditionsReport < Spree::Report
     HEADERS = [:product_name, :views, :cart_additions]
 
-    def self.generate(options = {})
-      assign_search_params(options)
+    def generate(options = {})
       cart_additions = SpreeReportify::ReportDb[:spree_cart_events___cart_events].
       join(:spree_variants___variants, id: :variant_id).
       join(:spree_products___products, id: :product_id).
@@ -29,7 +28,7 @@ module Spree
       join(cart_additions, product_name: :product_name)
     end
 
-    def self.select_columns(dataset)
+    def select_columns(dataset)
       dataset.select{[
         cart_additions__product_name,
         views,

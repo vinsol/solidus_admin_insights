@@ -2,13 +2,12 @@ module Spree
   class ProductViewsReport < Spree::Report
     HEADERS = [:product_name, :views, :users, :guest_sessions]
 
-    def self.assign_search_params(options)
+    def initialize(options)
       super
       @name = @search[:name].present? ? "%#{ @search[:name] }%" : '%'
     end
 
-    def self.generate(options = {})
-      assign_search_params(options)
+    def generate
       unique_session_results = ::SpreeReportify::ReportDb[:spree_products___products].
       join(:spree_page_events___page_events, target_id: :id).
       where(page_events__target_type: 'Spree::Product', page_events__activity: 'view').
@@ -25,7 +24,7 @@ module Spree
       group(:product_name)
     end
 
-    def self.select_columns(dataset)
+    def select_columns(dataset)
       dataset.select{[
         product_name,
         sum(total_views_per_session).as(views),

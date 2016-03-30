@@ -7,10 +7,12 @@ module Spree
     def self.assign_search_params(options)
       @search = options.fetch(:search, {})
       start_date = @search[:start_date]
-      @start_date = start_date.present? ? Date.parse(start_date) : Date.new
+      @start_date = start_date.present? ? Date.parse(start_date) :  Date.new(Date.current.year)
 
       end_date = @search[:end_date]
-      @end_date = (end_date.present? ? Date.parse(end_date) : Date.today) + 1.day
+      # 1.day is added to date so that we can get current date records
+      #since date consider time at midnight
+      @end_date = (end_date.present? ? Date.parse(end_date) : Date.current) + 1.day
     end
   end
 end

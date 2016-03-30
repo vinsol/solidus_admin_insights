@@ -1,3 +1,5 @@
+//= require spree/backend/spree_reportify/paginator
+
 function Searcher(inputs) {
   this.$insightsTableList = inputs.insightsDiv;
   this.$filters = inputs.filterDiv;
@@ -23,6 +25,7 @@ Searcher.prototype.bindEvents = function() {
       dataType: 'json',
       success: function(data) {
         _this.populateInsightsData(data);
+        _this.initializePaginator(data);
       }
     });
   });
@@ -51,3 +54,11 @@ Searcher.prototype.populateInsightsData = function(data) {
   this.$insightsTableList.empty().append($templateData);
 };
 
+Searcher.prototype.initializePaginator = function(data) {
+  var paginatorInputs = {
+    paginatorDiv: $('#paginator-div'),
+    insightsDiv: this.$insightsTableList,
+    reportData: data
+  };
+  new Paginator(paginatorInputs).bindEvents();
+};

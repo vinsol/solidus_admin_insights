@@ -21,7 +21,11 @@ module Spree
 
       ::SpreeReportify::ReportDb[line_items].join(:spree_page_events___page_events, page_events__target_id: :product_id).
       where(page_events__target_type: 'Spree::Product', page_events__activity: 'view').
-      select{[product_name, count('*').as(views), purchases]}.group(:product_name)
+      group(:product_name)
+    end
+
+    def self.select_columns(dataset)
+      dataset.select{[product_name, count('*').as(views), purchases]}
     end
   end
 end

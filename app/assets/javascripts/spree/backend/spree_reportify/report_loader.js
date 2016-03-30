@@ -1,3 +1,4 @@
+//= require spree/backend/spree_reportify/paginator
 //= require spree/backend/spree_reportify/searcher
 //= require spree/backend/spree_reportify/table_sorter
 
@@ -35,10 +36,20 @@ ReportLoader.prototype.loadChart = function($selectedOption) {
     dataType: 'json',
     success: function(data) {
       _this.populateInsightsData(data);
+      _this.initializePaginator(data);
       _this.initializeSearcher($selectedOption);
       _this.initializeTableSorter();
     }
   });
+};
+
+ReportLoader.prototype.initializePaginator = function(data) {
+  var paginatorInputs = {
+    paginatorDiv: $('#paginator-div'),
+    insightsDiv: this.$insightsTableList,
+    reportData: data
+  };
+  new Paginator(paginatorInputs).bindEvents();
 };
 
 ReportLoader.prototype.populateInsightsData = function(data) {

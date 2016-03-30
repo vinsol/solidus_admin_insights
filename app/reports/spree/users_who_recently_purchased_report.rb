@@ -21,13 +21,16 @@ module Spree
       ).as(:all_orders_with_users)
 
       SpreeReportify::ReportDb[all_orders_with_users].
-      select{[
+      group(:all_orders_with_users__user_email)
+    end
+
+    def self.select_columns(dataset)
+      dataset.select{[
         all_orders_with_users__user_email,
         all_orders_with_users__last_purchased_order_number,
         all_orders_with_users__last_purchase_date,
         count(all_orders_with_users__user_email).as(purchase_count)
-      ]}.
-      group(:all_orders_with_users__user_email)
+      ]}
     end
   end
 end

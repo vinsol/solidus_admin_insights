@@ -13,8 +13,11 @@ module Spree
       left_join(:spree_orders___orders, user_id: :id).
       where(orders__completed_at: nil, orders__number: nil).
       where(users__created_at: @start_date..@end_date).where(Sequel.ilike(:users__email, @email_cont)). #filter by params
-      order(Sequel.desc(:orders__completed_at)).
-      select(
+      order(Sequel.desc(:orders__completed_at))
+    end
+
+    def self.select_columns(dataset)
+      dataset.select(
         :users__email___user_email,
         :users__created_at___signup_date)
     end

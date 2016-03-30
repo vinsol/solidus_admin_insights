@@ -9,8 +9,11 @@ module Spree
       join(:spree_products___products, id: :product_id).
       where(activity: 'update').
       where(cart_events__created_at: @start_date..@end_date). #filter by params
-      group(:product_name).
-      select{[
+      group(:product_name)
+    end
+
+    def self.select_columns(dataset)
+      dataset.select{[
         :products__name___product_name,
         Sequel.as(count(:products__name), :updations),
         Sequel.as(sum(IF(cart_events__quantity >= 0, cart_events__quantity, 0)), :quantity_increase),

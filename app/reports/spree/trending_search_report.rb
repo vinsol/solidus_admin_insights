@@ -13,11 +13,15 @@ module Spree
       where(page_events__activity: 'search').
       where(page_events__created_at: @start_date..@end_date).where(Sequel.ilike(:page_events__search_keywords, @search_keywords_cont)). #filter by params
       group(:searched_term).
-      order(Sequel.desc(:occurrences)).
-      select{[
+      order(Sequel.desc(:occurrences))
+    end
+
+    def self.select_columns(dataset)
+      dataset.select{[
         :search_keywords___searched_term,
         Sequel.as(count(:search_keywords), :occurrences)
       ]}
     end
+
   end
 end

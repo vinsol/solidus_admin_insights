@@ -54,7 +54,7 @@ module Spree
 
         def set_default_pagination
           @pagination_hash = {}
-          @pagination_hash[:records_per_page] = 3
+          @pagination_hash[:records_per_page] = params[:per_page] || Spree::Config[:records_per_page]
           @pagination_hash[:offset] = params[:page].to_i * @pagination_hash[:records_per_page]
         end
 

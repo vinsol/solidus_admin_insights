@@ -6,6 +6,7 @@ function Searcher(inputs) {
   this.$quickSearchForm = this.$filters.find('#quick-search');
   this.$filterForm = this.$filters.find('#filter-search');
   this.$selectedInsight = inputs.selectedOption;
+  this.tableSorter = inputs.tableSorterObject;
 }
 
 Searcher.prototype.bindEvents = function() {
@@ -39,6 +40,7 @@ Searcher.prototype.bindEvents = function() {
       dataType: 'json',
       success: function(data) {
         _this.populateInsightsData(data);
+        _this.initializePaginator(data);
       }
     });
   });
@@ -52,13 +54,15 @@ Searcher.prototype.setFormActions = function($form, path) {
 Searcher.prototype.populateInsightsData = function(data) {
   var $templateData = $(tmpl('tmpl', data));
   this.$insightsTableList.empty().append($templateData);
+  this.tableSorter.bindEvents();
 };
 
 Searcher.prototype.initializePaginator = function(data) {
   var paginatorInputs = {
     paginatorDiv: $('#paginator-div'),
     insightsDiv: this.$insightsTableList,
-    reportData: data
+    reportData: data,
+    tableSorterObject: this.tableSorter
   };
   new Paginator(paginatorInputs).bindEvents();
 };

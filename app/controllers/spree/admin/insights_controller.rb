@@ -42,13 +42,13 @@ module Spree
         end
 
         def set_default_completed_at
-          params[:q] = {} unless params[:q]
-          if params[:q][:orders_completed_at_gt].blank? && @report_name == :users_who_recently_purchased
-            params[:q][:orders_completed_at_gt] = Date.current.beginning_of_month
+          params[:search] = {} unless params[:search]
+          if params[:search][:start_date].blank? && @report_name == :users_who_recently_purchased
+            params[:search][:start_date] = Date.current.beginning_of_month
           end
 
-          if params[:q][:orders_completed_at_lt].blank? && @report_name == :users_who_have_not_purchased_recently
-            params[:q][:orders_completed_at_lt] = Date.current.end_of_month
+          if params[:search][:end_date].blank? && @report_name == :users_who_have_not_purchased_recently
+            params[:search][:end_date] = Date.current.end_of_month
           end
         end
 

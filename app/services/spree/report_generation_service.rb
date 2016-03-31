@@ -15,7 +15,7 @@ module Spree
       user_analysis:              [:users_not_converted, :users_who_recently_purchased, :users_who_have_not_recently_purchased]
     }
 
-    def sales_performance(options = {})
+    def self.sales_performance(options = {})
       sales_performances, refunds = Spree::SalesPerformanceReport.new(options).generate
       [sales_performances.all.first.merge(refunds.all.first)]
     end
@@ -38,7 +38,7 @@ module Spree
         {
           name: header.to_s.humanize,
           value: header,
-          sorted: resource.header_sorted?(header) ? resource.sortable_type.to_s : nil
+          sorted: resource.try(:header_sorted?, header) ? resource.sortable_type.to_s : nil
         }
       end
     end

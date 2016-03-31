@@ -13,13 +13,13 @@ ReportLoader.prototype.bindEvents = function() {
   });
 };
 
-ReportLoader.prototype.initializeSearcher = function($selectedOption) {
+ReportLoader.prototype.initializeSearcher = function($selectedOption, data) {
   var searcherInputs = {
     filterDiv:   $('#search-div'),
     selectedOption: $selectedOption,
     insightsDiv: this.$insightsTableList
   };
-  new Searcher(searcherInputs).bindEvents();
+  new Searcher(searcherInputs).bindEvents(data);
 };
 
 ReportLoader.prototype.loadChart = function($selectedOption) {
@@ -32,7 +32,7 @@ ReportLoader.prototype.loadChart = function($selectedOption) {
     success: function(data) {
       _this.populateInsightsData(data);
       _this.initializePaginator(data);
-      _this.initializeSearcher($selectedOption);
+      _this.initializeSearcher($selectedOption, data);
     }
   });
 };

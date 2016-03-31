@@ -1,6 +1,7 @@
 module Spree
   class UsersWhoRecentlyPurchasedReport < Spree::Report
     HEADERS = [:user_email, :purchase_count, :last_purchase_date, :last_purchased_order_number]
+    SEARCH_ATTRIBUTES = { start_date: :start_date, end_date: :end_date, email_cont: :email }
 
     def self.assign_search_params(options)
       super

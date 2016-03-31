@@ -2,12 +2,12 @@ module Spree
   module Admin
     class InsightsController < Spree::Admin::BaseController
       before_action :ensure_report_exists, only: :show
-      before_action :set_default_completed_at, only: :show
       before_action :load_reports, only: :index
       before_action :set_default_pagination, only: :show
 
       def show
         @headers = Spree.const_get((@report_name.to_s + '_report').classify)::HEADERS
+        @search_attributes = Spree.const_get((@report_name.to_s + '_report').classify)::SEARCH_ATTRIBUTES
         @stats, @total_records = ReportGenerationService.public_send(@report_name, params.merge(@pagination_hash))
         get_total_pages
 
@@ -16,6 +16,7 @@ module Spree
           format.json {
             render json: {
               headers: @headers.map { |header| { name: header.to_s.humanize, value: header } },
+              search_attributes: @search_attributes.each { |key, value| @search_attributes[key] = value.to_s.humanize },
               stats: @stats,
               request_fullpath: request.fullpath,
               total_pages: @total_pages,
@@ -39,17 +40,6 @@ module Spree
         def get_reports_type
           params[:type] = params[:type] ? params[:type].to_sym : (session[:report_category].to_sym || ReportGenerationService::REPORTS.keys.first)
           session[:report_category] = params[:type]
-        end
-
-        def set_default_completed_at
-          params[:search] = {} unless params[:search]
-          if params[:search][:start_date].blank? && @report_name == :users_who_recently_purchased
-            params[:search][:start_date] = Date.current.beginning_of_month
-          end
-
-          if params[:search][:end_date].blank? && @report_name == :users_who_have_not_purchased_recently
-            params[:search][:end_date] = Date.current.end_of_month
-          end
         end
 
         def set_default_pagination

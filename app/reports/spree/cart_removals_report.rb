@@ -1,6 +1,7 @@
 module Spree
   class CartRemovalsReport < Spree::Report
     HEADERS = [:product_name, :removals, :quantity_change]
+    SEARCH_ATTRIBUTES = { start_date: :product_removed_from, end_date: :product_removed_to }
 
     def self.generate(options = {})
       assign_search_params(options)

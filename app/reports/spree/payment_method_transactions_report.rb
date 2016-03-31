@@ -1,6 +1,7 @@
 module Spree
   class PaymentMethodTransactionsReport < Spree::Report
     HEADERS = [:payment_method_name, :payment_count]
+    SEARCH_ATTRIBUTES = { start_date: :payments_created_from, end_date: :payments_created_till }
 
     def self.generate(options = {})
       assign_search_params(options)

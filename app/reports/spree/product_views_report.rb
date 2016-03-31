@@ -1,6 +1,7 @@
 module Spree
   class ProductViewsReport < Spree::Report
     HEADERS = [:product_name, :views, :users, :guest_sessions]
+    SEARCH_ATTRIBUTES = { start_date: :product_view_from, end_date: :product_view_till, name: :name}
 
     def self.assign_search_params(options)
       super

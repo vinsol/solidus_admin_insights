@@ -1,6 +1,7 @@
 module Spree
   class BestSellingProductsReport < Spree::Report
     HEADERS = [:product_name, :sold_count]
+    SEARCH_ATTRIBUTES = { start_date: :orders_completed_from, end_date: :orders_completed_to }
 
     def self.generate(options = {})
       assign_search_params(options)

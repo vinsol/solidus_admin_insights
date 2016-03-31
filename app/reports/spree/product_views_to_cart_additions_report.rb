@@ -1,6 +1,7 @@
 module Spree
   class ProductViewsToCartAdditionsReport < Spree::Report
     HEADERS = [:product_name, :views, :cart_additions]
+    SEARCH_ATTRIBUTES = { start_date: :product_view_from, end_date: :product_view_till }
 
     def self.generate(options = {})
       assign_search_params(options)

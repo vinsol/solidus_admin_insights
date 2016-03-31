@@ -1,6 +1,7 @@
 module Spree
   class PromotionalCostReport < Spree::Report
     HEADERS = [:promotion_name, :usage_count, :promotion_discount]
+    SEARCH_ATTRIBUTES = { start_date: :promotion_created_from, end_date: :promotion_created_till }
 
     def self.generate(options = {})
       assign_search_params(options)

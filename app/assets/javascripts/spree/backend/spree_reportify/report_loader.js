@@ -14,14 +14,14 @@ ReportLoader.prototype.bindEvents = function() {
   });
 };
 
-ReportLoader.prototype.initializeSearcher = function($selectedOption) {
+ReportLoader.prototype.initializeSearcher = function($selectedOption, data) {
   var searcherInputs = {
     filterDiv:   $('#search-div'),
     selectedOption: $selectedOption,
     insightsDiv: this.$insightsTableList,
     tableSorterObject: this.tableSorterObject
   };
-  new Searcher(searcherInputs).bindEvents();
+  new Searcher(searcherInputs).bindEvents(data);
 };
 
 ReportLoader.prototype.initializeTableSorter = function() {
@@ -38,7 +38,7 @@ ReportLoader.prototype.loadChart = function($selectedOption) {
     dataType: 'json',
     success: function(data) {
       _this.populateInsightsData(data);
-      _this.initializeSearcher($selectedOption);
+      _this.initializeSearcher($selectedOption, data);
       _this.initializePaginator(data);
     }
   });

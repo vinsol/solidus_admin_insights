@@ -19,12 +19,11 @@
         <% end %>
       </div>
       <div id="table-filter" data-hook class="well filter-well">
-        <%= render partial: 'spree/admin/insights/search/search_form' %>
       </div>
     </div>
   </div>
 
-  <div class="table-active-filters js-filters"></div>
+<div class="table-active-filters js-filters"></div>
 </div>
 
 <div id='report-div'>
@@ -35,3 +34,4 @@
 
 <%= render partial: 'spree/admin/templates/insights/show', formats: [:template] %>
 <%= render partial: 'spree/admin/templates/insights/paginator', formats: [:template] %>
+<%= render partial: 'spree/admin/templates/insights/search', formats: [:template] %>

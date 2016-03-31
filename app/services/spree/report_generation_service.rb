@@ -27,10 +27,26 @@ module Spree
         dataset = resource.generate
         total_records = resource.select_columns(dataset).count
         result_set = resource.select_columns(dataset.limit(options['records_per_page'], options['offset'])).all
-        [headers(klass, resource), result_set, total_records]
+        [headers(klass, resource), result_set, total_pages(total_records, options['records_per_page']), search_attributes(klass)]
       else
-        [headers(klass, options), sales_performance(options), 1]
+        [headers(klass, options), sales_performance(options), total_pages(1, options['records_per_page']), search_attributes(klass)]
       end
+    end
+
+    def self.search_attributes(klass)
+      search_attributes = {}
+      klass::SEARCH_ATTRIBUTES.each do |key, value|
+        search_attributes[key] = value.to_s.humanize
+      end
+      search_attributes
+    end
+
+    def self.total_pages(total_records, records_per_page)
+      total_pages = total_records / records_per_page
+      if total_records % records_per_page == 0
+        total_pages -= 1
+      end
+      total_pages
     end
 
     def self.headers(klass, resource)

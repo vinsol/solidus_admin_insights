@@ -1,7 +1,8 @@
 module Spree
   class BestSellingProductsReport < Spree::Report
-    HEADERS = [:product_name, :sold_count]
     DEFAULT_SORTABLE_ATTRIBUTE = :product_name
+    HEADERS = [:product_name, :sold_count]
+    SEARCH_ATTRIBUTES = { start_date: :orders_completed_from, end_date: :orders_completed_to }
 
     def initialize(options)
       super

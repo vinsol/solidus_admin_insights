@@ -1,7 +1,8 @@
 module Spree
   class CartAdditionsReport < Spree::Report
-    HEADERS = [:product_name, :additions, :quantity_change]
     DEFAULT_SORTABLE_ATTRIBUTE = :product_name
+    HEADERS = [:product_name, :additions, :quantity_change]
+    SEARCH_ATTRIBUTES = { start_date: :product_added_from, end_date: :product_added_to }
 
     def initialize(options)
       super

@@ -38,7 +38,7 @@
     <thead>
       <tr>
         {% for(var i = 0; i < o['headers'].length; i++) { %}
-          <th><a href="{%= o['request_path'] %}&sort%5Battribute%5D={%= o['headers'][i].value %}&sort%5Btype%5D={%= (o['headers'][i].sorted == 'asc') ? 'desc' : 'asc' %}" class="sortable-link {%= o['headers'][i].sorted %}">{%= o['headers'][i].name %}</a></th>
+          <th><a href="{%= o['request_path'] %}?type={%= o['report_type'] %}&sort%5Battribute%5D={%= o['headers'][i].value %}&sort%5Btype%5D={%= (o['headers'][i].sorted == 'asc') ? 'desc' : 'asc' %}" class="sortable-link {%= o['headers'][i].sorted %}">{%= o['headers'][i].name %}</a></th>
         {% } %}
       </tr>
     </thead>

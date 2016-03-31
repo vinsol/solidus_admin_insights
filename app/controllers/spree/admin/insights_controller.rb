@@ -19,7 +19,8 @@ module Spree
             render json: {
               headers:          @headers,
               request_fullpath: request.fullpath,
-              request_path: request.path,
+              request_path:     request.path,
+              report_type:      params[:type],
               stats:            @stats,
               total_pages:      @total_pages,
               url:              request.url

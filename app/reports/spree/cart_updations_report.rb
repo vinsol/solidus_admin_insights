@@ -1,6 +1,12 @@
 module Spree
   class CartUpdationsReport < Spree::Report
     HEADERS = [:product_name, :updations, :quantity_increase, :quantity_decrease]
+    DEFAULT_SORTABLE_ATTRIBUTE = :product_name
+
+    def initialize(options)
+      super
+      set_sortable_attributes(options, DEFAULT_SORTABLE_ATTRIBUTE)
+    end
 
     def generate
       SpreeReportify::ReportDb[:spree_cart_events___cart_events].
@@ -9,6 +15,7 @@ module Spree
       where(activity: 'update').
       where(cart_events__created_at: @start_date..@end_date). #filter by params
       group(:product_name)
+      order(sortable_sequel_expression)
     end
 
     def select_columns(dataset)

@@ -1,10 +1,12 @@
 module Spree
   class UsersWhoHaveNotRecentlyPurchasedReport < Spree::Report
     HEADERS = [:user_email, :last_purchase_date, :last_purchased_order_number]
+    DEFAULT_SORTABLE_ATTRIBUTE = :user_email
 
     def initialize(options)
       super
       @email_cont = @search[:email_cont].present? ? "%#{ @search[:email_cont] }%" : '%'
+      set_sortable_attributes(options, DEFAULT_SORTABLE_ATTRIBUTE)
     end
 
     def generate(options = {})
@@ -22,6 +24,7 @@ module Spree
 
       SpreeReportify::ReportDb[all_orders_with_users].
       group(:all_orders_with_users__user_email)
+      order(sortable_sequel_expression)
     end
 
     def select_columns(dataset)

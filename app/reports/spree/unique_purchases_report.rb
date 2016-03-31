@@ -1,6 +1,12 @@
 module Spree
   class UniquePurchasesReport < Spree::Report
     HEADERS = [:product_name, :sold_count, :users]
+    DEFAULT_SORTABLE_ATTRIBUTE = :product_name
+
+    def initialize(options)
+      super
+      set_sortable_attributes(options, DEFAULT_SORTABLE_ATTRIBUTE)
+    end
 
     def generate(options = {})
       ::SpreeReportify::ReportDb[:spree_line_items___line_items].
@@ -10,6 +16,7 @@ module Spree
       where(orders__state: 'complete').
       where(orders__completed_at: @start_date..@end_date). #filter by params
       group(:products__name)
+      order(sortable_sequel_expression)
     end
 
     def select_columns(dataset)

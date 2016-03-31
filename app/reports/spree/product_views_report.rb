@@ -1,10 +1,12 @@
 module Spree
   class ProductViewsReport < Spree::Report
     HEADERS = [:product_name, :views, :users, :guest_sessions]
+    DEFAULT_SORTABLE_ATTRIBUTE = :product_name
 
     def initialize(options)
       super
       @name = @search[:name].present? ? "%#{ @search[:name] }%" : '%'
+      set_sortable_attributes(options, DEFAULT_SORTABLE_ATTRIBUTE)
     end
 
     def generate
@@ -22,6 +24,7 @@ module Spree
 
       ::SpreeReportify::ReportDb[unique_session_results].
       group(:product_name)
+      order(sortable_sequel_expression)
     end
 
     def select_columns(dataset)

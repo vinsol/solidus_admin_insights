@@ -1,6 +1,12 @@
 module Spree
   class ProductViewsToPurchasesReport < Spree::Report
     HEADERS = [:product_name, :views, :purchases]
+    DEFAULT_SORTABLE_ATTRIBUTE = :product_name
+
+    def initialize(options)
+      super
+      set_sortable_attributes(options, DEFAULT_SORTABLE_ATTRIBUTE)
+    end
 
     def generate(options = {})
       line_items = ::SpreeReportify::ReportDb[:spree_line_items___line_items].
@@ -17,10 +23,10 @@ module Spree
       products__id.as(product_id)]}.
       group(:products__name).as(:line_items)
 
-
       ::SpreeReportify::ReportDb[line_items].join(:spree_page_events___page_events, page_events__target_id: :product_id).
       where(page_events__target_type: 'Spree::Product', page_events__activity: 'view').
       group(:product_name)
+      order(sortable_sequel_expression)
     end
 
     def select_columns(dataset)

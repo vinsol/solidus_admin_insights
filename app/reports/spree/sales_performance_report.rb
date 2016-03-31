@@ -3,8 +3,7 @@ module Spree
     HEADERS = [:revenue, :tax, :shipping_charges, :refund_amount]
     SEARCH_ATTRIBUTES = { start_date: :orders_created_from, end_date: :orders_created_till }
 
-    def self.generate(options = {})
-      assign_search_params(options)
+    def generate(options = {})
       [
         SpreeReportify::ReportDb[:spree_orders___orders].
         exclude(completed_at: nil).

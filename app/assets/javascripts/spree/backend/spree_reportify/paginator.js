@@ -2,6 +2,7 @@ function Paginator(inputs) {
   this.$insightsTableList = inputs.insightsDiv;
   this.reportData = inputs.reportData;
   this.paginatorDiv = inputs.paginatorDiv;
+  this.tableSorter = inputs.tableSorterObject;
 }
 
 Paginator.prototype.bindEvents = function () {
@@ -22,6 +23,7 @@ Paginator.prototype.loadPaginationData = function (event) {
     dataType: 'json',
     success: function(data) {
       _this.populateInsightsData(data);
+      _this.tableSorter.bindEvents();
     }
   });
 };
@@ -34,5 +36,5 @@ Paginator.prototype.populateInsightsData = function(data) {
 Paginator.prototype.populatePaginationData = function(data) {
   var $templateData = $(tmpl('paginator-tmpl', data));
   this.paginatorDiv.empty().append($templateData);
-  this.pageLinks = $('.pagination-link');
+  this.pageLinks = this.paginatorDiv.find('.pagination-link');
 };

@@ -3,13 +3,12 @@ module Spree
     HEADERS = [:user_email, :signup_date]
     SEARCH_ATTRIBUTES = { start_date: :users_created_from, end_date: :users_created_till, email_cont: :email }
 
-    def self.assign_search_params(options)
+    def initialize(options)
       super
       @email_cont = @search[:email_cont].present? ? "%#{ @search[:email_cont] }%" : '%'
     end
 
-    def self.generate(options = {})
-      assign_search_params(options)
+    def generate(options = {})
       SpreeReportify::ReportDb[:spree_users___users].
       left_join(:spree_orders___orders, user_id: :id).
       where(orders__completed_at: nil, orders__number: nil).
@@ -17,7 +16,7 @@ module Spree
       order(Sequel.desc(:orders__completed_at))
     end
 
-    def self.select_columns(dataset)
+    def select_columns(dataset)
       dataset.select(
         :users__email___user_email,
         :users__created_at___signup_date)

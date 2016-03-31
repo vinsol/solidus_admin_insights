@@ -1,5 +1,6 @@
 //= require spree/backend/spree_reportify/paginator
 //= require spree/backend/spree_reportify/searcher
+//= require spree/backend/spree_reportify/table_sorter
 
 function ReportLoader(inputs) {
   this.$selectList = inputs.reportsSelectBox;
@@ -17,9 +18,15 @@ ReportLoader.prototype.initializeSearcher = function($selectedOption, data) {
   var searcherInputs = {
     filterDiv:   $('#search-div'),
     selectedOption: $selectedOption,
-    insightsDiv: this.$insightsTableList
+    insightsDiv: this.$insightsTableList,
+    tableSorterObject: this.tableSorterObject
   };
   new Searcher(searcherInputs).bindEvents(data);
+};
+
+ReportLoader.prototype.initializeTableSorter = function() {
+  this.tableSorterObject = new TableSorter(this.$insightsTableList)
+  this.tableSorterObject.bindEvents();
 };
 
 ReportLoader.prototype.loadChart = function($selectedOption) {
@@ -31,8 +38,8 @@ ReportLoader.prototype.loadChart = function($selectedOption) {
     dataType: 'json',
     success: function(data) {
       _this.populateInsightsData(data);
-      _this.initializePaginator(data);
       _this.initializeSearcher($selectedOption, data);
+      _this.initializePaginator(data);
     }
   });
 };
@@ -41,7 +48,8 @@ ReportLoader.prototype.initializePaginator = function(data) {
   var paginatorInputs = {
     paginatorDiv: $('#paginator-div'),
     insightsDiv: this.$insightsTableList,
-    reportData: data
+    reportData: data,
+    tableSorterObject: this.tableSorterObject
   };
   new Paginator(paginatorInputs).bindEvents();
 };
@@ -49,6 +57,7 @@ ReportLoader.prototype.initializePaginator = function(data) {
 ReportLoader.prototype.populateInsightsData = function(data) {
   var $templateData = $(tmpl('tmpl', data));
   this.$insightsTableList.empty().append($templateData);
+  this.initializeTableSorter();
 };
 
 $(function() {

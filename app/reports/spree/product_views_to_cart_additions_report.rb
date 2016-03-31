@@ -1,10 +1,15 @@
 module Spree
   class ProductViewsToCartAdditionsReport < Spree::Report
+    DEFAULT_SORTABLE_ATTRIBUTE = :product_name
     HEADERS = [:product_name, :views, :cart_additions]
     SEARCH_ATTRIBUTES = { start_date: :product_view_from, end_date: :product_view_till }
 
-    def self.generate(options = {})
-      assign_search_params(options)
+    def initialize(options)
+      super
+      set_sortable_attributes(options, DEFAULT_SORTABLE_ATTRIBUTE)
+    end
+
+    def generate(options = {})
       cart_additions = SpreeReportify::ReportDb[:spree_cart_events___cart_events].
       join(:spree_variants___variants, id: :variant_id).
       join(:spree_products___products, id: :product_id).
@@ -27,10 +32,11 @@ module Spree
       ]}
 
       ::SpreeReportify::ReportDb[total_views_results].
-      join(cart_additions, product_name: :product_name)
+      join(cart_additions, product_name: :product_name).
+      order(sortable_sequel_expression)
     end
 
-    def self.select_columns(dataset)
+    def select_columns(dataset)
       dataset.select{[
         cart_additions__product_name,
         views,

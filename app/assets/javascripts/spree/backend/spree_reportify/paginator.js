@@ -15,17 +15,23 @@ Paginator.prototype.bindEvents = function () {
 };
 
 Paginator.prototype.loadPaginationData = function (event) {
-  var requestPath = $(event.target).attr('href'),
+  var $element = $(event.target),
+    requestPath = $element.attr('href'),
     _this = this;
-  $.ajax({
-    type: 'GET',
-    url: requestPath,
-    dataType: 'json',
-    success: function(data) {
-      _this.populateInsightsData(data);
-      _this.tableSorter.bindEvents();
-    }
-  });
+
+  if (!($element.parents('li').hasClass('active'))) {
+    $.ajax({
+      type: 'GET',
+      url: requestPath,
+      dataType: 'json',
+      success: function(data) {
+        _this.populateInsightsData(data);
+        _this.tableSorter.bindEvents();
+        _this.paginatorDiv.find('.active').removeClass('active');
+        $element.parents('li').addClass('active');
+      }
+    });
+  }
 };
 
 Paginator.prototype.populateInsightsData = function(data) {

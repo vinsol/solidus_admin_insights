@@ -15,6 +15,7 @@ module Spree
           format.html
           format.json {
             render json: {
+              current_page:      params[:page] || 0,
               headers:           @headers,
               report_type:       params[:type],
               request_path:      request.path,

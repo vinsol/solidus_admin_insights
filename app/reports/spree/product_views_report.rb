@@ -23,7 +23,7 @@ module Spree
       ]}.as(:unique_session_results)
 
       ::SpreeReportify::ReportDb[unique_session_results].
-      group(:product_name)
+      group(:product_name).
       order(sortable_sequel_expression)
     end
 

@@ -22,7 +22,7 @@ module Spree
       ).as(:all_orders_with_users)
 
       SpreeReportify::ReportDb[all_orders_with_users].
-      group(:all_orders_with_users__user_email)
+      group(:all_orders_with_users__user_email).
       order(sortable_sequel_expression)
     end
 

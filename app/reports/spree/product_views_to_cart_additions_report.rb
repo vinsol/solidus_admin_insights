@@ -31,7 +31,7 @@ module Spree
       ]}
 
       ::SpreeReportify::ReportDb[total_views_results].
-      join(cart_additions, product_name: :product_name)
+      join(cart_additions, product_name: :product_name).
       order(sortable_sequel_expression)
     end
 

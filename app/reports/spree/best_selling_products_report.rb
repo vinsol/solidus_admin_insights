@@ -16,7 +16,7 @@ module Spree
       join(:spree_products___products, products__id: :variants__product_id).
       where(orders__state: 'complete').
       where(orders__completed_at: @start_date..@end_date). #filter by params
-      group(:products__name)
+      group(:products__name).
       order(sortable_sequel_expression)
     end
 

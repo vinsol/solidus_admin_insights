@@ -14,7 +14,7 @@ module Spree
       join(:spree_promotions___promotions, id: :promotion_id).
       where(adjustments__source_type: "Spree::PromotionAction").
       where(promotions__created_at: @start_date..@end_date). #filter by params
-      group(:promotions__id)
+      group(:promotions__id).
       order(sortable_sequel_expression)
     end
 

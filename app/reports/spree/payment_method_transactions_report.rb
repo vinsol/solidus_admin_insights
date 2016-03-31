@@ -12,7 +12,7 @@ module Spree
       SpreeReportify::ReportDb[:spree_payment_methods___payment_methods].
       join(:spree_payments___payments, payment_method_id: :id).
       where(payments__created_at: @start_date..@end_date). #filter by params
-      group(:payment_method_name)
+      group(:payment_method_name).
       order(sortable_sequel_expression)
     end
 

@@ -14,7 +14,7 @@ module Spree
       join(:spree_products___products, id: :product_id).
       where(cart_events__activity: 'remove').
       where(cart_events__created_at: @start_date..@end_date). #filter by params
-      group(:product_name)
+      group(:product_name).
       order(sortable_sequel_expression)
     end
 

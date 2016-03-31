@@ -1,0 +1,7 @@
+<script type="text/x-tmpl" id="paginator-tmpl">
+  {% if(o['total_pages'] > 0) { %}
+    {% for(var i = 0; i <= o['total_pages']; i++) { %}
+      <a href="{%= o['url'] %}&page={%= i %}" class="pagination-link">{%= i+1 %}</a>
+    {% } %}
+  {% } %}
+</script>

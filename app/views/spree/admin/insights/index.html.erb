@@ -33,43 +33,5 @@
 <div id='paginator-div'>
 </div>
 
-<script type="text/x-tmpl" id="tmpl">
-  <table class="table admin-insight table-hover" id="admin-insight">
-    <thead>
-      <tr>
-        {% for(var i = 0; i < o['headers'].length; i++) { %}
-          <th><a href="{%= o['request_path'] %}?type={%= o['report_type'] %}&sort%5Battribute%5D={%= o['headers'][i].value %}&sort%5Btype%5D={%= (o['headers'][i].sorted == 'asc') ? 'desc' : 'asc' %}" class="sortable-link {%= o['headers'][i].sorted %}">{%= o['headers'][i].name %}</a></th>
-        {% } %}
-      </tr>
-    </thead>
-    <tbody class='table-data'>
-      {% for(var i = 0; i < o['stats'].length; i++) { %}
-        <tr>
-          {% for(var j = 0; j < o['headers'].length; j++) { %}
-            <td>{%= o['stats'][i][o['headers'][j].value] %}</td>
-          {% } %}
-        </tr>
-      {% } %}
-    </tbody>
-  </table>
-
-</script>
-
-<script type="text/x-tmpl" id="paginator-tmpl">
-  {% if(o['total_pages'] > 0) { %}
-    {% for(var i = 0; i <= o['total_pages']; i++) { %}
-      <a href="{%= o['url'] %}&page={%= i %}" class="pagination-link">{%= i+1 %}</a>
-    {% } %}
-  {% } %}
-</script>
-
-
-<script type="text/x-tmpl" id="sorted-insights-data">
-  {% for(var i = 0; i < o['stats'].length; i++) { %}
-    <tr>
-      {% for(var j = 0; j < o['headers'].length; j++) { %}
-        <td>{%= o['stats'][i][o['headers'][j].value] %}</td>
-      {% } %}
-    </tr>
-  {% } %}
-</script>
+<%= render partial: 'spree/admin/templates/insights/show', formats: [:template] %>
+<%= render partial: 'spree/admin/templates/insights/paginator', formats: [:template] %>

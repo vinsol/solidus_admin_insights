@@ -65,7 +65,8 @@ ReportLoader.prototype.fetchChartData = function(url, $selectedOption) {
         _this.initializeSearcher($selectedOption, data);
         _this.initializePaginator(data);
       } else {
-        $('#report-container').empty();
+        $('#report-div').empty();
+        $('#paginator-div').empty();
       }
     }
   });

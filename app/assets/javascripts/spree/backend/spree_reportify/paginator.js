@@ -1,8 +1,9 @@
-function Paginator(inputs) {
+function Paginator(inputs, reportLoader) {
   this.$insightsTableList = inputs.insightsDiv;
   this.reportData = inputs.reportData;
   this.paginatorDiv = inputs.paginatorDiv;
   this.tableSorter = inputs.tableSorterObject;
+  this.reportLoader = reportLoader;
 }
 
 Paginator.prototype.bindEvents = function () {
@@ -18,6 +19,7 @@ Paginator.prototype.loadPaginationData = function (event) {
   var $element = $(event.target),
     requestPath = $element.attr('href'),
     _this = this;
+  _this.reportLoader.requestUrl = requestPath;
 
   if (!($element.parents('li').hasClass('active'))) {
     $.ajax({
@@ -35,8 +37,7 @@ Paginator.prototype.loadPaginationData = function (event) {
 };
 
 Paginator.prototype.populateInsightsData = function(data) {
-  var $templateData = $(tmpl('tmpl', data));
-  this.$insightsTableList.empty().append($templateData);
+  this.reportLoader.populateInsightsData(data);
 };
 
 Paginator.prototype.populatePaginationData = function(data) {

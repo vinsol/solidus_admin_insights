@@ -13,7 +13,6 @@ Searcher.prototype.bindEvents = function(data) {
   var requestPath = this.$selectedInsight.data('url'),
     _this = this;
 
-  _this.reportLoader.requestUrl = requestPath;
   this.$filters.removeClass('hide');
   this.addSearchForm(data);
   this.setFormActions(this.$quickSearchForm, requestPath);
@@ -28,6 +27,7 @@ Searcher.prototype.bindEvents = function(data) {
      dataType: 'json',
      success: function(data) {
        _this.clearFormFields();
+       _this.reportLoader.requestUrl = this.url;
        _this.populateInsightsData(data);
        _this.initializePaginator(data);
      }
@@ -42,6 +42,7 @@ Searcher.prototype.bindEvents = function(data) {
      data: _this.$filterForm.serialize(),
      dataType: 'json',
      success: function(data) {
+       _this.reportLoader.requestUrl = this.url;
        _this.populateInsightsData(data);
        _this.initializePaginator(data);
      }

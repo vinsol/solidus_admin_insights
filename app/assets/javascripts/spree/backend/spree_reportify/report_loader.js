@@ -46,9 +46,7 @@ ReportLoader.prototype.initializeTableSorter = function() {
 
 ReportLoader.prototype.loadChart = function($selectedOption) {
   var requestPath = $selectedOption.data('url');
-  if(requestPath != undefined) {
-    this.fetchChartData(requestPath, $selectedOption);
-  }
+  this.fetchChartData(requestPath, $selectedOption);
 };
 
 ReportLoader.prototype.fetchChartData = function(url, $selectedOption) {
@@ -59,14 +57,11 @@ ReportLoader.prototype.fetchChartData = function(url, $selectedOption) {
     url: url,
     dataType: 'json',
     success: function(data) {
+      _this.isStatePushable ? _this.populateInsightsData(data) : _this.populateInsightsDataWithoutState(data);
       if(data.headers != undefined) {
-        _this.isStatePushable ? _this.populateInsightsData(data) : _this.populateInsightsDataWithoutState(data);
         _this.initializeTableSorter();
         _this.initializeSearcher($selectedOption, data);
         _this.initializePaginator(data);
-      } else {
-        $('#report-div').empty();
-        $('#paginator-div').empty();
       }
     }
   });
@@ -84,12 +79,18 @@ ReportLoader.prototype.initializePaginator = function(data) {
     reportData: data,
     tableSorterObject: this.tableSorterObject
   };
-  new Paginator(paginatorInputs).bindEvents();
+  new Paginator(paginatorInputs, this).bindEvents();
 };
 
 ReportLoader.prototype.populateInsightsData = function(data) {
-  var $templateData = $(tmpl('tmpl', data));
-  this.$insightsTableList.empty().append($templateData);
+  if(data.headers != undefined) {
+    var $templateData = $(tmpl('tmpl', data));
+    this.$insightsTableList.empty().append($templateData);
+  } else {
+      $('#report-div').empty();
+      $('#paginator-div').empty();
+      $('#search-div').addClass('hide');
+  }
   if(this.isStatePushable) {
     this.pushUrlToHistory();
   } else {
@@ -105,13 +106,12 @@ ReportLoader.prototype.populateInsightsDataWithoutState = function(data) {
 ReportLoader.prototype.pushUrlToHistory = function() {
   var report_name = this.$selectList.find(':selected').val()
   window.history.pushState({ report_name: report_name }, '', this.requestUrl);
+  this.requestUrl = '';
 };
 
 ReportLoader.prototype.populateInitialData = function() {
-  var data = $('div.report-data').data('report-data');
-  if(data != null) {
-    this.populateInsightsDataWithoutState(data);
-  }
+  var $selectedOption = this.$selectList.find(':selected');
+  this.fetchChartDataWithoutState(location.href, $selectedOption);
 };
 
 $(function() {

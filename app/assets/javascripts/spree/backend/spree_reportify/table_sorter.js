@@ -7,8 +7,8 @@ function TableSorter($insightsTable, reportLoader) {
 
 TableSorter.prototype.bindEvents = function() {
   var _this = this;
-  this.$sortableLinks = this.$insightsTableList.find('#admin-insight .sortable-link');
-  this.$sortableLinks.on('click', function() {
+  // this.$sortableLinks = this.$insightsTableList.find('#admin-insight .sortable-link');
+  this.$insightsTableList.on('click', '#admin-insight .sortable-link', function() {
     event.preventDefault();
     var requestPath = $(event.target).attr('href');
     _this.reportLoader.requestUrl = requestPath;

@@ -4,21 +4,30 @@ function Searcher(inputs, reportLoader) {
   this.$insightsTableList = inputs.insightsDiv;
   this.$filters = inputs.filterDiv;
   this.$quickSearchForm = this.$filters.find('#quick-search');
-  this.$selectedInsight = inputs.selectedOption;
   this.tableSorter = inputs.tableSorterObject;
   this.reportLoader = reportLoader;
+  this.$filterForm = null;
 }
 
 Searcher.prototype.bindEvents = function(data) {
-  var requestPath = this.$selectedInsight.data('url'),
+  var _this = this;
+
+  $(document).on("click", ".js-delete-filter", function() {
+   $('#quick_search').val('');
+   $(this).parent().hide();
+  });
+};
+
+Searcher.prototype.refreshSearcher = function($selectedInsight, data) {
+  var requestPath = $selectedInsight.data('url'),
     _this = this;
 
-  this.$filters.removeClass('hide');
-  this.addSearchForm(data);
-  this.setFormActions(this.$quickSearchForm, requestPath);
-  this.setFormActions(this.$filterForm, requestPath);
+  _this.$filters.removeClass('hide');
+  _this.addSearchForm(data);
+  _this.setFormActions(_this.$quickSearchForm, requestPath);
+  _this.setFormActions(_this.$filterForm, requestPath);
 
-  this.$filterForm.on('submit', function() {
+  _this.$filterForm.on('submit', function() {
    _this.addSearchStatus();
    $.ajax({
      type: "GET",
@@ -26,35 +35,16 @@ Searcher.prototype.bindEvents = function(data) {
      data: _this.$filterForm.serialize(),
      dataType: 'json',
      success: function(data) {
-       _this.clearFormFields();
-       _this.reportLoader.requestUrl = this.url;
-       _this.populateInsightsData(data);
-       _this.initializePaginator(data);
+      debugger
+      _this.clearFormFields();
+      _this.reportLoader.requestUrl = this.url;
+      _this.populateInsightsData(data);
+      _this.reportLoader.paginatorObject.refreshPaginator(data);
      }
    });
    return false;
   });
-
-  this.$quickSearchForm.on('submit', function() {
-   $.ajax({
-     type: "GET",
-     url:  _this.$quickSearchForm.attr('action'),
-     data: _this.$filterForm.serialize(),
-     dataType: 'json',
-     success: function(data) {
-       _this.reportLoader.requestUrl = this.url;
-       _this.populateInsightsData(data);
-       _this.initializePaginator(data);
-     }
-   });
-   return false;
-  });
-
-  $(document).on("click", ".js-delete-filter", function() {
-   $('#quick_search').val('');
-   $(this).parent().hide();
-  });
-};
+}
 
 Searcher.prototype.addSearchStatus = function () {
   var filtersContainer = $(".js-filters");
@@ -95,16 +85,6 @@ Searcher.prototype.setFormActions = function($form, path) {
 Searcher.prototype.populateInsightsData = function(data) {
   this.reportLoader.populateInsightsData(data);
   this.tableSorter.bindEvents();
-};
-
-Searcher.prototype.initializePaginator = function(data) {
-  var paginatorInputs = {
-    paginatorDiv: $('#paginator-div'),
-    insightsDiv: this.$insightsTableList,
-    reportData: data,
-    tableSorterObject: this.tableSorter
-  };
-  new Paginator(paginatorInputs).bindEvents();
 };
 
 Searcher.prototype.clearFormFields = function() {

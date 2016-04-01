@@ -1,6 +1,5 @@
 function Paginator(inputs, reportLoader) {
   this.$insightsTableList = inputs.insightsDiv;
-  this.reportData = inputs.reportData;
   this.paginatorDiv = inputs.paginatorDiv;
   this.tableSorter = inputs.tableSorterObject;
   this.reportLoader = reportLoader;
@@ -8,11 +7,14 @@ function Paginator(inputs, reportLoader) {
 
 Paginator.prototype.bindEvents = function () {
   var _this = this;
-  this.populatePaginationData(this.reportData);
-  this.pageLinks.on('click', function (event) {
+  this.paginatorDiv.on('click', '.pagination-link', function (event) {
     event.preventDefault();
     _this.loadPaginationData(event);
   });
+};
+
+Paginator.prototype.refreshPaginator = function(data) {
+  this.populatePaginationData(data);
 };
 
 Paginator.prototype.loadPaginationData = function (event) {

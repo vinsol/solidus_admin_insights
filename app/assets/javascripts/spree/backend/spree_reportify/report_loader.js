@@ -7,6 +7,29 @@ function ReportLoader(inputs) {
   this.$insightsTableList = inputs.insightsDiv;
   this.requestUrl = '';
   this.isStatePushable = true;
+  this.tableSorterObject = null;
+  this.searcherObject = null;
+  this.paginatorObject = null;
+};
+
+ReportLoader.prototype.init = function() {
+  this.tableSorterObject = new TableSorter(this.$insightsTableList, this);
+  this.tableSorterObject.bindEvents();
+  var searcherInputs = {
+    filterDiv:   $('#search-div'),
+    insightsDiv: this.$insightsTableList,
+    tableSorterObject: this.tableSorterObject
+  };
+  this.searcherObject = new Searcher(searcherInputs, this);
+  this.searcherObject.bindEvents();
+
+  var paginatorInputs = {
+    paginatorDiv: $('#paginator-div'),
+    insightsDiv: this.$insightsTableList,
+    tableSorterObject: this.tableSorterObject
+  };
+  this.paginatorObject = new Paginator(paginatorInputs, this);
+  this.paginatorObject.bindEvents();
 }
 
 ReportLoader.prototype.bindEvents = function() {
@@ -59,9 +82,9 @@ ReportLoader.prototype.fetchChartData = function(url, $selectedOption) {
     success: function(data) {
       _this.isStatePushable ? _this.populateInsightsData(data) : _this.populateInsightsDataWithoutState(data);
       if(data.headers != undefined) {
-        _this.initializeTableSorter();
-        _this.initializeSearcher($selectedOption, data);
-        _this.initializePaginator(data);
+        // _this.initializeTableSorter();
+        _this.searcherObject.refreshSearcher($selectedOption, data);
+        _this.paginatorObject.refreshPaginator(data);
       }
     }
   });
@@ -120,6 +143,7 @@ $(function() {
     reportsSelectBox: $('#reports')
   },
     report_loader = new ReportLoader(inputs);
+  report_loader.init();
   report_loader.bindEvents();
   report_loader.populateInitialData();
 });

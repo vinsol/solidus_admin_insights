@@ -1,8 +1,14 @@
 <% content_for :page_title do %>
-  <%= Spree.t(:heading, type: params[:type].to_s.titleize, scope: :insights) %>
+  <%= Spree.t(:heading, type: params[:type].to_s.titleize, scope: :insight) %>
 <% end %>
 
-<%= select_tag :reports, options_for_select(@reports.map { |report_name| [report_name.to_s.humanize, report_name, data: { url: admin_insight_url(report_name, type: params[:type]) }] }), include_blank: 'Select a report', class: 'select2' %>
+<% content_for :title do %>
+  <%= Spree.t(:heading, type: params[:type].to_s.titleize, scope: :insight) %>
+<% end %>
+
+<%= select_tag :reports, options_for_select(@reports.map { |report_name| [report_name.to_s.humanize, report_name, data: { url: admin_insight_url(report_name, type: params[:type]) }] }, [params[:id]]), include_blank: 'Select a report', class: 'select2' %>
+
+<%= content_tag :div, class: 'hidden report-data', data: { report_data: @report_data_json } {} %>
 
 <div id='search-div' class='hide'>
   <div class="filter-wrap row">

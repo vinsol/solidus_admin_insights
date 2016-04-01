@@ -1,7 +1,7 @@
 en:
   spree:
-    insight: Insight
-    insights:
+    insights: Insights
+    insight:
       heading: 'Insights: %{type}'
       tab_heading: Insights
       not_found: Report not found.

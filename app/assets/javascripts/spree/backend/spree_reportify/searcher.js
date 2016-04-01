@@ -1,17 +1,19 @@
 //= require spree/backend/spree_reportify/paginator
 
-function Searcher(inputs) {
+function Searcher(inputs, reportLoader) {
   this.$insightsTableList = inputs.insightsDiv;
   this.$filters = inputs.filterDiv;
   this.$quickSearchForm = this.$filters.find('#quick-search');
   this.$filterForm = this.$filters.find('#filter-search');
   this.$selectedInsight = inputs.selectedOption;
   this.tableSorter = inputs.tableSorterObject;
+  this.reportLoader = reportLoader;
 }
 
 Searcher.prototype.bindEvents = function() {
   var requestPath = this.$selectedInsight.data('url'),
     _this = this;
+  _this.reportLoader.requestUrl = requestPath;
 
   this.$filters.removeClass('hide');
   this.setFormActions(this.$quickSearchForm, requestPath);
@@ -52,8 +54,7 @@ Searcher.prototype.setFormActions = function($form, path) {
 };
 
 Searcher.prototype.populateInsightsData = function(data) {
-  var $templateData = $(tmpl('tmpl', data));
-  this.$insightsTableList.empty().append($templateData);
+  this.reportLoader.populateInsightsData(data);
   this.tableSorter.bindEvents();
 };
 

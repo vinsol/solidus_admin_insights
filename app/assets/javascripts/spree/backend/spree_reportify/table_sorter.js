@@ -1,7 +1,8 @@
 //= require spree/backend/jquery.tablesorter.min
 
-function TableSorter($insightsTable) {
+function TableSorter($insightsTable, reportLoader) {
   this.$insightsTableList = $insightsTable;
+  this.reportLoader = reportLoader;
 }
 
 TableSorter.prototype.bindEvents = function() {
@@ -10,6 +11,7 @@ TableSorter.prototype.bindEvents = function() {
   this.$sortableLinks.on('click', function() {
     event.preventDefault();
     var requestPath = $(event.target).attr('href');
+    _this.reportLoader.requestUrl = requestPath;
 
     $.ajax({
       type: 'GET',
@@ -23,7 +25,6 @@ TableSorter.prototype.bindEvents = function() {
 };
 
 TableSorter.prototype.populateInsightsData = function(data) {
-  var $templateData = $(tmpl('tmpl', data));
-  this.$insightsTableList.empty().append($templateData);
+  this.reportLoader.populateInsightsData(data);
   this.bindEvents();
 };

@@ -2,7 +2,7 @@ module Spree
   module Admin
     class InsightsController < Spree::Admin::BaseController
       before_action :ensure_report_exists, :set_default_completed_at, :set_default_pagination, only: :show
-      before_action :load_reports, only: :index
+      before_action :load_reports, only: [:index, :show]
 
       def show
         @headers, @stats, @total_records = ReportGenerationService.public_send(
@@ -13,18 +13,20 @@ module Spree
 
         fetch_total_pages
 
+        @report_data_json = {
+          headers:          @headers,
+          request_fullpath: request.fullpath,
+          request_path:     request.path,
+          report_type:      params[:type],
+          stats:            @stats,
+          total_pages:      @total_pages,
+          url:              request.url
+        }
+
         respond_to do |format|
-          format.html
+          format.html { render :index }
           format.json {
-            render json: {
-              headers:          @headers,
-              request_fullpath: request.fullpath,
-              request_path:     request.path,
-              report_type:      params[:type],
-              stats:            @stats,
-              total_pages:      @total_pages,
-              url:              request.url
-            }
+            render json: @report_data_json
           }
         end
       end

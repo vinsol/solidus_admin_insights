@@ -26,7 +26,8 @@ module Spree
           search_attributes: @search_attributes,
           stats:             @stats,
           total_pages:       @total_pages,
-          url:               request.url
+          url:               request.url,
+          searched_fields:   params[:search]
         }
 
         respond_to do |format|
@@ -58,7 +59,7 @@ module Spree
 
         def set_default_pagination
           @pagination_hash = {}
-          @pagination_hash[:records_per_page] = params[:per_page] || Spree::Config[:records_per_page]
+          @pagination_hash[:records_per_page] = params[:per_page].try(:to_i) || Spree::Config[:records_per_page]
           @pagination_hash[:offset] = params[:page].to_i * @pagination_hash[:records_per_page]
         end
     end

@@ -1,7 +1,7 @@
 module Spree
   class TrendingSearchReport < Spree::Report
     HEADERS = [:searched_term, :occurrences]
-    SEARCH_ATTRIBUTES = { start_date: :start_date, end_date: :end_date }
+    SEARCH_ATTRIBUTES = { start_date: :start_date, end_date: :end_date, keywords_cont: :keyword }
 
     def initialize(options)
       super

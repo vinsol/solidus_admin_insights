@@ -26,6 +26,17 @@
         </div>
       {% } %}
 
+      {% if(o['search_attributes']['keywords_cont']) { %}
+        <div class="row">
+          <div class="col col-md-6">
+            <div data-hook="admin_property_index_search" class="form-group">
+              <label for="search_keywords_cont">{%= o['search_attributes']['keywords_cont'] %}</label>
+              <input type="text" name="search[keywords_cont]" id="search_keywords_cont" class="form-control js-quick-search-target js-filterable" placeholder="Keyword">
+            </div>
+          </div>
+        </div>
+      {% } %}
+
       <div class="row">
         <div class="date-range-filter col-md-8">
           <div class="form-group">

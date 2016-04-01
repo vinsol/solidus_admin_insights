@@ -7,10 +7,10 @@ function TableSorter($insightsTable, reportLoader) {
 
 TableSorter.prototype.bindEvents = function() {
   var _this = this;
-  // this.$sortableLinks = this.$insightsTableList.find('#admin-insight .sortable-link');
   this.$insightsTableList.on('click', '#admin-insight .sortable-link', function() {
     event.preventDefault();
-    var requestPath = $(event.target).attr('href');
+    var currentPage = $('#paginator-div li.active a').html() - 1
+    var requestPath = $(event.target).attr('href') + '&' + $('#filter-search').serialize() + '&page=' + currentPage;    _this.reportLoader.requestUrl = requestPath;
     _this.reportLoader.requestUrl = requestPath;
 
     $.ajax({
@@ -26,5 +26,4 @@ TableSorter.prototype.bindEvents = function() {
 
 TableSorter.prototype.populateInsightsData = function(data) {
   this.reportLoader.populateInsightsData(data);
-  this.bindEvents();
 };

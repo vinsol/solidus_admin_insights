@@ -52,21 +52,6 @@ ReportLoader.prototype.bindPopStateEventCallback = function() {
   }
 };
 
-ReportLoader.prototype.initializeSearcher = function($selectedOption, data) {
-  var searcherInputs = {
-    filterDiv:   $('#search-div'),
-    selectedOption: $selectedOption,
-    insightsDiv: this.$insightsTableList,
-    tableSorterObject: this.tableSorterObject
-  };
-  new Searcher(searcherInputs, this).bindEvents(data);
-};
-
-ReportLoader.prototype.initializeTableSorter = function() {
-  this.tableSorterObject = new TableSorter(this.$insightsTableList, this)
-  this.tableSorterObject.bindEvents();
-};
-
 ReportLoader.prototype.loadChart = function($selectedOption) {
   var requestPath = $selectedOption.data('url');
   this.fetchChartData(requestPath, $selectedOption);
@@ -82,9 +67,10 @@ ReportLoader.prototype.fetchChartData = function(url, $selectedOption) {
     success: function(data) {
       _this.isStatePushable ? _this.populateInsightsData(data) : _this.populateInsightsDataWithoutState(data);
       if(data.headers != undefined) {
-        // _this.initializeTableSorter();
         _this.searcherObject.refreshSearcher($selectedOption, data);
         _this.paginatorObject.refreshPaginator(data);
+        if(data.searched_fields != undefined)
+          _this.searcherObject.fillFormFields(data.searched_fields);
       }
     }
   });
@@ -94,16 +80,6 @@ ReportLoader.prototype.fetchChartDataWithoutState = function(url, $selectedOptio
   this.isStatePushable = false;
   this.fetchChartData(url, $selectedOption);
 }
-
-ReportLoader.prototype.initializePaginator = function(data) {
-  var paginatorInputs = {
-    paginatorDiv: $('#paginator-div'),
-    insightsDiv: this.$insightsTableList,
-    reportData: data,
-    tableSorterObject: this.tableSorterObject
-  };
-  new Paginator(paginatorInputs, this).bindEvents();
-};
 
 ReportLoader.prototype.populateInsightsData = function(data) {
   if(data.headers != undefined) {

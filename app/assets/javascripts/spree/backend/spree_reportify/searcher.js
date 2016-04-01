@@ -7,14 +7,14 @@ function Searcher(inputs, reportLoader) {
   this.tableSorter = inputs.tableSorterObject;
   this.reportLoader = reportLoader;
   this.$filterForm = null;
+  this.$searchLabelsContainer = this.$filters.find('.table-active-filters');
 }
 
 Searcher.prototype.bindEvents = function(data) {
   var _this = this;
-
-  $(document).on("click", ".js-delete-filter", function() {
-   $('#quick_search').val('');
-   $(this).parent().hide();
+  this.$searchLabelsContainer.on("click", ".js-delete-filter", function() {
+    _this.$quickSearchForm[0].reset();
+    $(this).parent().hide();
   });
 };
 
@@ -35,7 +35,6 @@ Searcher.prototype.refreshSearcher = function($selectedInsight, data) {
      data: _this.$filterForm.serialize(),
      dataType: 'json',
      success: function(data) {
-      debugger
       _this.clearFormFields();
       _this.reportLoader.requestUrl = this.url;
       _this.populateInsightsData(data);
@@ -74,7 +73,7 @@ Searcher.prototype.addSearchStatus = function () {
 Searcher.prototype.addSearchForm = function(data) {
   this.$filters.find('#table-filter').empty().append($(tmpl('search-tmpl', data)));
   this.$filterForm = this.$filters.find('#filter-search');
-  $('.datepicker').datepicker({ dateFormat: 'yy-mm-dd' });
+  this.$filters.find('.datepicker').datepicker({ dateFormat: 'yy-mm-dd' });
 };
 
 Searcher.prototype.setFormActions = function($form, path) {
@@ -84,9 +83,15 @@ Searcher.prototype.setFormActions = function($form, path) {
 
 Searcher.prototype.populateInsightsData = function(data) {
   this.reportLoader.populateInsightsData(data);
-  this.tableSorter.bindEvents();
 };
 
 Searcher.prototype.clearFormFields = function() {
-  $('.filter-well').slideUp();
+  this.$filters.find('.filter-well').slideUp();
+};
+
+Searcher.prototype.fillFormFields = function(searchedFields) {
+  $.each(Object.keys(searchedFields), function() {
+    $('#search_' + this).val(searchedFields[this]);
+  });
+  this.addSearchStatus();
 };

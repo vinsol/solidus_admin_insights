@@ -82,9 +82,10 @@ ReportLoader.prototype.fetchChartData = function(url, $selectedOption) {
     success: function(data) {
       _this.isStatePushable ? _this.populateInsightsData(data) : _this.populateInsightsDataWithoutState(data);
       if(data.headers != undefined) {
-        // _this.initializeTableSorter();
         _this.searcherObject.refreshSearcher($selectedOption, data);
         _this.paginatorObject.refreshPaginator(data);
+        if(data.searched_fields != undefined)
+          _this.searcherObject.fillFormFields(data.searched_fields);
       }
     }
   });

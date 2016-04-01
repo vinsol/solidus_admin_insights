@@ -21,21 +21,22 @@ ReportLoader.prototype.bindEvents = function() {
 ReportLoader.prototype.bindPopStateEventCallback = function() {
   var _this = this;
   window.onpopstate = function(event) {
-    _this.$selectList.val(event.state.report_name);
-    _this.$selectList.select2('val', event.state.report_name);
+    event.state ? (report_name = event.state['report_name'] || '') : (report_name = '')
+    _this.$selectList.val(report_name);
+    _this.$selectList.select2('val', report_name);
     var $selectedOption = _this.$selectList.find(':selected');
-    _this.fetchChartData(location.href, $selectedOption);
+    _this.fetchChartDataWithoutState(location.href, $selectedOption);
   }
 };
 
-ReportLoader.prototype.initializeSearcher = function($selectedOption) {
+ReportLoader.prototype.initializeSearcher = function($selectedOption, data) {
   var searcherInputs = {
     filterDiv:   $('#search-div'),
     selectedOption: $selectedOption,
     insightsDiv: this.$insightsTableList,
     tableSorterObject: this.tableSorterObject
   };
-  new Searcher(searcherInputs, this).bindEvents();
+  new Searcher(searcherInputs, this).bindEvents(data);
 };
 
 ReportLoader.prototype.initializeTableSorter = function() {
@@ -58,12 +59,21 @@ ReportLoader.prototype.fetchChartData = function(url, $selectedOption) {
     url: url,
     dataType: 'json',
     success: function(data) {
-      _this.isStatePushable ? _this.populateInsightsData(data) : _this.populateInsightsDataWithoutState(data);
-      _this.initializeTableSorter();
-      _this.initializeSearcher($selectedOption);
-      _this.initializePaginator(data);
+      if(data.headers != undefined) {
+        _this.isStatePushable ? _this.populateInsightsData(data) : _this.populateInsightsDataWithoutState(data);
+        _this.initializeTableSorter();
+        _this.initializeSearcher($selectedOption, data);
+        _this.initializePaginator(data);
+      } else {
+        $('#report-container').empty();
+      }
     }
   });
+}
+
+ReportLoader.prototype.fetchChartDataWithoutState = function(url, $selectedOption) {
+  this.isStatePushable = false;
+  this.fetchChartData(url, $selectedOption);
 }
 
 ReportLoader.prototype.initializePaginator = function(data) {
@@ -81,13 +91,14 @@ ReportLoader.prototype.populateInsightsData = function(data) {
   this.$insightsTableList.empty().append($templateData);
   if(this.isStatePushable) {
     this.pushUrlToHistory();
+  } else {
+    this.isStatePushable = true;
   }
 };
 
 ReportLoader.prototype.populateInsightsDataWithoutState = function(data) {
   this.isStatePushable = false;
   this.populateInsightsData(data);
-  this.isStatePushable = true;
 }
 
 ReportLoader.prototype.pushUrlToHistory = function() {

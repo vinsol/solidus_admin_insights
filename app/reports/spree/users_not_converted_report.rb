@@ -1,6 +1,7 @@
 module Spree
   class UsersNotConvertedReport < Spree::Report
     HEADERS = [:user_email, :signup_date]
+    SEARCH_ATTRIBUTES = { start_date: :users_created_from, end_date: :users_created_till, email_cont: :email }
 
     def initialize(options)
       super

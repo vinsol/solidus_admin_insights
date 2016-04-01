@@ -1,7 +1,8 @@
 module Spree
   class ProductViewsToPurchasesReport < Spree::Report
-    HEADERS = [:product_name, :views, :purchases]
     DEFAULT_SORTABLE_ATTRIBUTE = :product_name
+    HEADERS = [:product_name, :views, :purchases]
+    SEARCH_ATTRIBUTES = { start_date: :product_view_from, end_date: :product_view_till }
 
     def initialize(options)
       super

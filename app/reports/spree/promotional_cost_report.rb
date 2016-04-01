@@ -1,7 +1,8 @@
 module Spree
   class PromotionalCostReport < Spree::Report
-    HEADERS = [:promotion_name, :usage_count, :promotion_discount]
     DEFAULT_SORTABLE_ATTRIBUTE = :promotion_name
+    HEADERS = [:promotion_name, :usage_count, :promotion_discount]
+    SEARCH_ATTRIBUTES = { start_date: :promotion_created_from, end_date: :promotion_created_till }
 
     def initialize(options)
       super

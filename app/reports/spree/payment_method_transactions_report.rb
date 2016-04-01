@@ -1,7 +1,8 @@
 module Spree
   class PaymentMethodTransactionsReport < Spree::Report
-    HEADERS = [:payment_method_name, :payment_count]
     DEFAULT_SORTABLE_ATTRIBUTE = :payment_method_name
+    HEADERS = [:payment_method_name, :payment_count]
+    SEARCH_ATTRIBUTES = { start_date: :payments_created_from, end_date: :payments_created_till }
 
     def initialize(options)
       super

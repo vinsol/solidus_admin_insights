@@ -51,22 +51,22 @@ Searcher.prototype.addSearchStatus = function () {
   $(".js-filterable").each(function() {
    var $this = $(this);
 
-   if ($this.val()) {
-     var ransack_value, filter;
-     var ransack_field = $this.attr("id");
-     var label = $('label[for="' + ransack_field + '"]');
+    if ($this.val()) {
+      var ransack_value, filter;
+      var ransack_field = $this.attr("id");
+      var label = $('label[for="' + ransack_field + '"]');
 
-     if ($this.is("select")) {
-       ransack_value = $this.find('option:selected').text();
-     } else {
-       ransack_value = $this.val();
-     }
+      if ($this.is("select")) {
+        ransack_value = $this.find('option:selected').text();
+      } else {
+        ransack_value = $this.val();
+      }
 
-     label = label.text() + ': ' + ransack_value;
-     filter = '<span class="js-filter label label-default" data-ransack-field="' + ransack_field + '">' + label + '<span class="icon icon-delete js-delete-filter"></span></span>';
+      label = label.text() + ': ' + ransack_value;
+      filter = '<span class="js-filter label label-default" data-ransack-field="' + ransack_field + '">' + label + '<span class="icon icon-delete js-delete-filter"></span></span>';
 
-     filtersContainer.append(filter).show();
-   }
+      filtersContainer.append(filter).show();
+    }
   });
 };
 
@@ -94,4 +94,10 @@ Searcher.prototype.fillFormFields = function(searchedFields) {
     $('#search_' + this).val(searchedFields[this]);
   });
   this.addSearchStatus();
+};
+
+Searcher.prototype.clearSearchFields = function() {
+  this.$quickSearchForm[0].reset();
+  var filtersContainer = $(".js-filters");
+  filtersContainer.empty();
 };

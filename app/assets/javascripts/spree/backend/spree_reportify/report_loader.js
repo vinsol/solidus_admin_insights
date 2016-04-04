@@ -35,6 +35,7 @@ ReportLoader.prototype.init = function() {
 ReportLoader.prototype.bindEvents = function() {
   var _this = this;
   _this.$selectList.on('change', function() {
+    _this.searcherObject.clearSearchFields();
     _this.loadChart($(this).find(':selected'));
   });
 

@@ -1,7 +1,7 @@
 module Spree
   class PaymentMethodTransactionsConversionRateReport < Spree::Report
     DEFAULT_SORTABLE_ATTRIBUTE = :payment_method_name
-    HEADERS = [:payment_method_name, :successful_payments_count, :failed_payments_count]
+    HEADERS = [:payment_method_name, :successful_payments_count, :failed_payments_count, :pending_payments_count, :invalid_payments_count]
     SEARCH_ATTRIBUTES = { start_date: :payments_created_from, end_date: :payments_created_to }
 
     def initialize(options)
@@ -20,8 +20,10 @@ module Spree
     def select_columns(dataset)
       dataset.select{[
         :payment_methods__name___payment_method_name,
-        Sequel.as(sum(IF(payments__state = 'completed', 1, 0)), :successful_payments_count),
-        Sequel.as(sum(IF(payments__state = 'failure', 1, 0)), :failed_payments_count)
+        Sequel.as(sum(Sequel.case({{ state: 'completed' } => 1 }, 0)), :successful_payments_count),
+        Sequel.as(sum(Sequel.case({{ state: 'failure' } => 1 }, 0)), :failure_payments_count),
+        Sequel.as(sum(Sequel.case({{ state: 'invalid' } => 1 }, 0)), :invalid_payments_count),
+        Sequel.as(sum(Sequel.case({{ state: 'pending' } =>1 }, 0)), :pending_payments_count)
       ]}
     end
   end

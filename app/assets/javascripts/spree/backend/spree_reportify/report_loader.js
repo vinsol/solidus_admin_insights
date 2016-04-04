@@ -70,6 +70,7 @@ ReportLoader.prototype.fetchChartData = function(url, $selectedOption) {
       _this.isStatePushable ? _this.populateInsightsData(data) : _this.populateInsightsDataWithoutState(data);
       if(data.headers != undefined) {
         _this.pageSelector.closest('div').removeClass('hide');
+        _this.pageSelector.data('url', data['request_path'] + '?type=' + data['report_type']);
         _this.searcherObject.refreshSearcher($selectedOption, data);
         _this.paginatorObject.refreshPaginator(data);
         if(data.searched_fields != undefined)

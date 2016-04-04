@@ -59,7 +59,7 @@ Paginator.prototype.loadReportData = function(event) {
       sorted_attributes = this.tableSorter.fetchSortedAttribute(),
       attribute = sorted_attributes[0],
       sortOrder = sorted_attributes[1],
-      requestUrl = `${$('#filter-search').attr('action')}&sort%5Battribute%5D=${attribute}&sort%5Btype%5D=${sortOrder}&${$('#filter-search').serialize()}&per_page=${$element.val()}`;
+      requestUrl = `${$element.data('url')}&sort%5Battribute%5D=${attribute}&sort%5Btype%5D=${sortOrder}&${$('#filter-search').serialize()}&per_page=${$element.val()}`;
   $element.data('url', requestUrl);
   this.reportLoader.loadChart($element);
 };

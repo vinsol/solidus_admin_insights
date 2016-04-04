@@ -11,23 +11,21 @@ Paginator.prototype.bindEvents = function () {
     event.preventDefault();
     _this.loadPaginationData(event);
   });
+  this.reportLoader.pageSelector.on('change', function(event) {
+    _this.loadReportData(event);
+  });
 };
 
 Paginator.prototype.refreshPaginator = function(data) {
+  this.reportLoader.pageSelector.val(data['per_page']);
   this.populatePaginationData(data);
 };
 
 Paginator.prototype.loadPaginationData = function (event) {
-
-  var attribute, sortOrder;
-    attribute = this.getSortedAttribute('asc');
-  if (this.$insightsTableList.find('.asc').length) {
-    sortOrder = 'asc';
-  } else if(this.$insightsTableList.find('.desc').length) {
-    attribute = this.getSortedAttribute('desc');
-    sortOrder = 'desc';
-  }
   var $element = $(event.target),
+    sorted_attributes = this.tableSorter.fetchSortedAttribute(),
+    attribute = sorted_attributes[0],
+    sortOrder = sorted_attributes[1],
     requestPath = `${$element.attr('href')}&sort%5Battribute%5D=${attribute}&sort%5Btype%5D=${sortOrder}`,
     _this = this;
   _this.reportLoader.requestUrl = requestPath;
@@ -56,11 +54,12 @@ Paginator.prototype.populatePaginationData = function(data) {
   this.pageLinks = this.paginatorDiv.find('.pagination-link');
 };
 
-
-Paginator.prototype.getSortedAttribute = function(order) {
-  if (this.$insightsTableList.find(`.${order}`).length > 0) {
-    return this.$insightsTableList.find(`.${order}`).html().toLowerCase().split(' ').join('_');
-  } else {
-    return null;
-  }
+Paginator.prototype.loadReportData = function(event) {
+  var $element = $(event.target),
+      sorted_attributes = this.tableSorter.fetchSortedAttribute(),
+      attribute = sorted_attributes[0],
+      sortOrder = sorted_attributes[1],
+      requestUrl = `${$('#filter-search').attr('action')}&sort%5Battribute%5D=${attribute}&sort%5Btype%5D=${sortOrder}&${$('#filter-search').serialize()}&per_page=${$element.val()}`;
+  $element.data('url', requestUrl);
+  this.reportLoader.loadChart($element);
 };

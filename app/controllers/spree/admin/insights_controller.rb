@@ -27,7 +27,8 @@ module Spree
           stats:             @stats,
           total_pages:       @total_pages,
           url:               request.url,
-          searched_fields:   params[:search]
+          searched_fields:   params[:search],
+          per_page:          @pagination_hash[:records_per_page]
         }
 
         respond_to do |format|

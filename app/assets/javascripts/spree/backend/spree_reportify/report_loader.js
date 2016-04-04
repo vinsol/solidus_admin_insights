@@ -6,6 +6,7 @@ function ReportLoader(inputs) {
   this.$selectList = inputs.reportsSelectBox;
   this.$insightsTableList = inputs.insightsDiv;
   this.requestUrl = '';
+  this.pageSelector = $('#per_page');
   this.isStatePushable = true;
   this.tableSorterObject = null;
   this.searcherObject = null;
@@ -68,6 +69,7 @@ ReportLoader.prototype.fetchChartData = function(url, $selectedOption) {
     success: function(data) {
       _this.isStatePushable ? _this.populateInsightsData(data) : _this.populateInsightsDataWithoutState(data);
       if(data.headers != undefined) {
+        _this.pageSelector.closest('div').removeClass('hide');
         _this.searcherObject.refreshSearcher($selectedOption, data);
         _this.paginatorObject.refreshPaginator(data);
         if(data.searched_fields != undefined)

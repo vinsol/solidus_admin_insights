@@ -32,7 +32,7 @@ Searcher.prototype.refreshSearcher = function($selectedInsight, data) {
    $.ajax({
      type: "GET",
      url: _this.$filterForm.attr('action'),
-     data: _this.$filterForm.serialize(),
+     data: _this.$filterForm.serialize() + "&per_page=" + _this.reportLoader.pageSelector.find(':selected').attr('value'),
      dataType: 'json',
      success: function(data) {
       _this.clearFormFields();
@@ -43,7 +43,7 @@ Searcher.prototype.refreshSearcher = function($selectedInsight, data) {
    });
    return false;
   });
-}
+};
 
 Searcher.prototype.addSearchStatus = function () {
   var filtersContainer = $(".js-filters");
@@ -55,7 +55,6 @@ Searcher.prototype.addSearchStatus = function () {
       var ransack_value, filter;
       var ransack_field = $this.attr("id");
       var label = $('label[for="' + ransack_field + '"]');
-
       if ($this.is("select")) {
         ransack_value = $this.find('option:selected').text();
       } else {

@@ -36,6 +36,11 @@
     <div class="table-active-filters js-filters"></div>
   </div>
 
+  <div id="page-selector" class="col-md-2 pull-right hide">
+    <%= select_tag :per_page, options_for_select([3, 5, 15, 30, 45, 60], params[:per_page] || 3), class: 'form-control pull-right' %>
+  </div>
+
+
   <div id='report-div'>
   </div>
 

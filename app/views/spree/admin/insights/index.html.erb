@@ -37,7 +37,7 @@
   </div>
 
   <div id="page-selector" class="col-md-1 pull-right hide">
-    <%= select_tag :per_page, options_for_select([5, 15, 30, 45, 60], params[:per_page] || 5), class: 'form-control pull-right' %>
+    <%= select_tag :per_page, options_for_select(page_selector_options, params[:per_page] || page_selector_options.first), class: 'form-control text-right pull-right page-select ' %>
   </div>
 
   <div id='report-div'>

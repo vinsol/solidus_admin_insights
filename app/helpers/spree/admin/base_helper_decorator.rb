@@ -10,4 +10,9 @@ Spree::BaseHelper.class_eval do
   def page_selector_options
     [5, 10, 15, 30, 45, 60]
   end
+
+  def page_selector_options
+    [5, 10, 15, 30, 45, 60]
+  end
+
 end

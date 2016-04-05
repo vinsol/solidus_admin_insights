@@ -21,7 +21,7 @@ module Spree
 
     def select_columns(dataset)
       dataset.select{[
-        Sequel.as(abs(sum(:amount)), :promotion_discount),
+        Sequel.as(CONCAT(::Money.new(Spree::Config[:currency]).symbol, IFNULL(abs(sum(:amount)), 0)), :promotion_discount),
         Sequel.as(count(:promotions__id), :usage_count),
         :promotions__name___promotion_name,
         :promotions__code___promotion_code,

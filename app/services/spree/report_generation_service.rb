@@ -7,7 +7,7 @@ module Spree
                                     :cart_additions, :cart_removals, :cart_updations,
                                     :product_views, :product_views_to_cart_additions,
                                     :product_views_to_purchases, :unique_purchases,
-                                    :best_selling_products
+                                    :best_selling_products, :returned_products
                                   ],
       promotion_analysis:         [:promotional_cost],
       sales_performance_analysis: [:sales_performance],

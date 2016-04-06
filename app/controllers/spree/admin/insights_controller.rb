@@ -12,7 +12,7 @@ module Spree
       end
 
       def show
-        @headers, @stats, @total_pages, @search_attributes = ReportGenerationService.public_send(
+        @headers, @stats, @total_pages, @search_attributes, @chart_json = ReportGenerationService.public_send(
                                              :generate_report,
                                              @report_name,
                                              params.merge(@pagination_hash)
@@ -28,7 +28,8 @@ module Spree
           total_pages:       @total_pages,
           url:               request.url,
           searched_fields:   params[:search],
-          per_page:          @pagination_hash[:records_per_page]
+          per_page:          @pagination_hash[:records_per_page],
+          chart_json:        @chart_json
         }
 
         respond_to do |format|

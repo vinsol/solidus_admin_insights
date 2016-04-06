@@ -31,5 +31,22 @@ module Spree
       sortable_type.eql?(:desc) ? Sequel.desc(sortable_attribute) : Sequel.asc(sortable_attribute)
     end
 
+    def chart_json
+      {
+        chart: false,
+        json: {
+          xAxis: {
+            data: nil,
+            categories: nil
+          },
+          yAxis: {
+            title: {
+              text: 'Values'
+            }
+          }
+        }
+      }
+    end
+
   end
 end

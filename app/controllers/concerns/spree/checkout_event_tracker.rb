@@ -13,12 +13,16 @@ module Spree
     end
 
     def next_state
-      @next_state ||= request.url.split('/').last
+      @next_state ||= checkout_state(request.url)
     end
 
     def previous_state
-      @previous_state ||= (request.referrer ? request.referrer.split('/').last : nil)
+      referrer = request.referrer
+      @previous_state ||= (referrer ? checkout_state(referrer) : nil)
     end
 
+    def checkout_state(request_path)
+      referrer.split('/').last
+    end
   end
 end

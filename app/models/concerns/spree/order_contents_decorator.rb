@@ -26,6 +26,7 @@ module Spree
 
     private
 
+    # Override: Add tracking entry after a line_item is added or removed
     def after_add_or_remove(line_item, options = {})
       line_item = super
       Spree::Cart::Event::Tracker.new(

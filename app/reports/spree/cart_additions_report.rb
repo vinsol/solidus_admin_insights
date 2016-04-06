@@ -1,7 +1,7 @@
 module Spree
   class CartAdditionsReport < Spree::Report
     DEFAULT_SORTABLE_ATTRIBUTE = :product_name
-    HEADERS = [:product_name, :additions, :quantity_change]
+    HEADERS = [:product_name, :sku, :additions, :quantity_change]
     SEARCH_ATTRIBUTES = { start_date: :product_added_from, end_date: :product_added_to }
 
     def initialize(options)
@@ -15,13 +15,14 @@ module Spree
       join(:spree_products___products, id: :product_id).
       where(cart_events__activity: 'add').
       where(cart_events__created_at: @start_date..@end_date).
-      group(:product_name).
+      group(:variant_id).
       order(sortable_sequel_expression)
     end
 
     def select_columns(dataset)
       dataset.select{[
         :products__name___product_name,
+        :variants__sku___sku,
         Sequel.as(count(:products__name), :additions),
         Sequel.as(sum(cart_events__quantity), :quantity_change)
       ]}

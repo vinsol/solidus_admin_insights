@@ -3,6 +3,4 @@ Spree::LineItem.class_eval do
   scope :for_products, ->(product_ids) { includes(:product).where(spree_products: { id: product_ids }) }
 
   delegate :user, to: :order, allow_nil: true
-
-  self.whitelisted_ransackable_attributes += %w[created_at]
 end

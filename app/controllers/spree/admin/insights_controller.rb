@@ -60,8 +60,10 @@ module Spree
 
         def set_default_pagination
           @pagination_hash = {}
-          @pagination_hash[:records_per_page] = params[:per_page].try(:to_i) || Spree::Config[:records_per_page]
-          @pagination_hash[:offset] = params[:page].to_i * @pagination_hash[:records_per_page]
+          if params[:no_pagination] != 'true'
+            @pagination_hash[:records_per_page] = params[:per_page].try(:to_i) || Spree::Config[:records_per_page]
+            @pagination_hash[:offset] = params[:page].to_i * @pagination_hash[:records_per_page]
+          end
         end
     end
   end

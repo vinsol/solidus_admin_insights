@@ -7,6 +7,8 @@ function ReportLoader(inputs) {
   this.$insightsTableList = inputs.insightsDiv;
   this.requestUrl = '';
   this.pageSelector = $('#per_page');
+  this.resetButton = inputs.resetButton;
+  this.refreshButton = inputs.refreshButton;
   this.isStatePushable = true;
   this.tableSorterObject = null;
   this.searcherObject = null;
@@ -27,7 +29,9 @@ ReportLoader.prototype.init = function() {
   var paginatorInputs = {
     paginatorDiv: $('#paginator-div'),
     insightsDiv: this.$insightsTableList,
-    tableSorterObject: this.tableSorterObject
+    tableSorterObject: this.tableSorterObject,
+    removePaginationButton: $('#remove-pagination'),
+    applyPaginationButton: $('#apply-pagination')
   };
   this.paginatorObject = new Paginator(paginatorInputs, this);
   this.paginatorObject.bindEvents();
@@ -36,11 +40,38 @@ ReportLoader.prototype.init = function() {
 ReportLoader.prototype.bindEvents = function() {
   var _this = this;
   _this.$selectList.on('change', function() {
+    _this.paginatorObject.togglePaginatorButtons(_this.paginatorObject.removePaginationButton, _this.paginatorObject.applyPaginationButton);
     _this.searcherObject.clearSearchFields();
     _this.loadChart($(this).find(':selected'));
   });
 
+  this.resetButton.on('click', function() {
+    _this.resetFilters(event);
+  });
+
+  this.refreshButton.on('click', function() {
+    _this.refreshPage(event);
+  });
+
   _this.bindPopStateEventCallback();
+};
+
+ReportLoader.prototype.resetFilters = function(event) {
+  event.preventDefault();
+  var $element = $(event.target),
+      noPagination = this.paginatorObject.removePaginationButton.closest('span').hasClass('hide');
+  $element.attr('href', this.pageSelector.data('url') + '&no_pagination=' + noPagination);
+  $element.data('url', this.pageSelector.data('url') + '&no_pagination=' + noPagination);
+  this.loadChart($element);
+  this.searcherObject.clearSearchFields();
+};
+
+ReportLoader.prototype.refreshPage = function(event) {
+  event.preventDefault();
+  var $element = $(event.target);
+  $element.attr('href', location.href);
+  $element.data('url', location.href);
+  this.loadChart($element);
 };
 
 ReportLoader.prototype.bindPopStateEventCallback = function() {
@@ -69,7 +100,7 @@ ReportLoader.prototype.fetchChartData = function(url, $selectedOption) {
     success: function(data) {
       _this.isStatePushable ? _this.populateInsightsData(data) : _this.populateInsightsDataWithoutState(data);
       if(data.headers != undefined) {
-        _this.pageSelector.closest('div').removeClass('hide');
+        _this.pageSelector.closest('.hide').removeClass('hide');
         _this.pageSelector.data('url', data['request_path'] + '?type=' + data['report_type']);
         _this.searcherObject.refreshSearcher($selectedOption, data);
         _this.paginatorObject.refreshPaginator(data);
@@ -120,7 +151,9 @@ ReportLoader.prototype.populateInitialData = function() {
 $(function() {
   var inputs = {
     insightsDiv:      $('#report-div'),
-    reportsSelectBox: $('#reports')
+    reportsSelectBox: $('#reports'),
+    resetButton: $('#reset'),
+    refreshButton: $('#refresh')
   },
     report_loader = new ReportLoader(inputs);
   report_loader.init();

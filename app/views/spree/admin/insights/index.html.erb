@@ -37,7 +37,7 @@
   </div>
 
   <div id="page-selector" class="col-md-1 pull-right hide">
-    <%= select_tag :per_page, options_for_select(page_selector_options, params[:per_page] || page_selector_options.first), class: 'form-control text-right pull-right page-select ' %>
+    <%= select_tag :per_page, options_for_select(page_selector_options, params[:per_page] || Spree::Config[:records_per_page]), class: 'form-control text-right pull-right page-select ' %>
   </div>
 
   <div id='report-div'>

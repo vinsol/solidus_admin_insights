@@ -5,7 +5,6 @@ module Spree
     SORTABLE_ATTRIBUTES = []
 
     def generate(options = {})
-      initialize_months_table
       order_join_line_item = SpreeReportify::ReportDb[:spree_orders___orders].
       exclude(completed_at: nil).
       where(orders__created_at: @start_date..@end_date). #filter by params
@@ -13,50 +12,82 @@ module Spree
       group(:line_items__order_id).
       select{[
         Sequel.as(SUM(IFNULL(line_items__cost_price, line_items__price) * line_items__quantity), :cost_price),
-        line_items__order_id,
         Sequel.as(orders__item_total, :sale_price),
         Sequel.as(orders__item_total - SUM(IFNULL(line_items__cost_price, line_items__price) * line_items__quantity), :profit_loss),
         Sequel.as(MONTHNAME(:orders__created_at), :month_name),
+        Sequel.as(MONTH(:orders__created_at), :number),
         Sequel.as(YEAR(:orders__created_at), :year)
       ]}
 
       group_by_months = SpreeReportify::ReportDb[order_join_line_item].
-      right_outer_join(:months, name: :month_name).
       group(:months_name).
-      order(:sort_year, :number).
+      order(:year, :number).
       select{[
-        months__number,
-        Sequel.as(IFNULL(year, 2016), :sort_year),
-        Sequel.as(concat(name, ' ', IFNULL(year, 2016)), :months_name),
+        number,
+        Sequel.as(IFNULL(year, 2016), :year),
+        Sequel.as(concat(month_name, ' ', IFNULL(year, 2016)), :months_name),
         Sequel.as(IFNULL(SUM(sale_price), 0), :sale_price),
         Sequel.as(IFNULL(SUM(cost_price), 0), :cost_price),
-        Sequel.as(IFNULL(SUM(profit_loss), 0), :profit_loss)
+        Sequel.as(IFNULL(SUM(profit_loss), 0), :profit_loss),
+        Sequel.as((IFNULL(SUM(profit_loss), 0) / SUM(cost_price)) * 100, :profit_loss_percent),
+        Sequel.as(0, :promotion_discount)
       ]}
-      group_by_months
+
+      adjustments_with_month_name = SpreeReportify::ReportDb[:spree_adjustments___adjustments].
+      where(adjustments__source_type: "Spree::PromotionAction").
+      where(adjustments__created_at: @start_date..@end_date). #filter by params
+      select{[
+        Sequel.as(abs(:amount), :promotion_discount),
+        Sequel.as(MONTHNAME(:adjustments__created_at), :month_name),
+        Sequel.as(YEAR(:adjustments__created_at), :year),
+        Sequel.as(MONTH(:adjustments__created_at), :number)
+      ]}
+
+      promotions_group_by_months = SpreeReportify::ReportDb[adjustments_with_month_name].
+      group(:months_name).
+      order(:year, :number).
+      select{[
+        number,
+        year,
+        Sequel.as(concat(month_name, ' ', year), :months_name),
+        Sequel.as(0, :sale_price),
+        Sequel.as(0, :cost_price),
+        Sequel.as(SUM(promotion_discount) * (-1), :profit_loss),
+        Sequel.as(0, :profit_loss_percent),
+        Sequel.as(SUM(promotion_discount), :promotion_discount)
+      ]}
+
+      union_stats = SpreeReportify::ReportDb[group_by_months.union(promotions_group_by_months)].
+      group(:months_name).
+      order(:year, :number).
+      select{[
+        number,
+        year,
+        months_name,
+        Sequel.as(SUM(sale_price), :sale_price),
+        Sequel.as(SUM(cost_price), :cost_price),
+        Sequel.as(IF(SUM(profit_loss) > 0, concat('+', SUM(profit_loss)), SUM(profit_loss)), :profit_loss),
+        Sequel.as(ROUND((SUM(profit_loss) / SUM(cost_price)), 3) * 100, :profit_loss_percent),
+        Sequel.as(SUM(promotion_discount), :promotion_discount)
+      ]}
+      fill_missing_values({ cost_price: 0, sale_price: 0, profit_loss: 0, profit_loss_percent: 0, promotion_discount: 0 }, union_stats.all)
     end
 
     def select_columns(dataset)
       dataset
     end
 
-    def chart_json
-      {
-        chart: true,
-        charts: [
-          profit_loss_chart_json,
-          sale_cost_price_chart_json
-        ]
-      }
-    end
-
+    # extract it in report.rb
     def chart_data
-      @data ||= SpreeReportify::ReportDb[generate].
-      select{[
-        Sequel.as(group_concat(profit_loss), :profit_loss),
-        Sequel.as(group_concat(sale_price), :sale_price),
-        Sequel.as(group_concat(cost_price), :cost_price),
-        Sequel.as(group_concat(months_name), :months_name)
-      ]}.first
+      unless @data
+        @data = Hash.new {|h, k| h[k] = [] }
+        generate.each do |object|
+          object.each_pair do |key, value|
+            @data[key].push(value)
+          end
+        end
+      end
+      @data
     end
 
     # ---------------------------------------------------- Graph Jsons --------------------------------------------------
@@ -66,11 +97,10 @@ module Spree
         id: 'profit-loss',
         json: {
           title: { text: 'Profit/Loss' },
-          xAxis: { categories: chart_data[:months_name].split(',') },
+          xAxis: { categories: chart_data[:months_name] },
           yAxis: {
             title: { text: 'Value($)' }
           },
-          tooltip: { valuePrefix: '$' },
           legend: {
               layout: 'vertical',
               align: 'right',
@@ -80,7 +110,34 @@ module Spree
           series: [
             {
               name: 'Profit Loss',
-              data: chart_data[:profit_loss].split(',').map(&:to_f)
+              tooltip: { valuePrefix: '$' },
+              data: chart_data[:profit_loss].map(&:to_f)
+            }
+          ]
+        }
+      }
+    end
+
+    def profit_loss_percent_chart_json
+      {
+        id: 'profit-loss',
+        json: {
+          title: { text: 'Profit/Loss Percent' },
+          xAxis: { categories: chart_data[:months_name] },
+          yAxis: {
+            title: { text: 'Percentage(%)' }
+          },
+          legend: {
+              layout: 'vertical',
+              align: 'right',
+              verticalAlign: 'middle',
+              borderWidth: 0
+          },
+          series: [
+            {
+              name: 'Profit Loss Percent(%)',
+              tooltip: { valueSuffix: '%' },
+              data: chart_data[:profit_loss_percent].map(&:to_f)
             }
           ]
         }
@@ -92,8 +149,8 @@ module Spree
         id: 'sale-price',
         json: {
           chart: { type: 'column' },
-          title: { text: 'Sale Price' },
-          xAxis: { categories: chart_data[:months_name].split(',') },
+          title: { text: 'Sales Performance' },
+          xAxis: { categories: chart_data[:months_name] },
           yAxis: {
             title: { text: 'Value($)' }
           },
@@ -107,11 +164,15 @@ module Spree
           series: [
             {
               name: 'Sale Price',
-              data: chart_data[:sale_price].split(',').map(&:to_f)
+              data: chart_data[:sale_price].map(&:to_f)
             },
             {
               name: 'Cost Price',
-              data: chart_data[:cost_price].split(',').map(&:to_f)
+              data: chart_data[:cost_price].map(&:to_f)
+            },
+            {
+              name: 'Promotional Cost',
+              data: chart_data[:promotion_discount].map(&:to_f)
             }
           ]
         }

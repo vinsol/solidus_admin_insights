@@ -124,7 +124,7 @@ ReportLoader.prototype.fetchChartData = function(url, $selectedOption) {
   });
 };
 
-ReportLoader.prototype.buidChart = function(data) {
+ReportLoader.prototype.buildChart = function(data) {
   var chart_container = $('#chart-container');
   if ((data['chart_json'] != undefined) && (data['chart_json']['chart'])) {
     chart_container.empty().removeClass('hidden');
@@ -147,7 +147,7 @@ ReportLoader.prototype.populateInsightsData = function(data) {
   if(data.headers != undefined) {
     var $templateData = $(tmpl('tmpl', data));
     this.$insightsTableList.empty().append($templateData);
-    this.buidChart(data);
+    this.buildChart(data);
   } else {
     this.$insightsTableList.empty();
     this.paginatorDiv.empty();

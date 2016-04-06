@@ -27,9 +27,9 @@ module Spree
         dataset = resource.generate
         total_records = resource.select_columns(dataset).count
         result_set = resource.select_columns(dataset.limit(options['records_per_page'], options['offset'])).all
-        [headers(klass, resource), result_set, total_pages(total_records, options['records_per_page']), search_attributes(klass)]
+        [headers(klass, resource, report_name), result_set, total_pages(total_records, options['records_per_page']), search_attributes(klass)]
       else
-        [headers(klass, options), sales_performance(options), total_pages(1, options['records_per_page']), search_attributes(klass)]
+        [headers(klass, options, report_name), sales_performance(options), total_pages(1, options['records_per_page']), search_attributes(klass)]
       end
     end
 
@@ -49,12 +49,14 @@ module Spree
       total_pages
     end
 
-    def self.headers(klass, resource)
-      klass::HEADERS.map do |header|
+    def self.headers(klass, resource, report_name)
+      klass::HEADERS.keys.map do |header|
         {
-          name: header.to_s.humanize,
+          name: Spree.t(header.to_sym, scope: [:insight, report_name]),
           value: header,
-          sorted: resource.try(:header_sorted?, header) ? resource.sortable_type.to_s : nil
+          sorted: resource.try(:header_sorted?, header) ? resource.sortable_type.to_s : nil,
+          type: klass::HEADERS[header],
+          sortable: header.in?(klass::SORTABLE_ATTRIBUTES)
         }
       end
     end

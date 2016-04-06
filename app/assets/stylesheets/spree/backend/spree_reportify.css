@@ -5,5 +5,8 @@ the installer will append this file to the app vendored assets here: 'vendor/ass
 
 .page-select {
   padding-left: 6px;
-  padding-right: 0px;
+}
+
+#report-container .filter-well {
+  margin: 5px 0px 10px 0px;
 }

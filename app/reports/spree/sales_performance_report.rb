@@ -1,7 +1,8 @@
 module Spree
   class SalesPerformanceReport < Spree::Report
-    HEADERS = [:revenue, :tax, :shipping_charges, :refund_amount, :adjustment_total]
+    HEADERS = { revenue: :integer, tax: :integer, shipping_charges: :integer, refund_amount: :integer, adjustment_total: :integer }
     SEARCH_ATTRIBUTES = { start_date: :orders_created_from, end_date: :orders_created_till }
+    SORTABLE_ATTRIBUTES = []
 
     def generate(options = {})
       [

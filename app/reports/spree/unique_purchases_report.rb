@@ -1,8 +1,9 @@
 module Spree
   class UniquePurchasesReport < Spree::Report
     DEFAULT_SORTABLE_ATTRIBUTE = :product_name
-    HEADERS = [:product_name, :sku, :sold_count, :users]
+    HEADERS = { product_name: :string, sku: :string, sold_count: :integer, users: :integer }
     SEARCH_ATTRIBUTES = { start_date: :orders_completed_from, end_date: :orders_completed_till }
+    SORTABLE_ATTRIBUTES = [:product_name, :sku, :sold_count, :users]
 
     def initialize(options)
       super

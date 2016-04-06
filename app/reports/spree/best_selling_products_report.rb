@@ -1,12 +1,14 @@
 module Spree
   class BestSellingProductsReport < Spree::Report
     DEFAULT_SORTABLE_ATTRIBUTE = :product_name
-    HEADERS = [:product_name, :sku, :sold_count]
+    HEADERS = { product_name: :string, sku: :string, sold_count: :integer }
     SEARCH_ATTRIBUTES = { start_date: :orders_completed_from, end_date: :orders_completed_to }
+    SORTABLE_ATTRIBUTES = [:product_name, :sku, :sold_count]
 
     def initialize(options)
       super
       @name = @search[:name].present? ? "%#{ @search[:name] }%" : '%'
+      @sortable_type = :desc if options[:sort].blank?
       set_sortable_attributes(options, DEFAULT_SORTABLE_ATTRIBUTE)
     end
 
@@ -28,10 +30,5 @@ module Spree
         sum(quantity).as(sold_count)
       ]}
     end
-
-    private
-      def sortable_sequel_expression
-        sortable_type.eql?(:asc) ? Sequel.asc(sortable_attribute) : Sequel.desc(sortable_attribute)
-      end
   end
 end

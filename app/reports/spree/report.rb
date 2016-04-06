@@ -23,7 +23,7 @@ module Spree
     end
 
     def set_sortable_attributes(options, default_sortable_attribute)
-      self.sortable_type = (options[:sort] && options[:sort][:type].eql?('desc')) ? :desc : :asc
+      self.sortable_type ||= (options[:sort] && options[:sort][:type].eql?('desc')) ? :desc : :asc
       self.sortable_attribute = options[:sort] ? options[:sort][:attribute].to_sym : default_sortable_attribute
     end
 

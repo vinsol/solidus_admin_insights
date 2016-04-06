@@ -1,8 +1,9 @@
 module Spree
   class PromotionalCostReport < Spree::Report
     DEFAULT_SORTABLE_ATTRIBUTE = :promotion_name
-    HEADERS = [:promotion_name, :usage_count, :promotion_discount, :promotion_code, :promotion_start_date, :promotion_end_date]
+    HEADERS = { promotion_name: :string, usage_count: :integer, promotion_discount: :integer, promotion_code: :string, promotion_start_date: :date, promotion_end_date: :date }
     SEARCH_ATTRIBUTES = { start_date: :promotion_created_from, end_date: :promotion_created_till }
+    SORTABLE_ATTRIBUTES = [:promotion_name, :usage_count, :promotion_discount, :promotion_code, :promotion_start_date, :promotion_end_date]
 
     def initialize(options)
       super
@@ -23,11 +24,11 @@ module Spree
       dataset.select{[
         Sequel.as(CONCAT(::Money.new(Spree::Config[:currency]).symbol, IFNULL(abs(sum(:amount)), 0)), :promotion_discount),
         Sequel.as(count(:promotions__id), :usage_count),
-        :promotions__name___promotion_name,
-        :promotions__code___promotion_code,
-        :promotions__usage_limit___promotion_usage_limit,
-        :promotions__starts_at___promotion_start_date,
-        :promotions__expires_at___promotion_end_date
+        promotions__name.as(promotion_name),
+        promotions__code.as(promotion_code),
+        promotions__usage_limit.as(promotion_usage_limit),
+        promotions__starts_at.as(promotion_start_date),
+        promotions__expires_at.as(promotion_end_date)
       ]}
     end
   end

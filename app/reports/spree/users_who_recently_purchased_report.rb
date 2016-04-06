@@ -1,8 +1,9 @@
 module Spree
   class UsersWhoRecentlyPurchasedReport < Spree::Report
     DEFAULT_SORTABLE_ATTRIBUTE = :user_email
-    HEADERS = [:user_email, :purchase_count, :last_purchase_date, :last_purchased_order_number]
+    HEADERS = { user_email: :string, purchase_count: :integer, last_purchase_date: :date, last_purchased_order_number: :string }
     SEARCH_ATTRIBUTES = { start_date: :start_date, end_date: :end_date, email_cont: :email }
+    SORTABLE_ATTRIBUTES = [:user_email, :purchase_count, :last_purchase_date]
 
     def initialize(options)
       super

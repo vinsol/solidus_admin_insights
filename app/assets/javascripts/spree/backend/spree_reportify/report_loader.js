@@ -138,6 +138,15 @@ ReportLoader.prototype.buildChart = function(data) {
   }
 };
 
+ReportLoader.prototype.buidChart = function(data) {
+  if(data['chart_json']['chart']) {
+    $('#chart-container').removeClass('hidden');
+    $('#chart-container').highcharts(data['chart_json']['json']);
+  } else {
+    $('#chart-container').addClass('hidden');
+  }
+}
+
 ReportLoader.prototype.fetchChartDataWithoutState = function(url, $selectedOption) {
   this.isStatePushable = false;
   this.fetchChartData(url, $selectedOption);

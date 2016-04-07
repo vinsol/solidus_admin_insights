@@ -5,10 +5,14 @@
 function ReportLoader(inputs) {
   this.$selectList = inputs.reportsSelectBox;
   this.$insightsTableList = inputs.insightsDiv;
-  this.requestUrl = '';
-  this.pageSelector = $('#per_page');
+  this.pageSelector = inputs.pageSelector;
   this.resetButton = inputs.resetButton;
   this.refreshButton = inputs.refreshButton;
+  this.filterDiv = inputs.filterDiv;
+  this.paginatorDiv = inputs.paginatorDiv;
+  this.removePaginationButton = inputs.removePaginationButton;
+  this.applyPaginationButton = inputs.applyPaginationButton;
+  this.requestUrl = '';
   this.isStatePushable = true;
   this.tableSorterObject = null;
   this.searcherObject = null;
@@ -16,10 +20,15 @@ function ReportLoader(inputs) {
 };
 
 ReportLoader.prototype.init = function() {
-  this.tableSorterObject = new TableSorter(this.$insightsTableList, this);
+  var tableSorterInputs = {
+    $insightsTable: this.$insightsTableList,
+    reportLoader: this,
+    paginatorDiv: this.paginatorDiv
+  }
+  this.tableSorterObject = new TableSorter(tableSorterInputs);
   this.tableSorterObject.bindEvents();
   var searcherInputs = {
-    filterDiv:   $('#search-div'),
+    filterDiv:   this.filterDiv,
     insightsDiv: this.$insightsTableList,
     tableSorterObject: this.tableSorterObject
   };
@@ -27,11 +36,11 @@ ReportLoader.prototype.init = function() {
   this.searcherObject.bindEvents();
 
   var paginatorInputs = {
-    paginatorDiv: $('#paginator-div'),
+    paginatorDiv: this.paginatorDiv,
     insightsDiv: this.$insightsTableList,
     tableSorterObject: this.tableSorterObject,
-    removePaginationButton: $('#remove-pagination'),
-    applyPaginationButton: $('#apply-pagination')
+    removePaginationButton: this.removePaginationButton,
+    applyPaginationButton: this.applyPaginationButton
   };
   this.paginatorObject = new Paginator(paginatorInputs, this);
   this.paginatorObject.bindEvents();
@@ -59,7 +68,7 @@ ReportLoader.prototype.bindEvents = function() {
 ReportLoader.prototype.resetFilters = function(event) {
   event.preventDefault();
   var $element = $(event.target),
-      noPagination = this.paginatorObject.removePaginationButton.closest('span').hasClass('hide');
+      noPagination = this.removePaginationButton.closest('span').hasClass('hide');
   $element.attr('href', this.pageSelector.data('url') + '&no_pagination=' + noPagination);
   $element.data('url', this.pageSelector.data('url') + '&no_pagination=' + noPagination);
   this.loadChart($element);
@@ -121,9 +130,9 @@ ReportLoader.prototype.populateInsightsData = function(data) {
     var $templateData = $(tmpl('tmpl', data));
     this.$insightsTableList.empty().append($templateData);
   } else {
-      $('#report-div').empty();
-      $('#paginator-div').empty();
-      $('#search-div').addClass('hide');
+      this.$insightsTableList.empty();
+      this.paginatorDiv.empty();
+      this.filterDiv.addClass('hide');
   }
   if(this.isStatePushable) {
     this.pushUrlToHistory();
@@ -153,10 +162,15 @@ $(function() {
     insightsDiv:      $('#report-div'),
     reportsSelectBox: $('#reports'),
     resetButton: $('#reset'),
-    refreshButton: $('#refresh')
+    refreshButton: $('#refresh'),
+    removePaginationButton: $('#remove-pagination'),
+    applyPaginationButton: $('#apply-pagination'),
+    pageSelector: $('#per_page'),
+    filterDiv: $('#search-div'),
+    paginatorDiv: $('#paginator-div')
   },
-    report_loader = new ReportLoader(inputs);
-  report_loader.init();
-  report_loader.bindEvents();
-  report_loader.populateInitialData();
+    reportLoader = new ReportLoader(inputs);
+  reportLoader.init();
+  reportLoader.bindEvents();
+  reportLoader.populateInitialData();
 });

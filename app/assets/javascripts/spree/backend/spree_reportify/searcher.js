@@ -28,7 +28,7 @@ Searcher.prototype.refreshSearcher = function($selectedInsight, data) {
   _this.setFormActions(_this.$filterForm, requestPath);
 
   _this.$filterForm.on('submit', function() {
-   var noPagination = _this.reportLoader.paginatorObject.removePaginationButton.closest('span').hasClass('hide');
+   var noPagination = _this.reportLoader.removePaginationButton.closest('span').hasClass('hide');
    _this.addSearchStatus();
    $.ajax({
      type: "GET",

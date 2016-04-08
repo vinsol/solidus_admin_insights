@@ -33,7 +33,7 @@ module Spree
 
     def initialize_months_table
       unless SpreeReportify::ReportDb.table_exists?(:months)
-        SpreeReportify::ReportDb.create_table :months, temp: true do
+        SpreeReportify::ReportDb.create_table :months do
           column :name, :text
           column :number, :integer
         end

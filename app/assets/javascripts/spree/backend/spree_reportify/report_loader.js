@@ -202,4 +202,4 @@ $(function() {
   reportLoader.init();
   reportLoader.bindEvents();
   reportLoader.populateInitialData();
-})
+});

@@ -31,6 +31,19 @@ module Spree
       sortable_type.eql?(:desc) ? Sequel.desc(sortable_attribute) : Sequel.asc(sortable_attribute)
     end
 
+    def initialize_months_table
+      unless SpreeReportify::ReportDb.table_exists?(:months)
+        SpreeReportify::ReportDb.create_table :months, temp: true do
+          column :name, :text
+          column :number, :integer
+        end
+        months_table = SpreeReportify::ReportDb[:months]
+        month_names = Date::MONTHNAMES.dup
+        month_names.shift(1)
+        month_names.each_with_index { |month_name, index| months_table.insert(name: month_name, number: index) }
+      end
+    end
+
     def chart_json
       {
         chart: false,

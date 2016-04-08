@@ -13,6 +13,7 @@ function ReportLoader(inputs) {
   this.removePaginationButton = inputs.removePaginationButton;
   this.applyPaginationButton = inputs.applyPaginationButton;
   this.chartContainer = inputs.chartContainer;
+  this.downloadLinks = inputs.downloadLinks;
   this.requestUrl = '';
   this.isStatePushable = true;
   this.tableSorterObject = null;
@@ -28,6 +29,7 @@ ReportLoader.prototype.init = function() {
   };
   this.tableSorterObject = new TableSorter(tableSorterInputs);
   this.tableSorterObject.bindEvents();
+
   var searcherInputs = {
     filterDiv:   this.filterDiv,
     insightsDiv: this.$insightsTableList,
@@ -108,10 +110,11 @@ ReportLoader.prototype.fetchChartData = function(url, $selectedOption) {
     url: url,
     dataType: 'json',
     success: function(data) {
-      (_this.isStatePushable ? _this.populateInsightsData(data) : _this.populateInsightsDataWithoutState(data));
+      (_this.isStatePushable ? _this.populateInsightsData(data) : _this.populateInsightsDataWithoutState(data))
       if(data.headers != undefined) {
         _this.pageSelector.closest('.hide').removeClass('hide');
         _this.pageSelector.data('url', data['request_path'] + '?type=' + data['report_type']);
+        _this.setDownloadLinksPath();
         _this.searcherObject.refreshSearcher($selectedOption, data);
         _this.paginatorObject.refreshPaginator(data);
         if(data.searched_fields != undefined)
@@ -123,13 +126,13 @@ ReportLoader.prototype.fetchChartData = function(url, $selectedOption) {
 
 ReportLoader.prototype.buidChart = function(data) {
   var chart_container = $('#chart-container');
-  if(data['chart_json']['chart']) {
+  if ((data['chart_json'] != undefined) && (data['chart_json']['chart'])) {
     chart_container.empty().removeClass('hidden');
     $.each(data['chart_json']['charts'], function(index, chart) {
       var chart_div = $('<div>', { id: chart['id'] });
       chart_container.append(chart_div);
       chart_div.highcharts(chart['json']);
-    })
+    });
   } else {
     chart_container.addClass('hidden');
   }
@@ -156,6 +159,13 @@ ReportLoader.prototype.populateInsightsData = function(data) {
   } else {
     this.isStatePushable = true;
   }
+};
+
+ReportLoader.prototype.setDownloadLinksPath = function($selectedOption) {
+  var _this = this;
+  $.each(this.downloadLinks, function() {
+    $(this).attr('href', $(this).data('url') + `?id=${ _this.$selectList.val() }&no_pagination=true`);
+  });
 };
 
 ReportLoader.prototype.populateInsightsDataWithoutState = function(data) {
@@ -185,10 +195,11 @@ $(function() {
     pageSelector: $('#per_page'),
     filterDiv: $('#search-div'),
     paginatorDiv: $('#paginator-div'),
-    chartContainer: $('#chart-container')
+    chartContainer: $('#chart-container'),
+    downloadLinks: $('.download-link')
   },
     reportLoader = new ReportLoader(inputs);
   reportLoader.init();
   reportLoader.bindEvents();
   reportLoader.populateInitialData();
-});
+})

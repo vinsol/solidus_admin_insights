@@ -10,3 +10,15 @@ the installer will append this file to the app vendored assets here: 'vendor/ass
 #report-container .filter-well {
   margin: 5px 0px 10px 0px;
 }
+
+.select-box-slide {
+  margin-left: 3px;
+}
+
+#page-selector {
+  margin-right: 5px;
+}
+
+#page-selector .col-md-2 {
+  padding-left: 3px;
+}

@@ -24,6 +24,15 @@ module Spree
       [headers(klass, resource, report_name), result_set, total_pages(total_records, options['records_per_page'], options['no_pagination']), search_attributes(klass), resource.chart_json]
     end
 
+    def self.download(options = {}, headers, stats)
+      ::CSV.generate(options) do |csv|
+        csv << headers.map { |head| head[:name] }
+        stats.each do |record|
+          csv << record.values
+        end
+      end
+    end
+
     def self.search_attributes(klass)
       search_attributes = {}
       klass::SEARCH_ATTRIBUTES.each do |key, value|

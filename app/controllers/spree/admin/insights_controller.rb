@@ -1,7 +1,7 @@
 module Spree
   module Admin
     class InsightsController < Spree::Admin::BaseController
-      before_action :ensure_report_exists, :set_default_pagination, only: :show
+      before_action :ensure_report_exists, :set_default_pagination, only: [:show, :download]
       before_action :load_reports, only: [:index, :show]
 
       def index
@@ -12,11 +12,10 @@ module Spree
       end
 
       def show
-        @headers, @stats, @total_pages, @search_attributes, @chart_json = ReportGenerationService.public_send(
-                                             :generate_report,
-                                             @report_name,
-                                             params.merge(@pagination_hash)
-                                           )
+        @headers, @stats, @total_pages, @search_attributes, @chart_json = ReportGenerationService.generate_report(
+                                              @report_name,
+                                              params.merge(@pagination_hash)
+                                            )
 
         @report_data_json = {
           current_page:      params[:page] || 0,
@@ -35,6 +34,25 @@ module Spree
         respond_to do |format|
           format.html { render :index }
           format.json { render json: @report_data_json }
+        end
+      end
+
+      def download
+        @headers, @stats = ReportGenerationService.generate_report(@report_name, params.merge(@pagination_hash))
+        respond_to do |format|
+          format.csv do
+            send_data ReportGenerationService.download(@headers, @stats),
+              filename: "#{@report_name.to_s}.csv"
+          end
+          format.xls do
+            send_data ReportGenerationService.download({ col_sep: "\t" }, @headers, @stats),
+            filename: "#{@report_name.to_s}.xls"
+          end
+          format.pdf do
+            render pdf: "#{@report_name.to_s}",
+              disposition: 'attachment',
+              layout: 'spree/layouts/pdf.html'
+          end
         end
       end
 

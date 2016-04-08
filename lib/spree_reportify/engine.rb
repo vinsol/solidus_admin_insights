@@ -2,6 +2,8 @@ module SpreeReportify
   class Engine < Rails::Engine
     require 'spree/core'
     require 'sequel'
+    require 'wicked_pdf'
+    require 'csv'
 
     isolate_namespace Spree
     engine_name 'spree_reportify'

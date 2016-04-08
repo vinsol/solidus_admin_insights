@@ -122,11 +122,16 @@ ReportLoader.prototype.fetchChartData = function(url, $selectedOption) {
 };
 
 ReportLoader.prototype.buidChart = function(data) {
+  var chart_container = $('#chart-container');
   if(data['chart_json']['chart']) {
-    $('#chart-container').removeClass('hidden');
-    $('#chart-container').highcharts(data['chart_json']['json']);
+    chart_container.empty().removeClass('hidden');
+    $.each(data['chart_json']['charts'], function(index, chart) {
+      var chart_div = $('<div>', { id: chart['id'] });
+      chart_container.append(chart_div);
+      chart_div.highcharts(chart['json']);
+    })
   } else {
-    $('#chart-container').addClass('hidden');
+    chart_container.addClass('hidden');
   }
 };
 

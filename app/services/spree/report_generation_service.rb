@@ -15,26 +15,13 @@ module Spree
       user_analysis:              [:users_not_converted, :users_who_recently_purchased, :users_who_have_not_recently_purchased]
     }
 
-    def self.sales_performance(options = {})
-      sales_performances, refunds = Spree::SalesPerformanceReport.new(options).generate
-      [sales_performances.all.first.merge(refunds.all.first)]
-    end
-
-    def self.sales_chart_data(options = {})
-      Spree::SalesPerformanceReport.new(options).chart_json
-    end
-
     def self.generate_report(report_name, options)
       klass = Spree.const_get((report_name.to_s + '_report').classify)
-      if report_name != :sales_performance
-        resource = klass.new(options)
-        dataset = resource.generate
-        total_records = resource.select_columns(dataset).count
-        result_set = resource.select_columns(dataset.limit(options['records_per_page'], options['offset'])).all
-        [headers(klass, resource, report_name), result_set, total_pages(total_records, options['records_per_page'], options['no_pagination']), search_attributes(klass), resource.chart_json]
-      else
-        [headers(klass, options, report_name), sales_performance(options), total_pages(1, options['records_per_page']), search_attributes(klass), sales_chart_data(options)]
-      end
+      resource = klass.new(options)
+      dataset = resource.generate
+      total_records = resource.select_columns(dataset).count
+      result_set = resource.select_columns(dataset.limit(options['records_per_page'], options['offset'])).all
+      [headers(klass, resource, report_name), result_set, total_pages(total_records, options['records_per_page'], options['no_pagination']), search_attributes(klass), resource.chart_json]
     end
 
     def self.search_attributes(klass)

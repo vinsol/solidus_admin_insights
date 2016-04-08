@@ -12,7 +12,6 @@
   </div>
 </div>
 <%= content_tag :div, class: 'hidden report-data', data: { report_data: @report_data_json } {} %>
-<%= render 'chart' %>
 
 <div id='report-container'>
   <div id='search-div' class='hide'>
@@ -36,6 +35,8 @@
 
     <div class="table-active-filters js-filters"></div>
   </div>
+
+  <%= render 'chart' %>
 
   <div id="page-selector" class="row pull-right hide">
     <span class="col-md-3 pull-right">

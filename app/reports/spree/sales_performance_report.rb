@@ -1,6 +1,6 @@
 module Spree
   class SalesPerformanceReport < Spree::Report
-    HEADERS = { months_name: :string, sale_price: :integer, cost_price: :integer, profit_loss: :integer]
+    HEADERS = { months_name: :string, sale_price: :integer, cost_price: :integer, profit_loss: :integer }
     SEARCH_ATTRIBUTES = { start_date: :orders_created_from, end_date: :orders_created_till }
     SORTABLE_ATTRIBUTES = []
 

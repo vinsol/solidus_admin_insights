@@ -90,8 +90,12 @@ en:
         title: Sales Performance
         description: Info about revenue, tax, shipment total and return amount.
         adjustment_total: Adjustment Total
+        cost_price: Cost Price
+        months_name: Month
+        profit_loss: Profit Loss
         refund_amount: Refund Amount
         revenue: Revenue
+        sale_price: Sale Price
         shipping_charges: Shipping Charges
         tax: Tax
       unique_purchases:

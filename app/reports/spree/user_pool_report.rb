@@ -6,6 +6,7 @@ module Spree
     SORTABLE_ATTRIBUTES = []
 
     def generate(options = {})
+      # order of column is important when we take union of two tables
       initialize_months_table
       new_sign_ups = SpreeReportify::ReportDb[:spree_users___users].
       where(users__created_at: @start_date..@end_date).
@@ -23,9 +24,9 @@ module Spree
         months__number,
         Sequel.as(IFNULL(year, 2016), :sort_year),
         Sequel.as(concat(name, ' ', IFNULL(year, 2016)), :months_name),
-        Sequel.as(IFNULL(COUNT(user_id), 0), :new_sign_ups),
         Sequel.as(0, :guest_users),
-        Sequel.as(0, :registered_users)
+        Sequel.as(0, :registered_users),
+        Sequel.as(IFNULL(COUNT(user_id), 0), :new_sign_ups)
       ]}
 
       vistors = SpreeReportify::ReportDb[:spree_page_events___page_events].
@@ -45,10 +46,11 @@ module Spree
         months__number,
         Sequel.as(IFNULL(year, 2016), :sort_year),
         Sequel.as(concat(name, ' ', IFNULL(year, 2016)), :months_name),
-        Sequel.as(0, :new_sign_ups),
+        Sequel.as((COUNT(DISTINCT session) - COUNT(DISTINCT user)), :guest_users),
         Sequel.as(COUNT(DISTINCT user), :registered_users),
-        Sequel.as((COUNT(DISTINCT session) - COUNT(DISTINCT user)), :guest_users)
+        Sequel.as(0, :new_sign_ups)
       ]}
+
 
       union_of_stats = group_new_sign_ups_by_months.union(visitors_by_months)
 
@@ -57,9 +59,9 @@ module Spree
       order(:sort_year, :number).
       select{[
         months_name,
-        Sequel.as(SUM(:new_sign_ups), :new_sign_ups),
+        Sequel.as(SUM(:guest_users), :guest_users),
         Sequel.as(SUM(:registered_users), :registered_users),
-        Sequel.as(SUM(:guest_users), :guest_users)
+        Sequel.as(SUM(:new_sign_ups), :new_sign_ups)
       ]}
     end
 

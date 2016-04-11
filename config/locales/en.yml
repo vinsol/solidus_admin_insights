@@ -64,6 +64,13 @@ en:
         last_purchase_date: Last Purchase At
         last_purchased_order_number: Last Purchased Order
         user_email: Email
+      user_pool:
+        title: User Pool
+        description: To view monthly stats about type of users who visited site
+        months_name: Month
+        guest_users: Guests
+        registered_users: Registered Users
+        new_sign_ups: New Users
       payment_method_transactions:
         title: Payment Method Transactions Count
         description: Transactions from different payment methods

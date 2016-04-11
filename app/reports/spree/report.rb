@@ -40,7 +40,7 @@ module Spree
         months_table = SpreeReportify::ReportDb[:months]
         month_names = Date::MONTHNAMES.dup
         month_names.shift(1)
-        month_names.each_with_index { |month_name, index| months_table.insert(name: month_name, number: index) }
+        month_names.each_with_index { |month_name, index| months_table.insert(name: month_name, number: (index + 1)) }
       end
     end
 

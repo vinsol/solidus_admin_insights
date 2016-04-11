@@ -138,20 +138,6 @@ ReportLoader.prototype.buildChart = function(data) {
   }
 };
 
-ReportLoader.prototype.buidChart = function(data) {
-  var chart_container = $('#chart-container');
-  if(data['chart_json']['chart']) {
-    chart_container.empty().removeClass('hidden');
-    $.each(data['chart_json']['charts'], function(index, chart) {
-      var chart_div = $('<div>', { id: chart['id'] });
-      chart_container.append(chart_div);
-      chart_div.highcharts(chart['json']);
-    })
-  } else {
-    chart_container.addClass('hidden');
-  }
-}
-
 ReportLoader.prototype.fetchChartDataWithoutState = function(url, $selectedOption) {
   this.isStatePushable = false;
   this.fetchChartData(url, $selectedOption);

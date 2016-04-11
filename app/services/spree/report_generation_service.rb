@@ -20,7 +20,11 @@ module Spree
       resource = klass.new(options)
       dataset = resource.generate
       total_records = resource.select_columns(dataset).count
-      result_set = resource.select_columns(dataset.limit(options['records_per_page'], options['offset'])).all
+      if report_name == :promotional_cost
+        result_set = dataset
+      else
+        result_set = resource.select_columns(dataset.limit(options['records_per_page'], options['offset'])).all
+      end
       [headers(klass, resource, report_name), result_set, total_pages(total_records, options['records_per_page'], options['no_pagination']), search_attributes(klass), resource.chart_json]
     end
 

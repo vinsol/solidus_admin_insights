@@ -86,6 +86,7 @@ en:
         promotion_start_date: Start Date
         promotion_end_date: End Date
         usage_count: Usage Count
+        months_name: Month
       sales_performance:
         title: Sales Performance
         description: Info about revenue, tax, shipment total and return amount.

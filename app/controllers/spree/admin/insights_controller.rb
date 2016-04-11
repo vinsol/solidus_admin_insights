@@ -39,17 +39,22 @@ module Spree
 
       def download
         @headers, @stats = ReportGenerationService.generate_report(@report_name, params.merge(@pagination_hash))
+
         respond_to do |format|
           format.csv do
             send_data ReportGenerationService.download(@headers, @stats),
-              filename: "#{@report_name.to_s}.csv"
+              filename: "#{ @report_name.to_s }.csv"
           end
           format.xls do
             send_data ReportGenerationService.download({ col_sep: "\t" }, @headers, @stats),
-            filename: "#{@report_name.to_s}.xls"
+              filename: "#{ @report_name.to_s }.xls"
+          end
+          format.text do
+            send_data ReportGenerationService.download(@headers, @stats),
+              filename: "#{ @report_name.to_s }.txt"
           end
           format.pdf do
-            render pdf: "#{@report_name.to_s}",
+            render pdf: "#{ @report_name.to_s }",
               disposition: 'attachment',
               layout: 'spree/layouts/pdf.html'
           end

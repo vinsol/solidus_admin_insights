@@ -5,6 +5,10 @@ module Spree
     SEARCH_ATTRIBUTES = { start_date: :promotion_created_from, end_date: :promotion_created_till }
     SORTABLE_ATTRIBUTES = [:promotion_name, :usage_count, :promotion_discount, :promotion_code, :promotion_start_date, :promotion_end_date]
 
+    def self.no_pagination?
+      true
+    end
+
     def initialize(options)
       super
       set_sortable_attributes(options, DEFAULT_SORTABLE_ATTRIBUTE)

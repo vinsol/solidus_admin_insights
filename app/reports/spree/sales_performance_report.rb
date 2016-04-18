@@ -4,6 +4,10 @@ module Spree
     SEARCH_ATTRIBUTES = { start_date: :orders_created_from, end_date: :orders_created_till }
     SORTABLE_ATTRIBUTES = []
 
+    def no_pagination?
+      true
+    end
+
     def generate(options = {})
       order_join_line_item = SpreeReportify::ReportDb[:spree_orders___orders].
       exclude(completed_at: nil).
@@ -75,6 +79,17 @@ module Spree
 
     def select_columns(dataset)
       dataset
+    end
+
+    def chart_json
+      {
+        chart: true,
+        charts: [
+          profit_loss_chart_json,
+          profit_loss_percent_chart_json,
+          sale_cost_price_chart_json
+        ]
+      }
     end
 
     # extract it in report.rb

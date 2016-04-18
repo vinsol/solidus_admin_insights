@@ -20,11 +20,12 @@ module Spree
       resource = klass.new(options)
       dataset = resource.generate
       total_records = resource.select_columns(dataset).count
-      if report_name == :promotional_cost
+      if klass.no_pagination?
         result_set = dataset
       else
         result_set = resource.select_columns(dataset.limit(options['records_per_page'], options['offset'])).all
       end
+      options['no_pagination'] = klass.no_pagination?.to_s unless options['no_pagination'] == 'true'
       [headers(klass, resource, report_name), result_set, total_pages(total_records, options['records_per_page'], options['no_pagination']), search_attributes(klass), resource.chart_json]
     end
 

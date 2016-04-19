@@ -112,6 +112,7 @@ en:
         sale_price: Sale Price
         shipping_charges: Shipping Charges
         tax: Tax
+        promotion_discount: Promotional Discounts
       unique_purchases:
         title: Unique Purchases
         description: Will project the data about how many unique users have purchased a particular product.

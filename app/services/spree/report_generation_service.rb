@@ -9,7 +9,7 @@ module Spree
                                     :product_views_to_purchases, :unique_purchases,
                                     :best_selling_products, :returned_products
                                   ],
-      promotion_analysis:         [:promotional_cost],
+      promotion_analysis:         [:promotional_cost, :annual_promotional_cost],
       sales_performance_analysis: [:sales_performance],
       trending_search_analysis:   [:trending_search],
       user_analysis:              [:user_pool, :users_not_converted, :users_who_recently_purchased, :users_who_have_not_recently_purchased]

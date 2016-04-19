@@ -84,6 +84,7 @@ en:
         payment_method_name: Payment Method
         pending_payments_count: Pending Payments Count
         successful_payments_count: Successful Transaction Count
+        months_name: Month
       promotional_cost:
         title: Promotional Cost
         description: Total money invested on a particular promotion  - Admin will view total money invested, total revenue and profit from a particular promotion.
@@ -94,6 +95,11 @@ en:
         promotion_end_date: End Date
         usage_count: Usage Count
         months_name: Month
+      annual_promotional_cost:
+        title: Annual Promotional Cost
+        description: Total money invested on a particular promotion  - Admin will view total money invested, total revenue and profit from a particular promotion.
+        promotion_discount: Discount
+        promotion_name: Promotion
       sales_performance:
         title: Sales Performance
         description: Info about revenue, tax, shipment total and return amount.

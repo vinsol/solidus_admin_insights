@@ -62,9 +62,9 @@ module Spree
               title: { text: 'Payment Methods' },
               xAxis: { categories: chart_data[:months_name] },
               yAxis: {
-                title: { text: 'Count' }
+                title: { text: 'Amount' }
               },
-              tooltip: { valuePrefix: '#' },
+              tooltip: { valuePrefix: '$' },
               legend: {
                   layout: 'vertical',
                   align: 'right',

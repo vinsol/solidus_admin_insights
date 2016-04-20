@@ -41,6 +41,7 @@ en:
         cart_additions: Cart Addition Requests
         product_name: Product
         views: Views
+        view_to_cart_ratio: View To Cart Ratio
       trending_search:
         title: Trending Searches
         description: You can view/search list of keywords which have been searched by customers.

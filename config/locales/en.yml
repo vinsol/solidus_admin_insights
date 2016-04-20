@@ -75,7 +75,8 @@ en:
         title: Payment Method Transactions Count
         description: Transactions from different payment methods
         payment_method_name: Payment Method
-        payment_count: Transaction Count
+        payment_amount: Transaction Amount
+        months_name: Month
       payment_method_transactions_conversion_rate:
         title: Payment Method Transaction Conversion Rate
         description: Success/Failure rate of different payment methods

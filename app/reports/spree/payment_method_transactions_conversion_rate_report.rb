@@ -9,15 +9,10 @@ module Spree
       true
     end
 
-    def initialize(options)
-      super
-      set_sortable_attributes(options, DEFAULT_SORTABLE_ATTRIBUTE)
-    end
-
     def generate
       payment_methods = SpreeReportify::ReportDb[:spree_payment_methods___payment_methods].
       join(:spree_payments___payments, payment_method_id: :id).
-      # where(payments__created_at: @start_date..@end_date). #filter by params
+      where(payments__created_at: @start_date..@end_date). #filter by params
       select{[
         payment_method_id,
         Sequel.as(name, :payment_method_name),

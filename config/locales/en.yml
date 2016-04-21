@@ -137,3 +137,9 @@ en:
         product_name: Product
         return_count: Returned Count
         sku: Variant
+      shipping_cost:
+        name: Shipping Method Name
+        months_name: Month
+        shipping_charge: Shipping Charge
+        revenue: Revenue
+        shipping_cost_percentage: Shipping Cost %

@@ -53,11 +53,11 @@ module Spree
       select{[
         order_shipment_rates__order_id,
         spree_shipping_methods__id,
-        shipping_charge,
+        Sequel.as(SUM(shipping_charge), :shipping_charge),
         revenue,
         shipping_method_id,
         Sequel.as(concat(month_name, ' ', IFNULL(year, 2016)), :months_name),
-        Sequel.as((shipping_charge / revenue) * 100, :shipping_cost_percentage),
+        Sequel.as((SUM(shipping_charge) / revenue) * 100, :shipping_cost_percentage),
         number,
         year,
         name

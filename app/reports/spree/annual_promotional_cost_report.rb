@@ -1,7 +1,7 @@
 module Spree
   class AnnualPromotionalCostReport < Spree::PromotionalCostReport
     DEFAULT_SORTABLE_ATTRIBUTE = :promotion_name
-    HEADERS = { promotion_name: :string, promotion_discount: :integer }
+    HEADERS = { promotion_name: :string, usage_count: :integer, promotion_discount: :integer }
     SEARCH_ATTRIBUTES = {}
     SORTABLE_ATTRIBUTES = []
 
@@ -9,7 +9,7 @@ module Spree
       super
       data = []
       group_by_promotion_name.each_pair do |promotion_name, collection|
-        data << { promotion_name: promotion_name, promotion_discount: collection.sum { |r| r[:promotion_discount] } }
+        data << { promotion_name: promotion_name, promotion_discount: collection.sum { |r| r[:promotion_discount] }, usage_count: collection.sum { |r| r[:usage_count] } }
       end
       data
     end

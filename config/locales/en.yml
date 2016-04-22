@@ -145,3 +145,7 @@ en:
         shipping_charge: Shipping Charge
         revenue: Revenue
         shipping_cost_percentage: Shipping Cost %
+      sales_tax:
+        months_name: Month
+        zone_name: Zone
+        sales_tax: Sales Tax

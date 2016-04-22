@@ -1,7 +1,7 @@
 module Spree
   class PaymentMethodTransactionsConversionRateReport < Spree::Report
     DEFAULT_SORTABLE_ATTRIBUTE = :payment_method_name
-    HEADERS = { payment_state: :string, months_name: :string, count: :integer }
+    HEADERS = { payment_method_name: :string, payment_state: :string, months_name: :string, count: :integer }
     SEARCH_ATTRIBUTES = { start_date: :payments_created_from, end_date: :payments_created_to }
     SORTABLE_ATTRIBUTES = [:payment_method_name, :successful_payments_count, :failed_payments_count, :pending_payments_count, :invalid_payments_count] 
 
@@ -23,9 +23,10 @@ module Spree
       ]}
 
       group_by_months = SpreeReportify::ReportDb[payment_methods].
-      group(:months_name, :payment_state).
+      group(:months_name, :payment_method_name, :payment_state).
       order(:year, :number).
       select{[
+        payment_method_name,
         number,
         payment_state,
         year,
@@ -33,34 +34,36 @@ module Spree
         Sequel.as(COUNT(payment_method_id), :count),
       ]}
 
-      grouped_by_payment_state = group_by_months.all.group_by { |record| record[:payment_state] }
+      grouped_by_payment_method_name = group_by_months.all.group_by { |record| record[:payment_method_name] }
       data = []
-      grouped_by_payment_state.each_pair do |state, collection|
-        data << fill_missing_values({ payment_state: state, count: 0 }, collection)
+      grouped_by_payment_method_name.each_pair do |name, collection|
+        collection.group_by { |r| r[:payment_state] }.each_pair do |state, collection|
+          data << fill_missing_values({ payment_method_name: name, payment_state: state, count: 0 }, collection)
+        end
       end
       @data = data.flatten
     end
 
-    def group_by_payment_state
-      @grouped_by_payment_state ||= @data.group_by { |record| record[:payment_state] }
+    def group_by_payment_method_name
+      @grouped_by_payment_method_name ||= @data.group_by { |record| record[:payment_method_name] }
     end
 
     def chart_data
       {
-        months_name: group_by_payment_state.first.second.map { |record| record[:months_name] },
-        collection: group_by_payment_state
+        months_name: group_by_payment_method_name.first.second.map { |record| record[:months_name] },
+        collection: group_by_payment_method_name
       }
     end
 
     def chart_json
       {
         chart: true,
-        charts: [
+        charts: chart_data[:collection].map do |method_name, collection|
           {
-            id: 'payment-state',
+            id: 'payment-state-' + method_name,
             json: {
               chart: { type: 'column' },
-              title: { text: 'Payment State' },
+              title: { text: 'Payment Method ' + method_name },
               xAxis: { categories: chart_data[:months_name] },
               yAxis: {
                 title: { text: 'Count' }
@@ -72,10 +75,10 @@ module Spree
                   verticalAlign: 'middle',
                   borderWidth: 0
               },
-              series: chart_data[:collection].map { |key, value| { name: key, data: value.map { |r| r[:count].to_i } } }
+              series: collection.group_by { |r| r[:payment_state] }.map { |key, value| { name: key, data: value.map { |r| r[:count].to_i } } }
             }
           }
-        ]
+        end
       }
     end
 

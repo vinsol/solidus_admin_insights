@@ -42,7 +42,7 @@ module Spree
         cart_additions__product_name,
         views,
         cart_additions__cart_additions,
-        Sequel.as(views / cart_additions__cart_additions, :view_to_cart_ratio)
+        Sequel.as(ROUND(views / cart_additions__cart_additions, 2), :view_to_cart_ratio)
       ]}
     end
   end

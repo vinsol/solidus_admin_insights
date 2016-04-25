@@ -18,8 +18,8 @@
   <tbody>
     <% @stats.each do |stat| %>
       <tr>
-        <% stat.values.each do |_stat_| %>
-          <td><%= _stat_ %></td>
+        <% @headers.each do |head|%>
+          <td><%= stat[head[:value]] %></td>
         <% end %>
       </tr>
     <% end %>

@@ -77,7 +77,7 @@ module Spree
 
     def chart_data
       {
-        months_name: group_by_method_name.first.second.map { |record| record[:months_name] },
+        months_name: group_by_method_name.first.try(:second).try(:map) { |record| record[:months_name] },
         collection: group_by_method_name
       }
     end

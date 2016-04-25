@@ -2,7 +2,10 @@ module Spree
   class ReportGenerationService
 
     REPORTS = {
-      finance_analysis:           [:payment_method_transactions, :payment_method_transactions_conversion_rate],
+      finance_analysis:           [
+                                    :payment_method_transactions, :payment_method_transactions_conversion_rate,
+                                    :sales_performance, :shipping_cost, :sales_tax
+                                  ],
       product_analysis:           [
                                     :cart_additions, :cart_removals, :cart_updations,
                                     :product_views, :product_views_to_cart_additions,
@@ -10,7 +13,6 @@ module Spree
                                     :best_selling_products, :returned_products
                                   ],
       promotion_analysis:         [:promotional_cost, :annual_promotional_cost],
-      sales_performance_analysis: [:sales_performance, :shipping_cost, :sales_tax],
       trending_search_analysis:   [:trending_search],
       user_analysis:              [:user_pool, :users_not_converted, :users_who_recently_purchased]
     }
@@ -33,7 +35,7 @@ module Spree
       ::CSV.generate(options) do |csv|
         csv << headers.map { |head| head[:name] }
         stats.each do |record|
-          csv << record.values
+          csv << headers.map { |head| record[head[:value]] }
         end
       end
     end

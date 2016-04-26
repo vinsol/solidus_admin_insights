@@ -99,7 +99,7 @@ module Spree
               title: { text: 'User Pool' },
               xAxis: { categories: chart_data[:months_name] },
               yAxis: {
-                title: { text: 'Value($)' }
+                title: { text: 'Count' }
               },
               legend: {
                   layout: 'vertical',

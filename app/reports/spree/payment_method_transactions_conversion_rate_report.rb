@@ -63,7 +63,7 @@ module Spree
             id: 'payment-state-' + method_name,
             json: {
               chart: { type: 'column' },
-              title: { text: 'Payment Method ' + method_name },
+              title: { text: method_name + ' Conversion Rate' },
               xAxis: { categories: chart_data[:months_name] },
               yAxis: {
                 title: { text: 'Count' }

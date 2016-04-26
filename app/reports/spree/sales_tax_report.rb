@@ -60,7 +60,7 @@ module Spree
             id: 'sale-tax',
             json: {
               chart: { type: 'column' },
-              title: { text: 'Sales Tax' },
+              title: { text: 'Monthly Sales Tax Comparison' },
               xAxis: { categories: chart_data[:months_name] },
               yAxis: {
                 title: { text: 'Value($)' }

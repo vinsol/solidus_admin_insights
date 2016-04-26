@@ -90,7 +90,10 @@ module Spree
             id: 'shipping-cost-percentage-comparison',
             json: {
               chart: { type: 'spline' },
-              title: { text: 'Monthly Shipping Comparison' },
+              title: {
+                useHTML: true,
+                text: "<span class='chart-title'>Monthly Shipping Comparison</span><i class='glyphicon glyphicon-question-sign' data-toggle='tooltip' title='Compare the Shipping percentage (calculated on Revenue) among various shipment methods such as UPS, FedEx etc.'></i>"
+              },
               xAxis: { categories: chart_data[:months_name] },
               yAxis: {
                 title: { text: 'Percentage(%)' }

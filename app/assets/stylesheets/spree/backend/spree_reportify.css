@@ -22,3 +22,7 @@ the installer will append this file to the app vendored assets here: 'vendor/ass
 #table-helpers .col-md-2 {
   padding-left: 3px;
 }
+
+.chart-title {
+  padding-right: 5px;
+}

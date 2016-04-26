@@ -63,7 +63,11 @@ module Spree
             id: 'payment-state-' + method_name,
             json: {
               chart: { type: 'column' },
-              title: { text: method_name + ' Conversion Rate' },
+              title: {
+                useHTML: true,
+                text: "<span class='chart-title'>#{ method_name } Conversion Status</span><i class='glyphicon glyphicon-question-sign' data-toggle='tooltip' title=' Tracks the status of Payments made from different payment methods such as CC, Check etc.'></i>"
+              },
+
               xAxis: { categories: chart_data[:months_name] },
               yAxis: {
                 title: { text: 'Count' }

@@ -96,7 +96,10 @@ module Spree
             id: 'user-pool',
             json: {
               chart: { type: 'column' },
-              title: { text: 'User Pool' },
+              title: {
+                useHTML: true,
+                text: '<span class="chart-title">User Pool</span><i class="glyphicon glyphicon-question-sign" data-toggle="tooltip" title=" Keep a track of different type of users such as guest users, registered users and newly signed up users"></i>'
+                },
               xAxis: { categories: chart_data[:months_name] },
               yAxis: {
                 title: { text: 'Count' }

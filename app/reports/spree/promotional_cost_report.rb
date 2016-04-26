@@ -81,7 +81,10 @@ module Spree
         id: 'promotional-cost',
         json: {
           chart: { type: 'column' },
-          title: { text: 'Promotional Cost' },
+          title: {
+            useHTML: true,
+            text: "<span class='chart-title'>Promotional Cost</span><i class='glyphicon glyphicon-question-sign' data-toggle='tooltip' title=' Compare the costing for various promotions'></i>"
+          },
           xAxis: { categories: chart_data[:months_name] },
           yAxis: {
             title: { text: 'Value($)' }
@@ -103,7 +106,10 @@ module Spree
         id: 'promotion-usage-count',
         json: {
           chart: { type: 'spline' },
-          title: { text: 'Promotion Usage Count' },
+          title: {
+            useHTML: true,
+            text: "<span class='chart-title'>Promotion Usage Count</span><i class='glyphicon glyphicon-question-sign' data-toggle='tooltip' title='Compare the usage of individual promotions'></i>"
+          },
           xAxis: { categories: chart_data[:months_name] },
           yAxis: {
             title: { text: 'Count' }

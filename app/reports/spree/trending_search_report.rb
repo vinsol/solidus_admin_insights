@@ -48,7 +48,10 @@ module Spree
             name: 'trending-search',
             json: {
               chart: { type: 'pie' },
-              title: { text: 'Trending Search Keywords(Top 20)' },
+              title: {
+                useHTML: true,
+                text: "<span class='chart-title'>Trending Search Keywords(Top 20)</span><i class='glyphicon glyphicon-question-sign' data-toggle='tooltip' title='Track the most trending keywords searched by users'></i>"
+              },
               tooltip: {
                   pointFormat: 'Search %: <b>{point.percentage:.1f}%</b>'
               },

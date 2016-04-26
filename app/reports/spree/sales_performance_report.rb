@@ -111,7 +111,10 @@ module Spree
       {
         id: 'profit-loss',
         json: {
-          title: { text: 'Profit/Loss' },
+          title: {
+            useHTML: true,
+            text: "<span class='chart-title'>Profit/Loss</span><i class='glyphicon glyphicon-question-sign' data-toggle='tooltip' title='Track the profit or loss value'></i>"
+          },
           xAxis: { categories: chart_data[:months_name] },
           yAxis: {
             title: { text: 'Value($)' }
@@ -137,7 +140,10 @@ module Spree
       {
         id: 'profit-loss',
         json: {
-          title: { text: 'Profit/Loss Percent' },
+          title: {
+            useHTML: true,
+            text: "<span class='chart-title'>Profit/Loss %</span><i class='glyphicon glyphicon-question-sign' data-toggle='tooltip' title='Track the profit or loss %age to create a projection'></i>"
+          },
           xAxis: { categories: chart_data[:months_name] },
           yAxis: {
             title: { text: 'Percentage(%)' }
@@ -164,7 +170,10 @@ module Spree
         id: 'sale-price',
         json: {
           chart: { type: 'column' },
-          title: { text: 'Sales Performance' },
+          title: {
+            useHTML: true,
+            text: "<span class='chart-title'>Sales Performance %</span><i class='glyphicon glyphicon-question-sign' data-toggle='tooltip' title='Compare the Selling price, cost price and promotional cost over a period of time'></i>"
+          },
           xAxis: { categories: chart_data[:months_name] },
           yAxis: {
             title: { text: 'Value($)' }

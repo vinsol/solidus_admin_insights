@@ -38,41 +38,45 @@
 
   <%= render 'chart' %>
 
-  <div id="page-selector" class="row pull-right hide">
-    <span class="select-box-slide pull-right">
-      <%= select_tag :per_page, options_for_select(page_selector_options, params[:per_page] || Spree::Config[:records_per_page]), class: 'form-control text-right pull-right page-select ' %>
+  <div id="table-helpers" class="row pull-right hide">
+    <span id="page-selector">
+      <span class="select-box-slide pull-right">
+        <%= select_tag :per_page, options_for_select(page_selector_options, params[:per_page] || Spree::Config[:records_per_page]), class: 'form-control text-right pull-right page-select' %>
+      </span>
+      <span title="apply pagination" class="col-md-2 hide pull-right">
+        <%= link_to '#', class: 'btn btn-default', id: 'apply-pagination' do %>
+          <span class="glyphicon glyphicon-eye-open"></span>
+        <% end %>
+      </span>
+      <span title="remove pagination" class="col-md-2 pull-right">
+        <%= link_to '#', class: 'btn btn-default', id: 'remove-pagination' do %>
+          <span class="glyphicon glyphicon-eye-close"></span>
+        <% end %>
+      </span>
     </span>
-    <span title="apply pagination" class="col-md-2 hide pull-right">
-      <%= link_to '#', class: 'btn btn-default', id: 'apply-pagination' do %>
-        <span class="glyphicon glyphicon-eye-open"></span>
-      <% end %>
-    </span>
-    <span title="remove pagination" class="col-md-2 pull-right">
-      <%= link_to '#', class: 'btn btn-default', id: 'remove-pagination' do %>
-        <span class="glyphicon glyphicon-eye-close"></span>
-      <% end %>
-    </span>
-    <span title="reset" class="col-md-2 pull-right">
-      <%= link_to '#', class: 'btn btn-default', id: 'reset' do %>
-        <span  class="glyphicon glyphicon-repeat"></span>
-      <% end %>
-    </span>
-    <span title="refresh" class="col-md-2 pull-right">
-      <%= link_to '#', class: 'btn btn-default', id: 'refresh' do %>
-        <span class="glyphicon glyphicon-refresh"></span>
-      <% end %>
-    </span>
-    <span title="download" class="col-md-2 pull-right">
-      <%= link_to '#', class: "btn btn-default dropdown-toggle", data: { toggle: 'dropdown' } do %>
-        <span class="glyphicon glyphicon-download"></span>
-      <% end %>
-      <ul class="dropdown-menu">
-        <li><%= link_to 'CSV', admin_insights_download_path(format: 'csv'), class: 'download-link', data: { url: admin_insights_download_path(format: 'csv') } %></li>
-        <li><%= link_to 'Excel', admin_insights_download_path(format: 'xls'), class: 'download-link',  data: { url: admin_insights_download_path(format: 'xls') }%></li>
-        <li><%= link_to 'Text', admin_insights_download_path(format: 'text'), class: 'download-link',  data: { url: admin_insights_download_path(format: 'text') }%></li>
-        <li><%= link_to 'PDF', admin_insights_download_path(format: 'pdf'), class: 'download-link', data: { url: admin_insights_download_path(format: 'pdf') }%></li>
-      </ul>
-    </span>
+    <span id='page-helpers'>
+      <span title="reset" class="col-md-2 pull-right">
+        <%= link_to '#', class: 'btn btn-default', id: 'reset' do %>
+          <span  class="glyphicon glyphicon-repeat"></span>
+        <% end %>
+      </span>
+      <span title="refresh" class="col-md-2 pull-right">
+        <%= link_to '#', class: 'btn btn-default', id: 'refresh' do %>
+          <span class="glyphicon glyphicon-refresh"></span>
+        <% end %>
+      </span>
+      <span title="download" class="col-md-2 pull-right">
+        <%= link_to '#', class: "btn btn-default dropdown-toggle", data: { toggle: 'dropdown' } do %>
+          <span class="glyphicon glyphicon-download"></span>
+        <% end %>
+        <ul class="dropdown-menu">
+          <li><%= link_to 'CSV', admin_insights_download_path(format: 'csv'), class: 'download-link', data: { url: admin_insights_download_path(format: 'csv') } %></li>
+          <li><%= link_to 'Excel', admin_insights_download_path(format: 'xls'), class: 'download-link',  data: { url: admin_insights_download_path(format: 'xls') }%></li>
+          <li><%= link_to 'Text', admin_insights_download_path(format: 'text'), class: 'download-link',  data: { url: admin_insights_download_path(format: 'text') }%></li>
+          <li><%= link_to 'PDF', admin_insights_download_path(format: 'pdf'), class: 'download-link', data: { url: admin_insights_download_path(format: 'pdf') }%></li>
+        </ul>
+      </span>
+    </div>
   </div>
 
   <div id='report-div'>

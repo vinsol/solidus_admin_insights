@@ -5,7 +5,10 @@
 function ReportLoader(inputs) {
   this.$selectList = inputs.reportsSelectBox;
   this.$insightsTableList = inputs.insightsDiv;
-  this.pageSelector = inputs.pageSelector;
+  this.tableHelpers = inputs.tableHelpers;
+  this.pageSelector = inputs.tableHelpers.find('#page-selector');
+  this.perPageSelector = this.tableHelpers.find('#per_page');
+  this.pageHelpers = this.tableHelpers.find('#page-helpers');
   this.resetButton = inputs.resetButton;
   this.refreshButton = inputs.refreshButton;
   this.filterDiv = inputs.filterDiv;
@@ -72,8 +75,8 @@ ReportLoader.prototype.resetFilters = function(event) {
   event.preventDefault();
   var $element = $(event.target),
       noPagination = this.removePaginationButton.closest('span').hasClass('hide');
-  $element.attr('href', this.pageSelector.data('url') + '&no_pagination=' + noPagination);
-  $element.data('url', this.pageSelector.data('url') + '&no_pagination=' + noPagination);
+  $element.attr('href', this.perPageSelector.data('url') + '&no_pagination=' + noPagination);
+  $element.data('url', this.perPageSelector.data('url') + '&no_pagination=' + noPagination);
   this.loadChart($element);
   this.searcherObject.clearSearchFields();
 };
@@ -112,8 +115,19 @@ ReportLoader.prototype.fetchChartData = function(url, $selectedOption) {
     success: function(data) {
       (_this.isStatePushable ? _this.populateInsightsData(data) : _this.populateInsightsDataWithoutState(data))
       if(data.headers != undefined) {
-        _this.pageSelector.closest('.hide').removeClass('hide');
-        _this.pageSelector.data('url', data['request_path'] + '?type=' + data['report_type']);
+        _this.tableHelpers.removeClass('hide');
+        if(data.pagination_required == false) {
+          _this.pageSelector.addClass('hide');
+          $.each(_this.pageHelpers.find('.col-md-2'), function(index, object) {
+            $(object).removeClass('col-md-2').addClass('col-md-3');
+          });
+        } else {
+          _this.pageSelector.removeClass('hide');
+          $.each(_this.pageHelpers.find('.col-md-3'), function(index, object) {
+            $(object).removeClass('col-md-3').addClass('col-md-2');
+          });
+        }
+        _this.perPageSelector.data('url', data['request_path'] + '?type=' + data['report_type']);
         _this.setDownloadLinksPath();
         _this.searcherObject.refreshSearcher($selectedOption, data);
         _this.paginatorObject.refreshPaginator(data);
@@ -192,7 +206,7 @@ $(function() {
     refreshButton: $('#refresh'),
     removePaginationButton: $('#remove-pagination'),
     applyPaginationButton: $('#apply-pagination'),
-    pageSelector: $('#per_page'),
+    tableHelpers: $('#table-helpers'),
     filterDiv: $('#search-div'),
     paginatorDiv: $('#paginator-div'),
     chartContainer: $('#chart-container'),

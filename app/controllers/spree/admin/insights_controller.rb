@@ -12,7 +12,7 @@ module Spree
       end
 
       def show
-        @headers, @stats, @total_pages, @search_attributes, @chart_json = ReportGenerationService.generate_report(
+        @headers, @stats, @total_pages, @search_attributes, @chart_json, @resource = ReportGenerationService.generate_report(
                                               @report_name,
                                               params.merge(@pagination_hash)
                                             )
@@ -28,7 +28,8 @@ module Spree
           url:               request.url,
           searched_fields:   params[:search],
           per_page:          @pagination_hash[:records_per_page],
-          chart_json:        @chart_json
+          chart_json:        @chart_json,
+          pagination_required: !@resource.no_pagination?
         }
 
         respond_to do |format|

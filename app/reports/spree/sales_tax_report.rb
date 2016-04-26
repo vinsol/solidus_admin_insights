@@ -4,7 +4,7 @@ module Spree
     SEARCH_ATTRIBUTES = { start_date: :taxation_from, end_date: :taxation_till }
     SORTABLE_ATTRIBUTES = []
 
-    def self.no_pagination?
+    def no_pagination?
       true
     end
 

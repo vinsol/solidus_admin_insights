@@ -17,7 +17,8 @@ module Spree
       where(page_events__activity: 'search').
       where(page_events__created_at: @start_date..@end_date).where(Sequel.ilike(:page_events__search_keywords, @search_keywords_cont)). #filter by params
       group(:searched_term).
-      order(Sequel.desc(:occurrences))
+      order(Sequel.desc(:occurrences)).
+      limit(20)
 
       top_searches
     end
@@ -47,7 +48,10 @@ module Spree
             name: 'trending-search',
             json: {
               chart: { type: 'pie' },
-              title: { text: 'Trending Search Keywords' },
+              title: {
+                useHTML: true,
+                text: "<span class='chart-title'>Trending Search Keywords(Top 20)</span><i class='glyphicon glyphicon-question-sign' data-toggle='tooltip' title='Track the most trending keywords searched by users'></i>"
+              },
               tooltip: {
                   pointFormat: 'Search %: <b>{point.percentage:.1f}%</b>'
               },

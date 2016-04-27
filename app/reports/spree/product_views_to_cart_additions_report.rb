@@ -1,7 +1,7 @@
 module Spree
   class ProductViewsToCartAdditionsReport < Spree::Report
     DEFAULT_SORTABLE_ATTRIBUTE = :product_name
-    HEADERS = { product_name: :string, views: :integer, cart_additions: :integer, view_to_cart_ratio: :string }
+    HEADERS = { product_name: :string, views: :integer, cart_additions: :integer, cart_to_view_ratio: :string }
     SEARCH_ATTRIBUTES = { start_date: :product_view_from, end_date: :product_view_till }
     SORTABLE_ATTRIBUTES = [:product_name, :views, :cart_additions]
 
@@ -42,7 +42,7 @@ module Spree
         cart_additions__product_name,
         views,
         cart_additions__cart_additions,
-        Sequel.as(ROUND(views / cart_additions__cart_additions, 2), :view_to_cart_ratio)
+        Sequel.as(ROUND(cart_additions__cart_additions/ views, 2), :cart_to_view_ratio)
       ]}
     end
   end

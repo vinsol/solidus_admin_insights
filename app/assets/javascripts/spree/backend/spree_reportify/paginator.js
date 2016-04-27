@@ -86,7 +86,7 @@ Paginator.prototype.loadReportData = function(event) {
 };
 
 Paginator.prototype.removePagination = function(currentElement) {
-  var $element = this.reportLoader.pageSelector,
+  var $element = this.reportLoader.perPageSelector,
       _this = this,
       sorted_attributes = this.tableSorter.fetchSortedAttribute(),
       attribute = sorted_attributes[0],
@@ -107,7 +107,7 @@ Paginator.prototype.removePagination = function(currentElement) {
 };
 
 Paginator.prototype.applyPagination = function(currentElement) {
-  var $element = this.reportLoader.pageSelector,
+  var $element = this.reportLoader.perPageSelector,
       _this = this,
       sorted_attributes = this.tableSorter.fetchSortedAttribute(),
       attribute = sorted_attributes[0],

@@ -55,6 +55,7 @@ ReportLoader.prototype.init = function() {
 ReportLoader.prototype.bindEvents = function() {
   var _this = this;
   _this.$selectList.on('change', function() {
+    $(this).find('option').first().attr('disabled', true);
     _this.paginatorObject.togglePaginatorButtons(_this.paginatorObject.removePaginationButton, _this.paginatorObject.applyPaginationButton);
     _this.searcherObject.clearSearchFields();
     _this.loadChart($(this).find(':selected'));

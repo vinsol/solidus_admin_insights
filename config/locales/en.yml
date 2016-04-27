@@ -41,7 +41,7 @@ en:
         cart_additions: Conversion to cart (product qty.)
         product_name: Product
         views: Show page views
-        view_to_cart_ratio: View To Cart Ratio
+        cart_to_view_ratio: Cart To View Ratio
       trending_search:
         title: Trending Searches
         description: You can view/search list of keywords which have been searched by customers.
@@ -134,7 +134,7 @@ en:
         product_name: Product
         purchases: Purchases
         views: Views
-        view_to_purchase_ratio: View To Purchase Ratio
+        purchase_to_view_ratio: Purchase To View Ratio
       returned_products:
         title: Product Returned
         description: Number of products returned

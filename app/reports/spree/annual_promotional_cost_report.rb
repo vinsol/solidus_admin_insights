@@ -28,7 +28,10 @@ module Spree
             name: 'annual-promotional-cost',
             json: {
               chart: { type: 'pie' },
-              title: { text: 'Annual Promotional Cost' },
+              title: {
+                useHTML: true,
+                text: '<span class="chart-title">Annual Promotional Cost</span><i class="glyphicon glyphicon-question-sign" data-toggle="tooltip" title="hey wassup"></i>'
+              },
               tooltip: {
                   pointFormat: 'Cost %: <b>{point.percentage:.1f}%</b>'
               },

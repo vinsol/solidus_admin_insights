@@ -57,7 +57,7 @@ module Spree
         revenue,
         shipping_method_id,
         Sequel.as(concat(month_name, ' ', IFNULL(year, 2016)), :months_name),
-        Sequel.as((SUM(shipping_charge) / revenue) * 100, :shipping_cost_percentage),
+        Sequel.as(ROUND((SUM(shipping_charge) / revenue) * 100, 2), :shipping_cost_percentage),
         number,
         year,
         name
@@ -90,7 +90,10 @@ module Spree
             id: 'shipping-cost-percentage-comparison',
             json: {
               chart: { type: 'spline' },
-              title: { text: 'Monthly Shipping Comparison' },
+              title: {
+                useHTML: true,
+                text: "<span class='chart-title'>Monthly Shipping Comparison</span><i class='glyphicon glyphicon-question-sign' data-toggle='tooltip' title='Compare the Shipping percentage (calculated on Revenue) among various shipment methods such as UPS, FedEx etc.'></i>"
+              },
               xAxis: { categories: chart_data[:months_name] },
               yAxis: {
                 title: { text: 'Percentage(%)' }

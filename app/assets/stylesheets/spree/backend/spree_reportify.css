@@ -26,3 +26,7 @@ the installer will append this file to the app vendored assets here: 'vendor/ass
 .chart-title {
   padding-right: 5px;
 }
+
+.sortable-arrow {
+  color: #2F85D5;
+}

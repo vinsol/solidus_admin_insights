@@ -14,7 +14,7 @@ Paginator.prototype.bindEvents = function () {
     _this.loadPaginationData(event);
   });
 
-  this.reportLoader.pageSelector.on('change', function(event) {
+  this.reportLoader.perPageSelector.on('change', function(event) {
     _this.togglePaginatorButtons(_this.removePaginationButton, _this.applyPaginationButton);
     _this.loadReportData(event);
   });
@@ -38,7 +38,7 @@ Paginator.prototype.togglePaginatorButtons = function(firstButton, secondButton)
 };
 
 Paginator.prototype.refreshPaginator = function(data) {
-  this.reportLoader.pageSelector.val(data['per_page']);
+  this.reportLoader.perPageSelector.val(data['per_page']);
   this.populatePaginationData(data);
 };
 

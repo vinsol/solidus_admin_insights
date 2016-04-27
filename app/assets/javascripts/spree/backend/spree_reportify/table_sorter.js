@@ -43,5 +43,5 @@ TableSorter.prototype.fetchSortedAttribute = function() {
 };
 
 TableSorter.prototype.getSortedAttribute = function(order) {
-  return this.$insightsTableList.find(`.${order}`).data('attribute');
+  return this.$insightsTableList.find('.' + order).data('attribute');
 };

@@ -47,7 +47,7 @@ Paginator.prototype.loadPaginationData = function (event) {
     sorted_attributes = this.tableSorter.fetchSortedAttribute(),
     attribute = sorted_attributes[0],
     sortOrder = sorted_attributes[1],
-    requestPath = `${$element.attr('href')}&sort%5Battribute%5D=${attribute}&sort%5Btype%5D=${sortOrder}`,
+    requestPath = $element.attr('href') + '&sort%5Battribute%5D=' + attribute + '&sort%5Btype%5D=' + sortOrder,
     _this = this;
   _this.reportLoader.requestUrl = requestPath;
 
@@ -80,7 +80,7 @@ Paginator.prototype.loadReportData = function(event) {
       sorted_attributes = this.tableSorter.fetchSortedAttribute(),
       attribute = sorted_attributes[0],
       sortOrder = sorted_attributes[1],
-      requestUrl = `${$element.data('url')}&sort%5Battribute%5D=${attribute}&sort%5Btype%5D=${sortOrder}&${$('#filter-search').serialize()}&per_page=${$element.val()}`;
+      requestUrl = $element.data('url') + '&sort%5Battribute%5D=' + attribute + '&sort%5Btype%5D=' + sortOrder + '&' + $('#filter-search').serialize() + '&per_page=' + $element.val();
   $element.data('url', requestUrl);
   this.reportLoader.loadChart($element);
 };
@@ -91,7 +91,7 @@ Paginator.prototype.removePagination = function(currentElement) {
       sorted_attributes = this.tableSorter.fetchSortedAttribute(),
       attribute = sorted_attributes[0],
       sortOrder = sorted_attributes[1],
-      requestUrl = `${$element.data('url')}&sort%5Battribute%5D=${attribute}&sort%5Btype%5D=${sortOrder}&${$('#filter-search').serialize()}&no_pagination=true`;
+      requestUrl = $element.data('url') + '&sort%5Battribute%5D=' + attribute + '&sort%5Btype%5D=' + sortOrder + '&' + $('#filter-search').serialize() + '&no_pagination=true';
   $(currentElement).attr('href', requestUrl);
   _this.reportLoader.requestUrl = requestUrl;
   $element.val('');
@@ -112,7 +112,7 @@ Paginator.prototype.applyPagination = function(currentElement) {
       sorted_attributes = this.tableSorter.fetchSortedAttribute(),
       attribute = sorted_attributes[0],
       sortOrder = sorted_attributes[1],
-      requestUrl = `${$element.data('url')}&sort%5Battribute%5D=${attribute}&sort%5Btype%5D=${sortOrder}&${$('#filter-search').serialize()}`;
+      requestUrl = $element.data('url') + '&sort%5Battribute%5D=' + attribute + '&sort%5Btype%5D=' + sortOrder + '&' + $('#filter-search').serialize();
   $(currentElement).attr('href', requestUrl);
   _this.reportLoader.requestUrl = requestUrl;
   $element.val('5');

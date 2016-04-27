@@ -178,7 +178,7 @@ ReportLoader.prototype.populateInsightsData = function(data) {
 ReportLoader.prototype.setDownloadLinksPath = function($selectedOption) {
   var _this = this;
   $.each(this.downloadLinks, function() {
-    $(this).attr('href', $(this).data('url') + `?id=${ _this.$selectList.val() }&no_pagination=true`);
+    $(this).attr('href', $(this).data('url') + '?id=' + _this.$selectList.val() + '&no_pagination=true');
   });
 };
 

@@ -33,7 +33,7 @@ module Spree
         Sequel.as(IFNULL(SUM(sale_price), 0), :sale_price),
         Sequel.as(IFNULL(SUM(cost_price), 0), :cost_price),
         Sequel.as(IFNULL(SUM(profit_loss), 0), :profit_loss),
-        Sequel.as((IFNULL(SUM(profit_loss), 0) / SUM(cost_price)) * 100, :profit_loss_percent),
+        Sequel.as(ABS((IFNULL(SUM(profit_loss), 0) / SUM(cost_price))) * 100, :profit_loss_percent),
         Sequel.as(0, :promotion_discount)
       ]}
 

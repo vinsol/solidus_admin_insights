@@ -23,12 +23,12 @@
           {% for(var j = 0; j < o['headers'].length; j++) { %}
             <td>
               {% if (o['headers'][j].value == 'profit_loss') { %}
-                {%= o['stats'][i][o['headers'][j].value] || 0 %}
+                {%= Math.abs(o['stats'][i][o['headers'][j].value] || 0) %}
                 {% if (o['stats'][i][o['headers'][j].value] > 0) { %}
                   <span class="glyphicon glyphicon-chevron-up profit-indicator"></span>
                 {% } %}
                 {% if (o['stats'][i][o['headers'][j].value] < 0) { %}
-                  <span class="glyphicon glyphicon-chevron-up loss-indicator"></span>
+                  <span class="glyphicon glyphicon-chevron-down loss-indicator"></span>
                 {% } %}
               {% } else if (o['headers'][j].type == 'integer') { %}
                 {%= o['stats'][i][o['headers'][j].value] || 0 %}

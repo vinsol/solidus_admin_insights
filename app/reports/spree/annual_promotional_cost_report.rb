@@ -30,7 +30,7 @@ module Spree
               chart: { type: 'pie' },
               title: {
                 useHTML: true,
-                text: '<span class="chart-title">Annual Promotional Cost</span><span class="glyphicon glyphicon-question-sign" data-toggle="tooltip" title="hey wassup"></span>'
+                text: '<span class="chart-title">Annual Promotional Cost</span><span class="glyphicon glyphicon-question-sign" data-toggle="tooltip" title="Compare the costing for various promotions"></span>'
               },
               tooltip: {
                   pointFormat: 'Cost %: <b>{point.percentage:.1f}%</b>'

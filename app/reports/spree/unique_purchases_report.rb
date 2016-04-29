@@ -1,7 +1,7 @@
 module Spree
   class UniquePurchasesReport < Spree::Report
     DEFAULT_SORTABLE_ATTRIBUTE = :product_name
-    HEADERS = { product_name: :string, sku: :string, sold_count: :integer, users: :integer }
+    HEADERS = { sku: :string, product_name: :string, sold_count: :integer, users: :integer }
     SEARCH_ATTRIBUTES = { start_date: :orders_completed_from, end_date: :orders_completed_till }
     SORTABLE_ATTRIBUTES = [:product_name, :sku, :sold_count, :users]
 
@@ -23,8 +23,8 @@ module Spree
 
     def select_columns(dataset)
       dataset.select{[
+        Sequel.as(IFNULL(variants__sku, products__name), :sku),
         products__name.as(product_name),
-        variants__sku.as(sku),
         sum(quantity).as(sold_count),
         (count(distinct orders__user_id) + count(orders__id) - count(orders__user_id)).as(users)
       ]}

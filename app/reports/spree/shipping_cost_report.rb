@@ -92,7 +92,7 @@ module Spree
               chart: { type: 'spline' },
               title: {
                 useHTML: true,
-                text: "<span class='chart-title'>Monthly Shipping Comparison</span><i class='glyphicon glyphicon-question-sign' data-toggle='tooltip' title='Compare the Shipping percentage (calculated on Revenue) among various shipment methods such as UPS, FedEx etc.'></i>"
+                text: "<span class='chart-title'>Monthly Shipping Comparison</span><span class='glyphicon glyphicon-question-sign' data-toggle='tooltip' title='Compare the Shipping percentage (calculated on Revenue) among various shipment methods such as UPS, FedEx etc.'></span>"
               },
               xAxis: { categories: chart_data[:months_name] },
               yAxis: {

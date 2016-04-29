@@ -1,7 +1,7 @@
 module Spree
   class UserPoolReport < Spree::Report
     DEFAULT_SORTABLE_ATTRIBUTE = :orders__completed_at
-    HEADERS = { months_name: :string, guest_users: :integer, registered_users: :integer, new_sign_ups: :integer }
+    HEADERS = { months_name: :string, guest_users: :integer, active_users: :integer, new_sign_ups: :integer }
     SEARCH_ATTRIBUTES = { start_date: :users_created_from, end_date: :users_created_till }
     SORTABLE_ATTRIBUTES = []
 
@@ -28,7 +28,7 @@ module Spree
         year,
         Sequel.as(concat(month_name, ' ', IFNULL(year, 2016)), :months_name),
         Sequel.as(0, :guest_users),
-        Sequel.as(0, :registered_users),
+        Sequel.as(0, :active_users),
         Sequel.as(IFNULL(COUNT(user_id), 0), :new_sign_ups)
       ]}
 
@@ -50,7 +50,7 @@ module Spree
         year,
         Sequel.as(concat(month_name, ' ', IFNULL(year, 2016)), :months_name),
         Sequel.as((COUNT(DISTINCT session) - COUNT(DISTINCT user)), :guest_users),
-        Sequel.as(COUNT(DISTINCT user), :registered_users),
+        Sequel.as(COUNT(DISTINCT user), :active_users),
         Sequel.as(0, :new_sign_ups)
       ]}
 
@@ -65,10 +65,10 @@ module Spree
         year,
         number,
         Sequel.as(SUM(:guest_users), :guest_users),
-        Sequel.as(SUM(:registered_users), :registered_users),
+        Sequel.as(SUM(:active_users), :active_users),
         Sequel.as(SUM(:new_sign_ups), :new_sign_ups)
       ]}
-      fill_missing_values({guest_users: 0, registered_users: 0, new_sign_ups: 0}, union_stats.all)
+      fill_missing_values({guest_users: 0, active_users: 0, new_sign_ups: 0}, union_stats.all)
     end
 
     def select_columns(dataset)
@@ -98,7 +98,7 @@ module Spree
               chart: { type: 'column' },
               title: {
                 useHTML: true,
-                text: '<span class="chart-title">User Pool</span><i class="glyphicon glyphicon-question-sign" data-toggle="tooltip" title=" Keep a track of different type of users such as guest users, registered users and newly signed up users"></i>'
+                text: '<span class="chart-title">User Pool</span><span class="glyphicon glyphicon-question-sign" data-toggle="tooltip" title=" Keep a track of different type of users such as guest users, registered users and newly signed up users"></span>'
                 },
               xAxis: { categories: chart_data[:months_name] },
               yAxis: {
@@ -116,8 +116,8 @@ module Spree
                   data: chart_data[:new_sign_ups].map(&:to_i)
                 },
                 {
-                  name: Spree.t('user_pool.registered_users'),
-                  data: chart_data[:registered_users].map(&:to_i)
+                  name: Spree.t('user_pool.active_users'),
+                  data: chart_data[:active_users].map(&:to_i)
                 },
                 {
                   name: Spree.t('user_pool.guest_users'),

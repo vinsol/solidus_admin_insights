@@ -30,3 +30,11 @@ the installer will append this file to the app vendored assets here: 'vendor/ass
 .sortable-arrow {
   color: #2F85D5;
 }
+
+.loss-indicator {
+  color: red;
+}
+
+.profit-indicator {
+  color: green;
+}

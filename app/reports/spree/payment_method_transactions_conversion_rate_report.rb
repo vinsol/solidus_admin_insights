@@ -16,7 +16,7 @@ module Spree
       select{[
         payment_method_id,
         Sequel.as(name, :payment_method_name),
-        Sequel.as(state, :payment_state),
+        Sequel.as(IF(STRCMP(state, 'pending'), state, concat('capturing ', state)), :payment_state),
         Sequel.as(MONTHNAME(:payments__created_at), :month_name),
         Sequel.as(MONTH(:payments__created_at), :number),
         Sequel.as(YEAR(:payments__created_at), :year)
@@ -65,7 +65,7 @@ module Spree
               chart: { type: 'column' },
               title: {
                 useHTML: true,
-                text: "<span class='chart-title'>#{ method_name } Conversion Status</span><i class='glyphicon glyphicon-question-sign' data-toggle='tooltip' title=' Tracks the status of Payments made from different payment methods such as CC, Check etc.'></i>"
+                text: "<span class='chart-title'>#{ method_name } Conversion Status</span><span class='glyphicon glyphicon-question-sign' data-toggle='tooltip' title=' Tracks the status of Payments made from different payment methods such as CC, Check etc.'></span>"
               },
 
               xAxis: { categories: chart_data[:months_name] },

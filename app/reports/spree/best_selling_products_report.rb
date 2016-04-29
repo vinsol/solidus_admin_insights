@@ -1,7 +1,7 @@
 module Spree
   class BestSellingProductsReport < Spree::Report
     DEFAULT_SORTABLE_ATTRIBUTE = :sold_count
-    HEADERS = { product_name: :string, sku: :string, sold_count: :integer }
+    HEADERS = { sku: :string, product_name: :string, sold_count: :integer }
     SEARCH_ATTRIBUTES = { start_date: :orders_completed_from, end_date: :orders_completed_to }
     SORTABLE_ATTRIBUTES = [:product_name, :sku, :sold_count]
 
@@ -26,7 +26,7 @@ module Spree
     def select_columns(dataset)
       dataset.select{[
         products__name.as(product_name),
-        variants__sku.as(sku),
+        Sequel.as(IFNULL(variants__sku, products__name), :sku),
         sum(quantity).as(sold_count)
       ]}
     end

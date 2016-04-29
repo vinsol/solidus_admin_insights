@@ -1,7 +1,7 @@
 module Spree
   class ReturnedProductsReport < Spree::Report
     DEFAULT_SORTABLE_ATTRIBUTE = :product_name
-    HEADERS = { product_name: :string, sku: :string, return_count: :integer }
+    HEADERS = { sku: :string, product_name: :string, return_count: :integer }
     SEARCH_ATTRIBUTES = { start_date: :product_returned_from, end_date: :product_returned_till }
     SORTABLE_ATTRIBUTES = [:product_name, :sku, :return_count]
 
@@ -24,7 +24,7 @@ module Spree
     def select_columns(dataset)
       dataset.select{[
         spree_products__name.as(product_name),
-        spree_variants__sku.as(sku),
+        Sequel.as(IFNULL(spree_variants__sku, spree_products__name), :sku),
         Sequel.as(count(:variant_id), :return_count)
       ]}
     end

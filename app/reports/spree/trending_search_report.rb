@@ -50,7 +50,7 @@ module Spree
               chart: { type: 'pie' },
               title: {
                 useHTML: true,
-                text: "<span class='chart-title'>Trending Search Keywords(Top 20)</span><i class='glyphicon glyphicon-question-sign' data-toggle='tooltip' title='Track the most trending keywords searched by users'></i>"
+                text: "<span class='chart-title'>Trending Search Keywords(Top 20)</span><span class='glyphicon glyphicon-question-sign' data-toggle='tooltip' title='Track the most trending keywords searched by users'></span>"
               },
               tooltip: {
                   pointFormat: 'Search %: <b>{point.percentage:.1f}%</b>'

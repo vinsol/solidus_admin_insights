@@ -1,7 +1,7 @@
 module Spree
   class CartUpdationsReport < Spree::Report
     DEFAULT_SORTABLE_ATTRIBUTE = :product_name
-    HEADERS = { product_name: :string, sku: :string, updations: :integer, quantity_increase: :integer, quantity_decrease: :integer }
+    HEADERS = { sku: :string, product_name: :string, updations: :integer, quantity_increase: :integer, quantity_decrease: :integer }
     SEARCH_ATTRIBUTES = { start_date: :product_updated_from, end_date: :product_updated_to }
     SORTABLE_ATTRIBUTES = [:product_name, :sku, :updations, :quantity_increase, :quantity_decrease]
 
@@ -23,7 +23,7 @@ module Spree
     def select_columns(dataset)
       dataset.select{[
         products__name.as(product_name),
-        variants__sku.as(sku),
+        Sequel.as(IFNULL(variants__sku, products__name), :sku),
         Sequel.as(count(:products__name), :updations),
         Sequel.as(sum(IF(cart_events__quantity >= 0, cart_events__quantity, 0)), :quantity_increase),
         Sequel.as(sum(IF(cart_events__quantity <= 0, cart_events__quantity, 0)), :quantity_decrease)

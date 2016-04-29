@@ -24,7 +24,7 @@ module Spree
     def select_columns(dataset)
       dataset.select{[
         spree_products__name.as(product_name),
-        Sequel.as(IFNULL(spree_variants__sku, spree_products__name), :sku),
+        Sequel.as(IF(STRCMP(spree_variants__sku, ''), spree_variants__sku, spree_products__name), :sku),
         Sequel.as(count(:variant_id), :return_count)
       ]}
     end

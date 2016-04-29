@@ -23,7 +23,7 @@ module Spree
     def select_columns(dataset)
       dataset.select{[
         products__name.as(product_name),
-        Sequel.as(IFNULL(variants__sku, products__name), :sku),
+        Sequel.as(IF(STRCMP(variants__sku, ''), variants__sku, products__name), :sku),
         Sequel.as(count(:products__name), :additions),
         Sequel.as(sum(cart_events__quantity), :quantity_change)
       ]}

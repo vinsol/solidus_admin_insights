@@ -33,7 +33,7 @@ module Spree
         Sequel.as(IFNULL(SUM(sale_price), 0), :sale_price),
         Sequel.as(IFNULL(SUM(cost_price), 0), :cost_price),
         Sequel.as(IFNULL(SUM(profit_loss), 0), :profit_loss),
-        Sequel.as(ABS((IFNULL(SUM(profit_loss), 0) / SUM(cost_price))) * 100, :profit_loss_percent),
+        Sequel.as((IFNULL(SUM(profit_loss), 0) / SUM(cost_price)) * 100, :profit_loss_percent),
         Sequel.as(0, :promotion_discount)
       ]}
 
@@ -71,7 +71,7 @@ module Spree
         Sequel.as(SUM(sale_price), :sale_price),
         Sequel.as(SUM(cost_price), :cost_price),
         Sequel.as(SUM(profit_loss), :profit_loss),
-        Sequel.as(ROUND((SUM(profit_loss) / SUM(cost_price)) * 100, 2), :profit_loss_percent),
+        Sequel.as(ROUND(ABS((SUM(profit_loss) / SUM(cost_price))) * 100, 2), :profit_loss_percent),
         Sequel.as(SUM(promotion_discount), :promotion_discount)
       ]}
       fill_missing_values({ cost_price: 0, sale_price: 0, profit_loss: 0, profit_loss_percent: 0, promotion_discount: 0 }, union_stats.all)

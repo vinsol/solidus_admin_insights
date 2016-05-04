@@ -29,14 +29,14 @@ Searcher.prototype.refreshSearcher = function($selectedInsight, data) {
 
   _this.$filterForm.on('submit', function() {
    var noPagination = _this.reportLoader.removePaginationButton.closest('span').hasClass('hide');
-   _this.addSearchStatus();
+   // _this.addSearchStatus();
    $.ajax({
      type: "GET",
      url: _this.$filterForm.attr('action'),
      data: _this.$filterForm.serialize() + "&per_page=" + _this.reportLoader.pageSelector.find(':selected').attr('value') + '&no_pagination=' + noPagination,
      dataType: 'json',
      success: function(data) {
-      _this.clearFormFields();
+      // _this.clearFormFields();
       _this.reportLoader.requestUrl = this.url;
       _this.populateInsightsData(data);
       _this.reportLoader.paginatorObject.refreshPaginator(data);
@@ -85,7 +85,7 @@ Searcher.prototype.populateInsightsData = function(data) {
   this.reportLoader.populateInsightsData(data);
 };
 
-Searcher.prototype.clearFormFields = function() {
+ Searcher.prototype.clearFormFields = function() {
   this.$filters.find('.filter-well').slideUp();
 };
 
@@ -93,7 +93,7 @@ Searcher.prototype.fillFormFields = function(searchedFields) {
   $.each(Object.keys(searchedFields), function() {
     $('#search_' + this).val(searchedFields[this]);
   });
-  this.addSearchStatus();
+  // this.addSearchStatus();
 };
 
 Searcher.prototype.clearSearchFields = function() {

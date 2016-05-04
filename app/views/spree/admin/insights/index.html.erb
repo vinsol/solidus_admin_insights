@@ -1,3 +1,4 @@
+<%= render :partial => 'spree/admin/shared/sub_menu/insight' %>
 <% content_for :page_title do %>
   <%= Spree.t(:heading, type: params[:type].to_s.titleize, scope: :insight) %>
 <% end %>
@@ -17,17 +18,6 @@
   <div id='search-div' class='hide'>
     <div class="filter-wrap row">
       <div class="col-sm-12">
-        <div class="input-group index-filter-button">
-          <span class="input-group-btn">
-            <button class="btn btn-default js-show-index-filters" type="button">
-              <span class="icon icon-chevron-right"></span>
-              <%= Spree.t(:filter) %>
-            </button>
-          </span>
-          <%= form_tag form_action(@report_name, params[:type]), id: "quick-search" do %>
-            <%= text_field_tag :quick_search, nil, class: "form-control js-quick-search", placeholder: Spree.t(:quick_search) %>
-          <% end %>
-        </div>
         <div id="table-filter" data-hook class="well filter-well">
         </div>
       </div>

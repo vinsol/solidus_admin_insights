@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'spree', github: 'spree/spree', branch: '3-0-stable'
-gem 'spree_events_tracker', git: "https://github.com/vinsol/spree_events_tracker.git", branch: 'add-tracker'
+gem 'spree', github: 'spree/spree', branch: '2-4-stable'
+gem 'spree_events_tracker', path: '/home/vinsoluser/Desktop/spree_ecom_extension/spree_events_tracker'
 
 gemspec

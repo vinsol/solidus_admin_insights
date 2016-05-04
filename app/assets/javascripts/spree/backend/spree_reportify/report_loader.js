@@ -56,8 +56,8 @@ ReportLoader.prototype.init = function() {
 ReportLoader.prototype.setDefaultReport = function() {
   if(location.pathname == '/admin/insights') {
     this.$selectList.val($(this.$selectList.find('option')[1]).val()).change();
+    window.history.pushState({}, '', this.$selectList.find(':selected').data('url'));
   }
-  window.history.pushState({}, '', this.$selectList.find(':selected').data('url'));
 };
 
 ReportLoader.prototype.bindEvents = function() {
@@ -65,7 +65,7 @@ ReportLoader.prototype.bindEvents = function() {
   _this.$selectList.on('change', function() {
     $(this).find('option').first().attr('disabled', true);
     _this.paginatorObject.togglePaginatorButtons(_this.paginatorObject.removePaginationButton, _this.paginatorObject.applyPaginationButton);
-    _this.searcherObject.clearSearchFields();
+    // _this.searcherObject.clearSearchFields();
     _this.loadChart($(this).find(':selected'));
   });
 
@@ -87,7 +87,7 @@ ReportLoader.prototype.resetFilters = function(event) {
   $element.attr('href', this.perPageSelector.data('url') + '&no_pagination=' + noPagination);
   $element.data('url', this.perPageSelector.data('url') + '&no_pagination=' + noPagination);
   this.loadChart($element);
-  this.searcherObject.clearSearchFields();
+  // this.searcherObject.clearSearchFields();
 };
 
 ReportLoader.prototype.refreshPage = function(event) {
@@ -204,7 +204,7 @@ ReportLoader.prototype.pushUrlToHistory = function() {
 
 ReportLoader.prototype.populateInitialData = function() {
   var $selectedOption = this.$selectList.find(':selected');
-  this.fetchChartDataWithoutState($selectedOption.data('url'), $selectedOption);
+  this.fetchChartDataWithoutState(location.href, $selectedOption);
 };
 
 $(function() {

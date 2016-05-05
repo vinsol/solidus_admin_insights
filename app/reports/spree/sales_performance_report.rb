@@ -71,7 +71,7 @@ module Spree
         Sequel.as(SUM(sale_price), :sale_price),
         Sequel.as(SUM(cost_price), :cost_price),
         Sequel.as(SUM(profit_loss), :profit_loss),
-        Sequel.as(ROUND(ABS((SUM(profit_loss) / SUM(cost_price))) * 100, 2), :profit_loss_percent),
+        Sequel.as(ROUND((SUM(profit_loss) / SUM(cost_price)) * 100, 2), :profit_loss_percent),
         Sequel.as(SUM(promotion_discount), :promotion_discount)
       ]}
       fill_missing_values({ cost_price: 0, sale_price: 0, profit_loss: 0, profit_loss_percent: 0, promotion_discount: 0 }, union_stats.all)
@@ -113,7 +113,7 @@ module Spree
         json: {
           title: {
             useHTML: true,
-            text: "<span class='chart-title'>Profit/Loss</span><span class='glyphicon glyphicon-question-sign' data-toggle='tooltip' title='Track the profit or loss value'></span>"
+            text: "<span class='chart-title'>Profit/Loss</span><span class='fa fa-question-circle' data-toggle='tooltip' title='Track the profit or loss value'></span>"
           },
           xAxis: { categories: chart_data[:months_name] },
           yAxis: {
@@ -142,7 +142,7 @@ module Spree
         json: {
           title: {
             useHTML: true,
-            text: "<span class='chart-title'>Profit/Loss %</span><span class='glyphicon glyphicon-question-sign' data-toggle='tooltip' title='Track the profit or loss %age to create a projection'></span>"
+            text: "<span class='chart-title'>Profit/Loss %</span><span class='fa fa-question-circle' data-toggle='tooltip' title='Track the profit or loss %age to create a projection'></span>"
           },
           xAxis: { categories: chart_data[:months_name] },
           yAxis: {
@@ -172,7 +172,7 @@ module Spree
           chart: { type: 'column' },
           title: {
             useHTML: true,
-            text: "<span class='chart-title'>Sales Performance %</span><span class='glyphicon glyphicon-question-sign' data-toggle='tooltip' title='Compare the Selling price, cost price and promotional cost over a period of time'></span>"
+            text: "<span class='chart-title'>Sales Performance %</span><span class='fa fa-question-circle' data-toggle='tooltip' title='Compare the Selling price, cost price and promotional cost over a period of time'></span>"
           },
           xAxis: { categories: chart_data[:months_name] },
           yAxis: {

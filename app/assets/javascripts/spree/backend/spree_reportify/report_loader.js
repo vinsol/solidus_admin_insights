@@ -10,6 +10,7 @@ function ReportLoader(inputs) {
   this.perPageSelector = this.tableHelpers.find('#per_page');
   this.pageHelpers = this.tableHelpers.find('#page-helpers');
   this.resetButton = inputs.resetButton;
+  this.downloadButton = inputs.downloadButton;
   this.refreshButton = inputs.refreshButton;
   this.filterDiv = inputs.filterDiv;
   this.paginatorDiv = inputs.paginatorDiv;
@@ -65,7 +66,6 @@ ReportLoader.prototype.bindEvents = function() {
   _this.$selectList.on('change', function() {
     $(this).find('option').first().attr('disabled', true);
     _this.paginatorObject.togglePaginatorButtons(_this.paginatorObject.removePaginationButton, _this.paginatorObject.applyPaginationButton);
-    // _this.searcherObject.clearSearchFields();
     _this.loadChart($(this).find(':selected'));
   });
 
@@ -77,7 +77,22 @@ ReportLoader.prototype.bindEvents = function() {
     _this.refreshPage(event);
   });
 
+  this.downloadButton.on('click', function() {
+    _this.toggleDownloadLinks(event, this);
+  })
+
+  $('body').on('click', function(event) {
+    _this.downloadButton.removeClass('open');
+    event.stopPropagation();
+  });
+
   _this.bindPopStateEventCallback();
+};
+
+ReportLoader.prototype.toggleDownloadLinks = function(event, element) {
+  $(element).toggleClass('open');
+  event.preventDefault();
+  event.stopPropagation();
 };
 
 ReportLoader.prototype.resetFilters = function(event) {
@@ -87,7 +102,6 @@ ReportLoader.prototype.resetFilters = function(event) {
   $element.attr('href', this.perPageSelector.data('url') + '&no_pagination=' + noPagination);
   $element.data('url', this.perPageSelector.data('url') + '&no_pagination=' + noPagination);
   this.loadChart($element);
-  // this.searcherObject.clearSearchFields();
 };
 
 ReportLoader.prototype.refreshPage = function(event) {
@@ -219,7 +233,8 @@ $(function() {
     filterDiv: $('#search-div'),
     paginatorDiv: $('#paginator-div'),
     chartContainer: $('#chart-container'),
-    downloadLinks: $('.download-link')
+    downloadLinks: $('.download-link'),
+    downloadButton: $('.toggle-btn')
   },
     reportLoader = new ReportLoader(inputs);
   reportLoader.init();

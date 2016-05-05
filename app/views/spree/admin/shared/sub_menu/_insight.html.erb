@@ -1,7 +1,7 @@
 <% content_for :sub_menu do %>
   <ul id="sidebar-insights" class="inline-menu" data-hook="admin_insight_sub_tabs">
     <% Spree::ReportGenerationService::REPORTS.each do |_key, _value| %>
-      <%= tab _key, url: admin_insight_path(type: _key, id: _value.first), css_class: selected?(params[:type], _key) ? 'selected' : '' %>
+      <%= tab _key, url: admin_insight_path(type: _key, id: _value.first) %>
     <% end %>
   <ul>
 <% end %>

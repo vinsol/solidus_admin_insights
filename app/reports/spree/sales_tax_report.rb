@@ -62,7 +62,7 @@ module Spree
               chart: { type: 'column' },
               title: {
                 useHTML: true,
-                text: "<span class='chart-title'>Monthly Sales Tax Comparison</span><span class='glyphicon glyphicon-question-sign' data-toggle='tooltip' title='Compare the Sales tax collected from different Zones'></span>"
+                text: "<span class='chart-title'>Monthly Sales Tax Comparison</span><span class='fa fa-question-circle' data-toggle='tooltip' title='Compare the Sales tax collected from different Zones'></span>"
               },
               xAxis: { categories: chart_data[:months_name] },
               yAxis: {

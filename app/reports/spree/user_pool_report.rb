@@ -98,7 +98,7 @@ module Spree
               chart: { type: 'column' },
               title: {
                 useHTML: true,
-                text: '<span class="chart-title">User Pool</span><span class="glyphicon glyphicon-question-sign" data-toggle="tooltip" title=" Keep a track of different type of users such as guest users, registered users and newly signed up users"></span>'
+                text: '<span class="chart-title">User Pool</span><span class="fa fa-question-circle" data-toggle="tooltip" title=" Keep a track of different type of users such as guest users, registered users and newly signed up users"></span>'
                 },
               xAxis: { categories: chart_data[:months_name] },
               yAxis: {

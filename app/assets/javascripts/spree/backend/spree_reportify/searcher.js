@@ -29,44 +29,18 @@ Searcher.prototype.refreshSearcher = function($selectedInsight, data) {
 
   _this.$filterForm.on('submit', function() {
    var noPagination = _this.reportLoader.removePaginationButton.closest('span').hasClass('hide');
-   // _this.addSearchStatus();
    $.ajax({
      type: "GET",
      url: _this.$filterForm.attr('action'),
      data: _this.$filterForm.serialize() + "&per_page=" + _this.reportLoader.pageSelector.find(':selected').attr('value') + '&no_pagination=' + noPagination,
      dataType: 'json',
      success: function(data) {
-      // _this.clearFormFields();
       _this.reportLoader.requestUrl = this.url;
       _this.populateInsightsData(data);
       _this.reportLoader.paginatorObject.refreshPaginator(data);
      }
    });
    return false;
-  });
-};
-
-Searcher.prototype.addSearchStatus = function () {
-  var filtersContainer = $(".js-filters");
-  filtersContainer.empty();
-  $(".js-filterable").each(function() {
-   var $this = $(this);
-
-    if ($this.val()) {
-      var ransack_value, filter;
-      var ransack_field = $this.attr("id");
-      var label = $('label[for="' + ransack_field + '"]');
-      if ($this.is("select")) {
-        ransack_value = $this.find('option:selected').text();
-      } else {
-        ransack_value = $this.val();
-      }
-
-      label = label.text() + ': ' + ransack_value;
-      filter = '<span class="js-filter label label-default" data-ransack-field="' + ransack_field + '">' + label + '<span class="icon icon-delete js-delete-filter"></span></span>';
-
-      filtersContainer.append(filter).show();
-    }
   });
 };
 
@@ -85,15 +59,10 @@ Searcher.prototype.populateInsightsData = function(data) {
   this.reportLoader.populateInsightsData(data);
 };
 
- Searcher.prototype.clearFormFields = function() {
-  this.$filters.find('.filter-well').slideUp();
-};
-
 Searcher.prototype.fillFormFields = function(searchedFields) {
   $.each(Object.keys(searchedFields), function() {
     $('#search_' + this).val(searchedFields[this]);
   });
-  // this.addSearchStatus();
 };
 
 Searcher.prototype.clearSearchFields = function() {

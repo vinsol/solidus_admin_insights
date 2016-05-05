@@ -3,10 +3,6 @@ Placeholder manifest file.
 the installer will append this file to the app vendored assets here: 'vendor/assets/stylesheets/spree/backend/all.css'
 */
 
-.page-select {
-  padding: 0px 6px 0px 6px;
-}
-
 #report-container .filter-well {
   margin: 5px 0px 10px 0px;
 }
@@ -37,4 +33,104 @@ the installer will append this file to the app vendored assets here: 'vendor/ass
 
 .profit-indicator {
   color: green;
+}
+
+.hide {
+  display: none !important;
+}
+
+.full-width,
+.date-range-filter input.datepicker.full-width {
+  width: 100% !important;
+}
+
+ .dropdown-menu {
+  position: relative;
+}
+
+.sub-menu {
+  display: none;
+  background-color: #ffffff;
+  z-index: 9999;
+  padding: 10px;
+  position: absolute;
+  border: 1px solid #adadad;
+  border-radius: 5px;
+  left: 0px;
+  top: 40px;
+  min-width: 75px
+}
+
+.sub-menu li {
+  list-style: none;
+}
+
+.toggle-btn.open + ul {
+  display: block;
+}
+
+.btn-link {
+  background-color: #ffffff;
+  border: 1px solid #adadad;
+}
+
+.button.btn-link .fa {
+  color: #333;
+}
+
+.btn-link:hover {
+  background-color: #e6e6e6;
+}
+
+.page-select {
+  background-color: #ffffff;
+  border: 1px solid #adadad;
+  padding: 0px 6px 0px 6px;
+  color: #333;
+  height: 36px;
+}
+.move-right {
+  float: right !important;
+}
+
+.button-group {
+  margin-left: 5px;
+}
+
+.report-select {
+  padding: 5px 10px;
+  background-color: #5498da;
+  border-radius: 3px;
+  border: 0;
+  color: white;
+  height: 40px;
+  width: 100%;
+}
+
+.report-select:hover {
+  border: 0;
+  border-radius: 3px;
+  background-color: #9fc820;
+  color: white;
+}
+
+.report-select option {
+  background-color: white;
+  color: black;
+}
+
+.report-select option:nth-child(1) {
+  background-color: #f0f0f0;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.tab-with-icon {
+  font-size: 12px;
+}
+
+.tab-with-icon a {
+  padding: 25px 5px !important;
 }

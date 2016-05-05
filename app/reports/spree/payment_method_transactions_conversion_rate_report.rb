@@ -65,7 +65,7 @@ module Spree
               chart: { type: 'column' },
               title: {
                 useHTML: true,
-                text: "<span class='chart-title'>#{ method_name } Conversion Status</span><span class='glyphicon glyphicon-question-sign' data-toggle='tooltip' title=' Tracks the status of Payments made from different payment methods such as CC, Check etc.'></span>"
+                text: "<span class='chart-title'>#{ method_name } Conversion Status</span><span class='fa fa-question-circle' data-toggle='tooltip' title=' Tracks the status of Payments made from different payment methods such as CC, Check etc.'></span>"
               },
 
               xAxis: { categories: chart_data[:months_name] },

@@ -1,6 +1,6 @@
 Spree::BaseHelper.class_eval do
-  def selected?(current_insight, insight)
-    current_insight.eql?(insight)
+  def selected?(path)
+    path == 'spree/admin/insights'
   end
 
   def form_action(insight, insight_type)

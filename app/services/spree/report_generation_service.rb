@@ -3,14 +3,14 @@ module Spree
 
     REPORTS = {
       finance_analysis:           [
-                                    :payment_method_transactions, :payment_method_transactions_conversion_rate,
-                                    :sales_performance, :shipping_cost, :sales_tax
+                                    :sales_performance, :payment_method_transactions, :payment_method_transactions_conversion_rate,
+                                    :shipping_cost, :sales_tax
                                   ],
       product_analysis:           [
-                                    :cart_additions, :cart_removals, :cart_updations,
+                                    :best_selling_products, :cart_additions, :cart_removals, :cart_updations,
                                     :product_views, :product_views_to_cart_additions,
                                     :product_views_to_purchases, :unique_purchases,
-                                    :best_selling_products, :returned_products
+                                    :returned_products
                                   ],
       promotion_analysis:         [:promotional_cost, :annual_promotional_cost],
       trending_search_analysis:   [:trending_search],

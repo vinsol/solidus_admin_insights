@@ -1,1 +1,3 @@
-<%= tab Spree.t(:insights), icon: 'fa fa-bar-chart', css_class: selected?(params[:controller]) ? 'selected' : '', url: "/admin/insights" %>
+<% if can? :admin, Spree::Admin::InsightsController %>
+  <%= tab Spree.t(:insights), icon: 'fa fa-bar-chart', css_class: selected?(params[:controller]) ? 'selected' : '', url: "/admin/insights" %>
+<% end %>

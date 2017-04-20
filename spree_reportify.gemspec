@@ -15,9 +15,9 @@ Gem::Specification.new do |s|
   s.require_path = 'lib'
   s.requirements << 'none'
 
-  spree_version = '~> 2.4'
+  solidus_version = '~> 2.1'
 
-  s.add_dependency 'spree_core', spree_version
+  s.add_dependency 'solidus_core', solidus_version
 
   s.add_development_dependency 'capybara', '~> 2.4'
   s.add_development_dependency 'coffee-rails', '~> 4.0.0'
@@ -33,8 +33,8 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'simplecov', '~> 0.11.0'
   s.add_development_dependency 'sqlite3', '~> 1.3.0'
   s.add_development_dependency 'shoulda-matchers', '~> 2.6.2'
-  s.add_development_dependency 'spree_backend', spree_version
-  s.add_development_dependency 'spree_frontend', spree_version
+  s.add_development_dependency 'solidus_backend', solidus_version
+  s.add_development_dependency 'solidus_frontend', solidus_version
   s.add_dependency 'sequel', '~> 4.32.0'
   s.add_dependency 'wicked_pdf', '~> 1.0.6'
   s.add_dependency 'wkhtmltopdf-binary', '~> 0.9.9.3'

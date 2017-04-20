@@ -1,5 +1,13 @@
 en:
   spree:
+    admin:
+      tab:
+        insights: Insights
+        finance_analysis: Finance Analysis
+        product_analysis: Product Analysis
+        promotion_analysis: Promotion Analysis
+        trending_search_analysis: Trending Search Analysis
+        user_analysis: User Analysis
     insights: Insights
     insight:
       heading: 'Insights: %{type}'

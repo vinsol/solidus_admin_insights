@@ -11,7 +11,7 @@
               <div class="input-group">
                 <%= text_field_tag 'search[start_date]', params.fetch(:search, {})[:start_date], class: 'datepicker datepicker-from form-control js-filterable', placeholder: Spree.t(:start) %>
                 <span class="input-group-addon">
-                  <i class="icon icon-calendar"></i>
+                  <i class="fa fa-calendar"></i>
                 </span>
               </div>
 
@@ -21,7 +21,7 @@
               <div class="input-group">
                 <%= text_field_tag 'search[end_date]', params.fetch(:search, {})[:end_date], class: 'datepicker datepicker-to form-control js-filterable', placeholder: Spree.t(:stop) %>
                 <span class="input-group-addon">
-                  <i class="icon icon-calendar"></i>
+                  <i class="fa fa-calendar"></i>
                 </span>
               </div>
             </div>
@@ -37,5 +37,3 @@
 
   <% end %>
 </div>
-
-

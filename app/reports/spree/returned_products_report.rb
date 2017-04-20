@@ -11,7 +11,7 @@ module Spree
     end
 
     def generate
-      SpreeReportify::ReportDb[:spree_return_authorizations].
+      SolidusAdminInsights::ReportDb[:spree_return_authorizations].
       join(:spree_return_items, return_authorization_id: :spree_return_authorizations__id).
       join(:spree_inventory_units, spree_inventory_units__id: :inventory_unit_id).
       join(:spree_variants, spree_variants__id: :variant_id).

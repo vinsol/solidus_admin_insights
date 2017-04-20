@@ -9,7 +9,7 @@ module Spree
     end
 
     def generate(options = {})
-      adjustments_with_month_name = SpreeReportify::ReportDb[:spree_adjustments___adjustments].
+      adjustments_with_month_name = SolidusAdminInsights::ReportDb[:spree_adjustments___adjustments].
       join(:spree_tax_rates___tax_rates, id: :source_id).
       join(:spree_zones___zones, id: :zone_id).
       where(adjustments__source_type: "Spree::TaxRate", adjustments__adjustable_type: "Spree::LineItem").
@@ -23,7 +23,7 @@ module Spree
         Sequel.as(MONTH(:adjustments__created_at), :number)
       ]}
 
-      group_by_months = SpreeReportify::ReportDb[adjustments_with_month_name].
+      group_by_months = SolidusAdminInsights::ReportDb[adjustments_with_month_name].
       group(:months_name, :zone_id).
       order(:year, :number).
       select{[

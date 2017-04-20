@@ -12,7 +12,7 @@ module Spree
     end
 
     def generate(options = {})
-      SpreeReportify::ReportDb[:spree_users___users].
+      SolidusAdminInsights::ReportDb[:spree_users___users].
       left_join(:spree_orders___orders, user_id: :id).
       where(orders__completed_at: nil, orders__number: nil).
       where(users__created_at: @start_date..@end_date).where(Sequel.ilike(:users__email, @email_cont)). #filter by params

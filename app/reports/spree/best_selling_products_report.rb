@@ -13,7 +13,7 @@ module Spree
     end
 
     def generate
-      ::SpreeReportify::ReportDb[:spree_line_items___line_items].
+      ::SolidusAdminInsights::ReportDb[:spree_line_items___line_items].
       join(:spree_orders___orders, id: :order_id).
       join(:spree_variants___variants, variants__id: :line_items__variant_id).
       join(:spree_products___products, products__id: :variants__product_id).

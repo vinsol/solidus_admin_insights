@@ -11,7 +11,7 @@ module Spree
     end
 
     def generate
-      SpreeReportify::ReportDb[:spree_cart_events___cart_events].
+      SolidusAdminInsights::ReportDb[:spree_cart_events___cart_events].
       join(:spree_variants___variants, id: :variant_id).
       join(:spree_products___products, id: :product_id).
       where(cart_events__activity: 'remove').

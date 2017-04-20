@@ -12,7 +12,7 @@ module Spree
     end
 
     def generate
-      unique_session_results = ::SpreeReportify::ReportDb[:spree_products___products].
+      unique_session_results = ::SolidusAdminInsights::ReportDb[:spree_products___products].
       join(:spree_page_events___page_events, target_id: :id).
       where(page_events__target_type: 'Spree::Product', page_events__activity: 'view').
       where(page_events__created_at: @start_date..@end_date).where(Sequel.ilike(:products__name, @name)).
@@ -24,7 +24,7 @@ module Spree
         page_events__actor_id.as(actor_id)
       ]}.as(:unique_session_results)
 
-      ::SpreeReportify::ReportDb[unique_session_results].
+      ::SolidusAdminInsights::ReportDb[unique_session_results].
       group(:product_name).
       order(sortable_sequel_expression)
     end

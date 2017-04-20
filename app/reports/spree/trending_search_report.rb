@@ -13,7 +13,7 @@ module Spree
     end
 
     def generate(options = {})
-      top_searches = SpreeReportify::ReportDb[:spree_page_events___page_events].
+      top_searches = SolidusAdminInsights::ReportDb[:spree_page_events___page_events].
       where(page_events__activity: 'search').
       where(page_events__created_at: @start_date..@end_date).where(Sequel.ilike(:page_events__search_keywords, @search_keywords_cont)). #filter by params
       group(:searched_term).
@@ -32,8 +32,8 @@ module Spree
 
     def chart_data
       top_searches = select_columns(generate)
-      total_occurrences = SpreeReportify::ReportDb[top_searches].sum(:occurrences)
-      SpreeReportify::ReportDb[top_searches].
+      total_occurrences = SolidusAdminInsights::ReportDb[top_searches].sum(:occurrences)
+      SolidusAdminInsights::ReportDb[top_searches].
       select{[
         Sequel.as((occurrences / total_occurrences) * 100, :y),
         Sequel.as(searched_term, :name)

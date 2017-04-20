@@ -9,7 +9,7 @@ module Spree
     end
 
     def generate(options = {})
-      order_join_shipments = SpreeReportify::ReportDb[:spree_orders___orders].
+      order_join_shipments = SolidusAdminInsights::ReportDb[:spree_orders___orders].
       exclude(completed_at: nil).
       join(:spree_shipments___shipments, order_id: :id).
       where(orders__created_at: @start_date..@end_date). #filter by params
@@ -23,7 +23,7 @@ module Spree
         Sequel.as(YEAR(:orders__created_at), :year)
       ]}.as(:order_shipment)
 
-      order_shipment_join_shipment_rates = SpreeReportify::ReportDb[order_join_shipments].
+      order_shipment_join_shipment_rates = SolidusAdminInsights::ReportDb[order_join_shipments].
       join(:spree_shipping_rates___shipping_rates, shipment_id: :order_shipment__shipment_id).
       where(selected: true).
       select{[
@@ -37,7 +37,7 @@ module Spree
         Sequel.as(concat(month_name, ' ', IFNULL(year, 2016)), :months_name),
       ]}.as(:order_shipment_rates)
 
-      revenue_table = SpreeReportify::ReportDb[order_shipment_join_shipment_rates].
+      revenue_table = SolidusAdminInsights::ReportDb[order_shipment_join_shipment_rates].
       group(:months_name).
       select{[
         Sequel.as(concat(month_name, ' ', IFNULL(year, 2016)), :months_name),
@@ -45,7 +45,7 @@ module Spree
         order_id
       ]}
 
-      group_by_months = SpreeReportify::ReportDb[order_shipment_join_shipment_rates].
+      group_by_months = SolidusAdminInsights::ReportDb[order_shipment_join_shipment_rates].
       join(:spree_shipping_methods, id: :order_shipment_rates__shipping_method_id).
       join(revenue_table, months_name: :order_shipment_rates__months_name).
       group(:months_name, :spree_shipping_methods__id).

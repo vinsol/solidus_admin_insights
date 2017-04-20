@@ -12,7 +12,7 @@ module Spree
     end
 
     def generate(options = {})
-      all_orders_with_users = SpreeReportify::ReportDb[:spree_users___users].
+      all_orders_with_users = SolidusAdminInsights::ReportDb[:spree_users___users].
       left_join(:spree_orders___orders, user_id: :id).
       where(Sequel.~(orders__completed_at: nil), Sequel.~(orders__completed_at: @start_date..@end_date)).
       where(Sequel.ilike(:users__email, @email_cont)).
@@ -23,7 +23,7 @@ module Spree
         :orders__completed_at___last_purchase_date
       ).as(:all_orders_with_users)
 
-      SpreeReportify::ReportDb[all_orders_with_users].
+      SolidusAdminInsights::ReportDb[all_orders_with_users].
       group(:all_orders_with_users__user_email).
       order(sortable_sequel_expression)
     end

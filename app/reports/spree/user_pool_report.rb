@@ -11,7 +11,7 @@ module Spree
 
     def generate(options = {})
       # order of column is important when we take union of two tables
-      new_sign_ups = SpreeReportify::ReportDb[:spree_users___users].
+      new_sign_ups = SolidusAdminInsights::ReportDb[:spree_users___users].
       where(users__created_at: @start_date..@end_date).
       select{[
         id.as(:user_id),
@@ -20,7 +20,7 @@ module Spree
         Sequel.as(MONTH(:users__created_at), :number)
       ]}
 
-      group_new_sign_ups_by_months = SpreeReportify::ReportDb[new_sign_ups].
+      group_new_sign_ups_by_months = SolidusAdminInsights::ReportDb[new_sign_ups].
       group(:months_name).
       order(:year, :number).
       select{[
@@ -32,7 +32,7 @@ module Spree
         Sequel.as(IFNULL(COUNT(user_id), 0), :new_sign_ups)
       ]}
 
-      vistors = SpreeReportify::ReportDb[:spree_page_events___page_events].
+      vistors = SolidusAdminInsights::ReportDb[:spree_page_events___page_events].
       where(page_events__created_at: @start_date..@end_date).
       select{[
         Sequel.as(YEAR(:page_events__created_at), :year),
@@ -42,7 +42,7 @@ module Spree
         Sequel.as(session_id, :session)
       ]}
 
-      visitors_by_months = SpreeReportify::ReportDb[vistors].
+      visitors_by_months = SolidusAdminInsights::ReportDb[vistors].
       group(:months_name).
       order(:year, :number).
       select{[
@@ -57,7 +57,7 @@ module Spree
 
       union_of_stats = group_new_sign_ups_by_months.union(visitors_by_months)
 
-      union_stats = SpreeReportify::ReportDb[union_of_stats].
+      union_stats = SolidusAdminInsights::ReportDb[union_of_stats].
       group(:months_name).
       order(:year, :number).
       select{[

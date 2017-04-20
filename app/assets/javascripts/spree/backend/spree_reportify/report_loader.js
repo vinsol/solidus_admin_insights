@@ -1,6 +1,6 @@
-//= require spree/backend/spree_reportify/paginator
-//= require spree/backend/spree_reportify/searcher
-//= require spree/backend/spree_reportify/table_sorter
+//= require spree/backend/solidus_admin_insights/paginator
+//= require spree/backend/solidus_admin_insights/searcher
+//= require spree/backend/solidus_admin_insights/table_sorter
 
 function ReportLoader(inputs) {
   this.$selectList = inputs.reportsSelectBox;

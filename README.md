@@ -1,22 +1,22 @@
-SpreeReportify
+SolidusAdminInsights
 ==============
 
-Introduction goes here.
+Dashboard for querying and viewing you solidus store's metrics. Use SolidusEventTracker to capture the metrics
 
 Installation
 ------------
 
-Add spree_reportify to your Gemfile:
+Add solidus_admin_insights to your Gemfile:
 
 ```ruby
-gem 'spree_reportify'
+gem 'solidus_admin_insights', github: 'vinsol/solidus_admin_insights'
 ```
 
 Bundle your dependencies and run the installation generator:
 
 ```shell
 bundle
-bundle exec rails g spree_reportify:install
+bundle exec rails g solidus_admin_insights:install
 ```
 
 Testing
@@ -33,7 +33,12 @@ When testing your applications integration with this extension you may use it's 
 Simply add this require statement to your spec_helper:
 
 ```ruby
-require 'spree_reportify/factories'
+require 'solidus_admin_insights/factories'
 ```
 
-Copyright (c) 2016 [name of extension creator], released under the New BSD License
+Credits
+-------
+
+[![vinsol.com: Ruby on Rails, iOS and Android developers](http://vinsol.com/vin_logo.png "Ruby on Rails, iOS and Android developers")](http://vinsol.com)
+
+Copyright (c) 2016 [vinsol.com](http://vinsol.com "Ruby on Rails, iOS and Android developers"), released under the New MIT License

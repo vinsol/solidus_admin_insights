@@ -9,7 +9,7 @@ module Spree
     end
 
     def generate(options = {})
-      order_join_line_item = SpreeReportify::ReportDb[:spree_orders___orders].
+      order_join_line_item = SolidusAdminInsights::ReportDb[:spree_orders___orders].
       exclude(completed_at: nil).
       where(orders__created_at: @start_date..@end_date). #filter by params
       join(:spree_line_items___line_items, order_id: :id).
@@ -23,7 +23,7 @@ module Spree
         Sequel.as(YEAR(:orders__created_at), :year)
       ]}
 
-      group_by_months = SpreeReportify::ReportDb[order_join_line_item].
+      group_by_months = SolidusAdminInsights::ReportDb[order_join_line_item].
       group(:months_name).
       order(:year, :number).
       select{[
@@ -37,7 +37,7 @@ module Spree
         Sequel.as(0, :promotion_discount)
       ]}
 
-      adjustments_with_month_name = SpreeReportify::ReportDb[:spree_adjustments___adjustments].
+      adjustments_with_month_name = SolidusAdminInsights::ReportDb[:spree_adjustments___adjustments].
       where(adjustments__source_type: "Spree::PromotionAction").
       where(adjustments__created_at: @start_date..@end_date). #filter by params
       select{[
@@ -47,7 +47,7 @@ module Spree
         Sequel.as(MONTH(:adjustments__created_at), :number)
       ]}
 
-      promotions_group_by_months = SpreeReportify::ReportDb[adjustments_with_month_name].
+      promotions_group_by_months = SolidusAdminInsights::ReportDb[adjustments_with_month_name].
       group(:months_name).
       order(:year, :number).
       select{[
@@ -61,7 +61,7 @@ module Spree
         Sequel.as(SUM(promotion_discount), :promotion_discount)
       ]}
 
-      union_stats = SpreeReportify::ReportDb[group_by_months.union(promotions_group_by_months)].
+      union_stats = SolidusAdminInsights::ReportDb[group_by_months.union(promotions_group_by_months)].
       group(:months_name).
       order(:year, :number).
       select{[

@@ -11,7 +11,7 @@ module Spree
     end
 
     def generate(options = {})
-      line_items = ::SpreeReportify::ReportDb[:spree_line_items___line_items].
+      line_items = ::SolidusAdminInsights::ReportDb[:spree_line_items___line_items].
       join(:spree_orders___orders, id: :order_id).
       join(:spree_variants___variants, variants__id: :line_items__variant_id).
       join(:spree_products___products, products__id: :variants__product_id).
@@ -25,7 +25,7 @@ module Spree
       products__id.as(product_id)]}.
       group(:products__name).as(:line_items)
 
-      ::SpreeReportify::ReportDb[line_items].join(:spree_page_events___page_events, page_events__target_id: :product_id).
+      ::SolidusAdminInsights::ReportDb[line_items].join(:spree_page_events___page_events, page_events__target_id: :product_id).
       where(page_events__target_type: 'Spree::Product', page_events__activity: 'view').
       group(:product_name).
       order(sortable_sequel_expression)

@@ -1,4 +1,4 @@
-//= require spree/backend/spree_reportify/paginator
+//= require spree/backend/solidus_admin_insights/paginator
 
 function Searcher(inputs, reportLoader) {
   this.$insightsTableList = inputs.insightsDiv;

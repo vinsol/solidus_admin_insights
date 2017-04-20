@@ -11,7 +11,7 @@ module Spree
     end
 
     def generate(options = {})
-      cart_additions = SpreeReportify::ReportDb[:spree_cart_events___cart_events].
+      cart_additions = SolidusAdminInsights::ReportDb[:spree_cart_events___cart_events].
       join(:spree_variants___variants, id: :variant_id).
       join(:spree_products___products, id: :product_id).
       where(cart_events__activity: 'add').
@@ -23,7 +23,7 @@ module Spree
       ]}.as(:cart_additions)
 
 
-      total_views_results = ::SpreeReportify::ReportDb[:spree_products___products].
+      total_views_results = ::SolidusAdminInsights::ReportDb[:spree_products___products].
       join(:spree_page_events___page_events, target_id: :id).
       where(page_events__target_type: 'Spree::Product', page_events__activity: 'view').
       group(:product_name).
@@ -32,7 +32,7 @@ module Spree
         count('*').as(views)
       ]}
 
-      ::SpreeReportify::ReportDb[total_views_results].
+      ::SolidusAdminInsights::ReportDb[total_views_results].
       join(cart_additions, product_name: :product_name).
       order(sortable_sequel_expression)
     end

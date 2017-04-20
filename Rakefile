@@ -16,6 +16,6 @@ end
 
 desc 'Generates a dummy app for testing'
 task :test_app do
-  ENV['LIB_NAME'] = 'spree_reportify'
+  ENV['LIB_NAME'] = 'solidus_admin_insights'
   Rake::Task['extension:test_app'].invoke
 end

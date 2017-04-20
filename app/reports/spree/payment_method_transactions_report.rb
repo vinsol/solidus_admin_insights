@@ -10,7 +10,7 @@ module Spree
     end
 
     def generate
-      payments = SpreeReportify::ReportDb[:spree_payment_methods___payment_methods].
+      payments = SolidusAdminInsights::ReportDb[:spree_payment_methods___payment_methods].
       join(:spree_payments___payments, payment_method_id: :id).
       where(payments__created_at: @start_date..@end_date). #filter by params
       select{[
@@ -21,7 +21,7 @@ module Spree
         Sequel.as(YEAR(:payments__created_at), :year)
       ]}
 
-      group_by_months = SpreeReportify::ReportDb[payments].
+      group_by_months = SolidusAdminInsights::ReportDb[payments].
       group(:months_name, :payment_method_name).
       order(:year, :number).
       select{[

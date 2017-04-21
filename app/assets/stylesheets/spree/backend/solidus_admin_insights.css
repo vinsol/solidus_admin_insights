@@ -130,7 +130,3 @@ the installer will append this file to the app vendored assets here: 'vendor/ass
 .tab-with-icon {
   font-size: 12px;
 }
-
-.tab-with-icon a {
-  padding: 25px 5px !important;
-}

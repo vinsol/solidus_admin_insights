@@ -10,6 +10,13 @@ module Spree
       set_sortable_attributes(options, DEFAULT_SORTABLE_ATTRIBUTE)
     end
 
+    def deeplink_properties
+      {
+        deeplinked: true,
+        product_name: { template: %Q{<a href="/admin/products/{%# o.product_slug %}" target="_blank">{%# o.product_name %}</a>} }
+      }
+    end
+
     def generate(options = {})
       ::SolidusAdminInsights::ReportDb[:spree_line_items___line_items].
       join(:spree_orders___orders, id: :order_id).
@@ -25,6 +32,7 @@ module Spree
       dataset.select{[
         Sequel.as(IF(STRCMP(variants__sku, ''), variants__sku, products__name), :sku),
         products__name.as(product_name),
+        products__slug.as(product_slug),
         sum(quantity).as(sold_count),
         (count(distinct orders__user_id) + count(orders__id) - count(orders__user_id)).as(users)
       ]}

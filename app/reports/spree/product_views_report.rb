@@ -11,6 +11,13 @@ module Spree
       set_sortable_attributes(options, DEFAULT_SORTABLE_ATTRIBUTE)
     end
 
+    def deeplink_properties
+      {
+        deeplinked: true,
+        product_name: { template: %Q{<a href="/admin/products/{%# o.product_slug %}" target="_blank">{%# o.product_name %}</a>} }
+      }
+    end
+
     def generate
       unique_session_results = ::SolidusAdminInsights::ReportDb[:spree_products___products].
       join(:spree_page_events___page_events, target_id: :id).
@@ -19,6 +26,7 @@ module Spree
       group(:product_name, :page_events__actor_id, :page_events__session_id).
       select{[
         products__name.as(product_name),
+        products__slug.as(product_slug),
         count('*').as(total_views_per_session),
         page_events__session_id.as(session_id),
         page_events__actor_id.as(actor_id)
@@ -32,6 +40,7 @@ module Spree
     def select_columns(dataset)
       dataset.select{[
         product_name,
+        product_slug,
         sum(total_views_per_session).as(views),
         count(DISTINCT actor_id).as(users),
         (COUNT(DISTINCT session_id) - COUNT(actor_id)).as(guest_sessions)

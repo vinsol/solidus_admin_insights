@@ -33,7 +33,11 @@
               {% } else if (o['headers'][j].type == 'integer') { %}
                 {%= o['stats'][i][o['headers'][j].value] || 0 %}
               {% } else { %}
-                {%= o['stats'][i][o['headers'][j].value] || '-' %}
+                {% if (o['deeplink']['deeplinked'] && o['deeplink'][o['headers'][j].value]) { %}
+                  {%# tmpl(o['deeplink'][o['headers'][j].value]['template'], o['stats'][i]) %}
+                {% } else { %}
+                  {%= o['stats'][i][o['headers'][j].value] || '-' %}
+                {% } %}
               {% } %}
             </td>
           {% } %}

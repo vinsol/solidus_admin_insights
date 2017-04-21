@@ -5,6 +5,13 @@ module Spree
     SEARCH_ATTRIBUTES = { start_date: :start_date, end_date: :end_date, keywords_cont: :keyword }
     SORTABLE_ATTRIBUTES = []
 
+    def deeplink_properties
+      {
+        deeplinked: true,
+        searched_term: { template: %Q{<a href='/products?utf8=%E2%9C%93&keywords={%# o['searched_term'] %}' target="_blank">{%# o['searched_term'] %}</a>} }
+      }
+    end
+
     def initialize(options)
       super
       @search_keywords_cont = @search[:keywords_cont].present? ? "%#{ @search[:keywords_cont] }%" : '%'

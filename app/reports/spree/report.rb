@@ -7,6 +7,13 @@ module Spree
       false
     end
 
+    def deeplink_properties
+      {
+        deeplinked: false,
+        base_url: ''
+      }
+    end
+
     def generate(options = {})
       raise 'Please define this method in inherited class'
     end

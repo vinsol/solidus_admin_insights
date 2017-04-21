@@ -19,6 +19,7 @@ module Spree
 
         @report_data_json = {
           current_page:      params[:page] || 0,
+          deeplink:          @resource.deeplink_properties,
           headers:           @headers,
           report_type:       params[:type],
           request_path:      request.path,

@@ -21,9 +21,17 @@ module Spree
       order(sortable_sequel_expression)
     end
 
+    def deeplink_properties
+      {
+        deeplinked: true,
+        product_name: { template: %Q{<a href="/admin/products/{%# o.product_slug %}" target="_blank">{%# o.product_name %}</a>} }
+      }
+    end
+
     def select_columns(dataset)
       dataset.select{[
         spree_products__name.as(product_name),
+        spree_products__slug.as(product_slug),
         Sequel.as(IF(STRCMP(spree_variants__sku, ''), spree_variants__sku, spree_products__name), :sku),
         Sequel.as(count(:variant_id), :return_count)
       ]}

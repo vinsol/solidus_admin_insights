@@ -6,6 +6,9 @@ Dashboard for querying and viewing you solidus store's metrics. Use SolidusEvent
 Installation
 ------------
 
+Ensure [SolidusEventTracker](https://github.com/vinsol/solidus_events_tracker) is installed.
+
+
 Add solidus_admin_insights to your Gemfile:
 
 ```ruby

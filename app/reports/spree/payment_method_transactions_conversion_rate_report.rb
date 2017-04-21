@@ -23,7 +23,7 @@ module Spree
       ]}
 
       group_by_months = SolidusAdminInsights::ReportDb[payment_methods].
-      group(:months_name, :payment_method_name, :payment_state).
+      group(:year, :number, :months_name, :payment_method_name, :payment_state).
       order(:year, :number).
       select{[
         payment_method_name,

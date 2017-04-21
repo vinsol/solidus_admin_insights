@@ -21,7 +21,7 @@ module Spree
       ]}
 
       group_new_sign_ups_by_months = SolidusAdminInsights::ReportDb[new_sign_ups].
-      group(:months_name).
+      group(:year, :number, :months_name, :guest_users, :active_users).
       order(:year, :number).
       select{[
         number,
@@ -43,7 +43,7 @@ module Spree
       ]}
 
       visitors_by_months = SolidusAdminInsights::ReportDb[vistors].
-      group(:months_name).
+      group(:year, :number, :months_name, :new_sign_ups).
       order(:year, :number).
       select{[
         number,
@@ -58,7 +58,7 @@ module Spree
       union_of_stats = group_new_sign_ups_by_months.union(visitors_by_months)
 
       union_stats = SolidusAdminInsights::ReportDb[union_of_stats].
-      group(:months_name).
+      group(:year, :number, :months_name).
       order(:year, :number).
       select{[
         months_name,

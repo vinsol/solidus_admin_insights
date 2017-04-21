@@ -27,37 +27,27 @@ module Spree
       join(:spree_shipping_rates___shipping_rates, shipment_id: :order_shipment__shipment_id).
       where(selected: true).
       select{[
-        order_id,
-        shipping_charge,
-        order_total,
+        Sequel.as(SUM(shipping_charge), :shipping_charge),
+        Sequel.as(SUM(order_total), :revenue),
         shipping_method_id,
         month_name,
         number,
         year,
         Sequel.as(concat(month_name, ' ', IFNULL(year, 2016)), :months_name),
-      ]}.as(:order_shipment_rates)
-
-      revenue_table = SolidusAdminInsights::ReportDb[order_shipment_join_shipment_rates].
-      group(:months_name).
-      select{[
-        Sequel.as(concat(month_name, ' ', IFNULL(year, 2016)), :months_name),
-        Sequel.as(SUM(order_total), :revenue),
-        order_id
-      ]}
+      ]}.
+      group(:year, :number, :months_name, :month_name, :shipping_method_id).
+      order(:year, :number).
+      as(:order_shipment_rates)
 
       group_by_months = SolidusAdminInsights::ReportDb[order_shipment_join_shipment_rates].
       join(:spree_shipping_methods, id: :order_shipment_rates__shipping_method_id).
-      join(revenue_table, months_name: :order_shipment_rates__months_name).
-      group(:months_name, :spree_shipping_methods__id).
-      order(:year, :number).
       select{[
-        order_shipment_rates__order_id,
         spree_shipping_methods__id,
-        Sequel.as(SUM(shipping_charge), :shipping_charge),
-        revenue,
+        :revenue,
+        :shipping_charge,
         shipping_method_id,
-        Sequel.as(concat(month_name, ' ', IFNULL(year, 2016)), :months_name),
-        Sequel.as(ROUND((SUM(shipping_charge) / revenue) * 100, 2), :shipping_cost_percentage),
+        :months_name,
+        Sequel.as(ROUND((shipping_charge / revenue) * 100, 2), :shipping_cost_percentage),
         number,
         year,
         name

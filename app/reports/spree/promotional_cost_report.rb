@@ -1,7 +1,7 @@
 module Spree
   class PromotionalCostReport < Spree::Report
     DEFAULT_SORTABLE_ATTRIBUTE = :promotion_name
-    HEADERS = { promotion_name: :string, usage_count: :integer, promotion_discount: :integer, promotion_code: :string, promotion_start_date: :date, promotion_end_date: :date }
+    HEADERS = { months_name: :string, promotion_name: :string, usage_count: :integer, promotion_discount: :integer, promotion_code: :string, promotion_start_date: :date, promotion_end_date: :date }
     SEARCH_ATTRIBUTES = { start_date: :promotion_created_from, end_date: :promotion_created_till }
     SORTABLE_ATTRIBUTES = [:promotion_name, :usage_count, :promotion_discount, :promotion_code, :promotion_start_date, :promotion_end_date]
 
@@ -48,6 +48,7 @@ module Spree
         promotions_id
       ]}
       grouped_by_promotion = group_by_months.all.group_by { |record| record[:promotion_name] }
+
       data = []
       grouped_by_promotion.each_pair do |promotion_name, collection|
         data << fill_missing_values({ promotion_discount: 0, usage_count: 0, promotion_name: promotion_name }, collection)

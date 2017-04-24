@@ -31,10 +31,11 @@ module Spree
       products__id.as(product_id)]}.
       group(:products__name, :products__id).as(:line_items)
 
+
       ::SolidusAdminInsights::ReportDb[line_items].join(:spree_page_events___page_events, page_events__target_id: :product_id).
-      where(page_events__target_type: 'Spree::Product', page_events__activity: 'view').
-      group(:product_name, :purchases).
-      order(sortable_sequel_expression)
+        where(page_events__target_type: 'Spree::Product', page_events__activity: 'view').
+        group(:product_id).
+        order(sortable_sequel_expression)
     end
 
     def select_columns(dataset)

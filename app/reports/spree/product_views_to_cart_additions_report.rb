@@ -23,7 +23,7 @@ module Spree
       join(:spree_products___products, id: :product_id).
       where(cart_events__activity: 'add').
       where(cart_events__created_at: @start_date..@end_date). #filter by params
-      group(:product_name).
+      group(:product_name, :product_slug).
       select{[
         (:products__name___product_name),
         (:products__slug___product_slug),
@@ -41,8 +41,8 @@ module Spree
       ]}
 
       ::SolidusAdminInsights::ReportDb[total_views_results].
-      join(cart_additions, product_name: :product_name).
-      order(sortable_sequel_expression)
+        join(cart_additions, product_name: :product_name).
+        order(sortable_sequel_expression)
     end
 
     def select_columns(dataset)

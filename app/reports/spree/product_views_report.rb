@@ -23,7 +23,7 @@ module Spree
       join(:spree_page_events___page_events, target_id: :id).
       where(page_events__target_type: 'Spree::Product', page_events__activity: 'view').
       where(page_events__created_at: @start_date..@end_date).where(Sequel.ilike(:products__name, @name)).
-      group(:product_name, :page_events__actor_id, :page_events__session_id).
+      group(:product_name, :product_slug, :page_events__actor_id, :page_events__session_id).
       select{[
         products__name.as(product_name),
         products__slug.as(product_slug),
@@ -33,8 +33,8 @@ module Spree
       ]}.as(:unique_session_results)
 
       ::SolidusAdminInsights::ReportDb[unique_session_results].
-      group(:product_name).
-      order(sortable_sequel_expression)
+        group(:product_name, :product_slug, :actor_id, :session_id).
+        order(sortable_sequel_expression)
     end
 
     def select_columns(dataset)

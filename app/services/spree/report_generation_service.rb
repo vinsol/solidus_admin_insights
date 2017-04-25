@@ -22,7 +22,7 @@ module Spree
       resource = klass.new(options)
       dataset = resource.generate
       total_records = resource.select_columns(dataset).count
-      if resource.no_pagination?
+      if resource.no_pagination? || resource.arel?
         result_set = dataset
       else
         result_set = resource.select_columns(dataset.limit(options['records_per_page'], options['offset'])).all

@@ -3,7 +3,17 @@ module Spree
 
     attr_accessor :sortable_attribute, :sortable_type
 
+    ZOOM_LEVELS = [:hourly, :daily, :monthly, :yearly]
+
+    def paginated?
+      true
+    end
+
     def no_pagination?
+      !paginated?
+    end
+
+    def arel?
       false
     end
 
@@ -15,22 +25,29 @@ module Spree
     end
 
     def generate(options = {})
-      raise 'Please define this method in inherited class'
+      self.class::Result.new(report_query) do |report|
+        report.start_date = @start_date
+        report.end_date   = @end_date
+        report.zoom_level = @zoom_level
+        report.report_klass = self.class
+      end.to_a
     end
 
     def initialize(options)
       @search = options.fetch(:search, {})
-      start_date = @search[:start_date]
-      @start_date = start_date.present? ? Date.parse(start_date) :  Date.new(Date.current.year)
-
-      end_date = @search[:end_date]
-      # 1.day is added to date so that we can get current date records
-      # since date consider time at midnight
-      @end_date = (end_date.present? ? Date.parse(end_date) : Date.new(Date.current.year, 12, 30)) + 1.day
+      extract_reporting_period
+      determine_report_zoom
     end
 
     def header_sorted?(header)
       sortable_attribute.eql?(header)
+    end
+
+    class ReportQueryNotImplemented < StandardError
+    end
+
+    def report_query
+      raise ReportQueryNotImplemented
     end
 
     def set_sortable_attributes(options, default_sortable_attribute)
@@ -42,28 +59,41 @@ module Spree
       sortable_type.eql?(:desc) ? Sequel.desc(sortable_attribute) : Sequel.asc(sortable_attribute)
     end
 
-    def fill_missing_values(default_object, incomplete_result_set)
-      complete_result_set = []
-      year_month_list = (@start_date..@end_date).map{ |date| [date.year, date.month] }.uniq
-      year_month_list.each do |year_month|
-        index = incomplete_result_set.index { |obj| obj[:year] == year_month.first && obj[:number] == year_month.second }
-        if index
-          complete_result_set.push(incomplete_result_set[index])
-        else
-          filling_object = default_object.merge({ year: year_month.first, number: year_month.second, months_name: [Date::MONTHNAMES[year_month.second], year_month.first].join(' ') })
-          complete_result_set.push(filling_object)
-        end
-      end
-      complete_result_set
-    end
-
     def chart_json
-      {
-        chart: false,
-        charts: []
-      }
+      { chart: false, charts: [] }
     end
 
+    def zoom_selects
+      @_zoom_selects ||= QueryZoom.select(@zoom_level)
+    end
 
+    def zoom_columns
+      @_zoom_columns ||= QueryZoom.zoom_columns(@zoom_level)
+    end
+
+    def zoom_columns_to_s
+      @_zoom_columns_to_s ||= zoom_columns.collect(&:to_s)
+    end
+
+    private def extract_reporting_period
+      start_date = @search[:start_date]
+      @start_date = start_date.present? ? Date.parse(start_date) :  Date.new(Date.current.year)
+      end_date = @search[:end_date]
+      @end_date = (end_date.present? ? Date.parse(end_date).next_day  : Date.current.end_of_year)
+    end
+
+    private def determine_report_zoom
+      @zoom_level =
+        case (@end_date - @start_date).to_i
+        when 0..1
+          :hourly
+        when 1..60
+          :daily
+        when 61..600
+          :monthly
+        else
+          :yearly
+        end
+    end
   end
 end

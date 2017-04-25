@@ -19,32 +19,40 @@ module Spree
       set_sortable_attributes(options, DEFAULT_SORTABLE_ATTRIBUTE)
     end
 
-    def generate(options = {})
-      top_searches = SolidusAdminInsights::ReportDb[:spree_page_events___page_events].
-      where(page_events__activity: 'search').
-      where(page_events__created_at: @start_date..@end_date).where(Sequel.ilike(:page_events__search_keywords, @search_keywords_cont)). #filter by params
-      group(:searched_term).
-      order(Sequel.desc(:occurrences)).
-      limit(20)
+    class Result < Spree::Report::Result
+      def build_report_from_query(query)
+        populate_results(query)
+        user_db_results_as_reports
+      end
+    end
 
-      top_searches
+    def arel?
+      true
+    end
+
+    def report_query(options = {})
+      searches =
+        Spree::PageEvent
+          .where(activity: 'search')
+          .where(created_at: @start_date..@end_date)
+          .where(Spree::PageEvent.arel_table[:search_keywords].matches("%#{ @search_keywords_cont }%"))
+          .select("search_keywords as searched_term")
+
+      Spree::Report::QueryFragments.from_subquery(searches)
+        .project("count(searched_term) as occurrences", "searched_term")
+        .group("searched_term")
+        .take(20)
+
     end
 
     def select_columns(dataset)
-      dataset.select{[
-        search_keywords.as(searched_term),
-        Sequel.as(count(:search_keywords), :occurrences)
-      ]}
+      dataset
     end
 
     def chart_data
       top_searches = select_columns(generate)
-      total_occurrences = SolidusAdminInsights::ReportDb[top_searches].sum(:occurrences)
-      SolidusAdminInsights::ReportDb[top_searches].
-      select{[
-        Sequel.as((occurrences / total_occurrences) * 100, :y),
-        Sequel.as(searched_term, :name)
-      ]}.all.map { |obj| obj.merge({ y: obj[:y].to_f })} # to convert percentage into float value from string
+      total_occurrences = top_searches.inject(0) { |sum, search| sum += search[:occurrences] }
+      top_searches.collect { |search| { name: search[:searched_term], y: (search[:occurrences].to_f/total_occurrences) }  }
     end
 
     def chart_json

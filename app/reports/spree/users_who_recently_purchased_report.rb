@@ -9,34 +9,56 @@ module Spree
       super
       @email_cont = @search[:email_cont].present? ? "%#{ @search[:email_cont] }%" : '%'
       set_sortable_attributes(options, DEFAULT_SORTABLE_ATTRIBUTE)
+      @record_per_page = options['records_per_page']
+      @offset = options['offset']
     end
 
-    def generate(options = {})
-      all_orders_with_users = SolidusAdminInsights::ReportDb[:spree_users___users].
-      left_join(:spree_orders___orders, user_id: :id).
-      where(orders__completed_at: @start_date..@end_date).
-      where(Sequel.ilike(:users__email, @email_cont)).
-      order(Sequel.desc(:orders__completed_at)).
-      select(
-        :users__email___user_email,
-        :orders__number___last_purchased_order_number,
-        :orders__completed_at___last_purchase_date,
-      ).as(:all_orders_with_users)
+    def arel?
+      true
+    end
 
-      SolidusAdminInsights::ReportDb[all_orders_with_users].
-      group(:all_orders_with_users__user_email,
-            :all_orders_with_users__last_purchased_order_number,
-            :all_orders_with_users__last_purchase_date).
-      order(sortable_sequel_expression)
+    class Result < Spree::Report::Result
+      def build_report_from_query(query)
+        populate_results(query)
+        use_db_results_as_reports
+      end
+    end
+
+    def report_query
+      all_orders_with_users =
+        Spree::User
+          .where(Spree::User.arel_table[:email].matches("%#{ @email_cont }%"))
+          .left_joins(:spree_orders)
+          .where(spree_orders: { completed_at: @start_date..@end_date })
+          .order("spree_orders.completed_at desc")
+          .select(
+            "spree_users.email as user_email",
+            "spree_orders.number as last_purchased_order_number",
+            "spree_orders.completed_at as last_purchase_date"
+          ).group(
+            :email,
+            "spree_orders.number",
+            "spree_orders.completed_at"
+          )
+
+      Spree::Report::QueryFragments
+        .from_subquery(all_orders_with_users)
+        .project(
+          "user_email",
+          "last_purchased_order_number",
+          "last_purchase_date",
+          "COUNT(user_email) AS purchase_count")
+        .group(
+          "user_email",
+          "last_purchased_order_number",
+          "last_purchase_date"
+        )
+        .take(@record_per_page)
+        .skip(@offset)
     end
 
     def select_columns(dataset)
-      dataset.select{[
-        all_orders_with_users__user_email,
-        all_orders_with_users__last_purchased_order_number,
-        all_orders_with_users__last_purchase_date,
-        count(all_orders_with_users__user_email).as(purchase_count)
-      ]}
+      dataset
     end
   end
 end

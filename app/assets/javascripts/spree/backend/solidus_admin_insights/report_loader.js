@@ -5,6 +5,7 @@
 function ReportLoader(inputs) {
   this.$selectList = inputs.reportsSelectBox;
   this.$insightsTableList = inputs.insightsDiv;
+  this.$narrowDownData = inputs.narrowDownData;
   this.tableHelpers = inputs.tableHelpers;
   this.pageSelector = inputs.tableHelpers.find('#page-selector');
   this.perPageSelector = this.tableHelpers.find('#per_page');
@@ -79,7 +80,22 @@ ReportLoader.prototype.bindEvents = function() {
 
   this.downloadButton.on('click', function() {
     _this.toggleDownloadLinks(event, this);
-  })
+  });
+
+  this.$narrowDownData.on('keyup', function() {
+    var value = $(this).val();
+    var pattern = new RegExp(value, "i");
+
+    _this.$insightsTableList.find('tbody > tr').each(function() {
+      if (!($(this).find('td').text().search(pattern) >= 0)) {
+        $(this).hide();
+      }
+      if (($(this).find('td').text().search(pattern) >= 0)) {
+        $(this).show();
+      }
+    });
+
+  });
 
   $('body').on('click', function(event) {
     _this.downloadButton.removeClass('open');
@@ -235,6 +251,7 @@ $(function() {
       tableHelpers: $('#table-helpers'),
       filterDiv: $('#search-div'),
       paginatorDiv: $('#paginator-div'),
+      narrowDownData: $('#narrow-down-report-data'),
       chartContainer: $('#chart-container'),
       downloadLinks: $('.download-link'),
       downloadButton: $('.toggle-btn')

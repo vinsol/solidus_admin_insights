@@ -5,6 +5,14 @@ module Spree
     SEARCH_ATTRIBUTES = { start_date: :start_date, end_date: :end_date, keywords_cont: :keyword }
     SORTABLE_ATTRIBUTES = []
 
+    class Result < Spree::Report::Result
+      charts FrequencyDistributionPieChart
+
+      class Observation < Spree::Report::Observation
+        observation_fields [:searched_term, :occurrences]
+      end
+    end
+
     def deeplink_properties
       {
         deeplinked: true,
@@ -19,18 +27,20 @@ module Spree
       set_sortable_attributes(options, DEFAULT_SORTABLE_ATTRIBUTE)
     end
 
-    class Result < Spree::Report::Result
-      def build_report_from_query(query)
-        populate_results(query)
-        user_db_results_as_reports
-      end
+    def paginated_report_query
+      report_query.take(20)
     end
 
-    def arel?
-      true
+    def total_records
+      count_query = Spree::Report::QueryFragments.from_subquery(report_query).project(Arel.star.count)
+      ActiveRecord::Base.connection.execute(count_query.to_sql).first["count"].to_i
     end
 
-    def report_query(options = {})
+    def get_results
+      ActiveRecord::Base.connection.execute(paginated_report_query.to_sql)
+    end
+
+    def report_query
       searches =
         Spree::PageEvent
           .where(activity: 'search')
@@ -41,54 +51,6 @@ module Spree
       Spree::Report::QueryFragments.from_subquery(searches)
         .project("count(searched_term) as occurrences", "searched_term")
         .group("searched_term")
-        .take(20)
-
     end
-
-    def select_columns(dataset)
-      dataset
-    end
-
-    def chart_data
-      top_searches = select_columns(generate)
-      total_occurrences = top_searches.inject(0) { |sum, search| sum += search[:occurrences] }
-      top_searches.collect { |search| { name: search[:searched_term], y: (search[:occurrences].to_f/total_occurrences) }  }
-    end
-
-    def chart_json
-      {
-        chart: true,
-        charts: [
-          {
-            name: 'trending-search',
-            json: {
-              chart: { type: 'pie' },
-              title: {
-                useHTML: true,
-                text: "<span class='chart-title'>Trending Search Keywords(Top 20)</span><span class='fa fa-question-circle' data-toggle='tooltip' title='Track the most trending keywords searched by users'></span>"
-              },
-              tooltip: {
-                  pointFormat: 'Search %: <b>{point.percentage:.1f}%</b>'
-              },
-              plotOptions: {
-                  pie: {
-                      allowPointSelect: true,
-                      cursor: 'pointer',
-                      dataLabels: {
-                          enabled: false
-                      },
-                      showInLegend: true
-                  }
-              },
-              series: [{
-                  name: 'Hits',
-                  data: chart_data
-              }]
-            }
-          }
-        ]
-      }
-    end
-
   end
 end

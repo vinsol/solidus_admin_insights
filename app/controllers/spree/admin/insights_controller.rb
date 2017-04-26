@@ -12,30 +12,12 @@ module Spree
       end
 
       def show
-        @headers, @stats, @total_pages, @search_attributes, @chart_json, @resource = ReportGenerationService.generate_report(
-                                              @report_name,
-                                              params.merge(@pagination_hash)
-                                            )
+        report = ReportGenerationService.generate_report(@report_name, params.merge(@pagination_hash))
 
-        @report_data_json = {
-          current_page:      params[:page] || 0,
-          deeplink:          @resource.deeplink_properties,
-          headers:           @headers,
-          report_type:       params[:type],
-          request_path:      request.path,
-          search_attributes: @search_attributes,
-          stats:             @stats,
-          total_pages:       @total_pages,
-          url:               request.url,
-          searched_fields:   params[:search],
-          per_page:          @pagination_hash[:records_per_page],
-          chart_json:        @chart_json,
-          pagination_required: !@resource.no_pagination?
-        }
-
+        @report_data = shared_data.merge(report.to_h)
         respond_to do |format|
           format.html { render :index }
-          format.json { render json: @report_data_json }
+          format.json { render json: @report_data }
         end
       end
 
@@ -73,6 +55,16 @@ module Spree
 
         def load_reports
           @reports = ReportGenerationService::REPORTS[get_reports_type]
+        end
+
+        def shared_data
+          {
+            current_page:      params[:page] || 0,
+            report_type:       params[:type],
+            request_path:      request.path,
+            url:               request.url,
+            searched_fields:   params[:search],
+          }
         end
 
         def get_reports_type

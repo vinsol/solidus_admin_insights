@@ -1,134 +1,92 @@
 module Spree
   class PromotionalCostReport < Spree::Report
     DEFAULT_SORTABLE_ATTRIBUTE = :promotion_name
-    HEADERS = { months_name: :string, promotion_name: :string, usage_count: :integer, promotion_discount: :integer, promotion_code: :string, promotion_start_date: :date, promotion_end_date: :date }
+    HEADERS = { promotion_name: :string, usage_count: :integer, promotion_discount: :integer, promotion_code: :string, promotion_start_date: :date, promotion_end_date: :date }
     SEARCH_ATTRIBUTES = { start_date: :promotion_created_from, end_date: :promotion_created_till }
     SORTABLE_ATTRIBUTES = [:promotion_name, :usage_count, :promotion_discount, :promotion_code, :promotion_start_date, :promotion_end_date]
 
-    def no_pagination?
-      true
+    def paginated?
+      false
     end
 
     def initialize(options)
       super
       set_sortable_attributes(options, DEFAULT_SORTABLE_ATTRIBUTE)
+      @zoom_on = 'spree_adjustments'
     end
 
-    def generate(options = {})
-      adjustments_with_month_name = SolidusAdminInsights::ReportDb[:spree_adjustments___adjustments].
-      join(:spree_promotion_actions___promotion_actions, id: :source_id).
-      join(:spree_promotions___promotions, id: :promotion_id).
-      where(adjustments__source_type: "Spree::PromotionAction").
-      where(adjustments__created_at: @start_date..@end_date). #filter by params
-      select{[
-        Sequel.as(abs(:amount), :promotion_discount),
-        Sequel.as(:promotions__id, :promotions_id),
-        :promotions__name___promotion_name,
-        :promotions__code___promotion_code,
-        Sequel.as(DATE_FORMAT(promotions__starts_at,'%d %b %y'), :promotion_start_date),
-        Sequel.as(DATE_FORMAT(promotions__expires_at,'%d %b %y'), :promotion_end_date),
-        Sequel.as(MONTHNAME(:adjustments__created_at), :month_name),
-        Sequel.as(YEAR(:adjustments__created_at), :year),
-        Sequel.as(MONTH(:adjustments__created_at), :number)
-      ]}
+    class Result < Spree::Report::TimedResult
+      charts PromotionalCostChart, UsageCountChart
 
-      group_by_months = SolidusAdminInsights::ReportDb[adjustments_with_month_name].
-      group(:year, :number, :months_name, :promotions_id).
-      order(:year, :number).
-      select{[
-        number,
-        promotion_name,
-        year,
-        promotion_code,
-        promotion_start_date,
-        promotion_end_date,
-        Sequel.as(concat(month_name, ' ', year), :months_name),
-        Sequel.as(SUM(promotion_discount), :promotion_discount),
-        Sequel.as(count(:promotions_id), :usage_count),
-        promotions_id
-      ]}
-      grouped_by_promotion = group_by_months.all.group_by { |record| record[:promotion_name] }
-
-      data = []
-      grouped_by_promotion.each_pair do |promotion_name, collection|
-        data << fill_missing_values({ promotion_discount: 0, usage_count: 0, promotion_name: promotion_name }, collection)
+      def build_empty_observations
+        @_promotions = @results.collect { |result| result['promotion_name'] }.uniq
+        super
+        @observations = @_promotions.collect do |promotion_name|
+          @observations.collect do |observation|
+            _d_observation = observation.dup
+            _d_observation.promotion_name = promotion_name
+            _d_observation.usage_count = 0
+            _d_observation
+          end
+        end.flatten
       end
-      @data = data.flatten
+
+      class Observation < Spree::Report::TimedObservation
+        observation_fields [:promotion_name, :usage_count, :promotion_discount, :promotion_code, :promotion_start_date, :promotion_end_date]
+
+        def promotion_start_date
+          @promotion_start_date.present? ? @promotion_start_date.to_date.strftime("%B %d %Y") : "-"
+        end
+
+        def promotion_end_date
+          @promotion_end_date.present? ? @promotion_end_date.to_date.strftime("%B %d %Y") : "-"
+        end
+
+        def promotion_discount
+          @promotion_discount.to_f.abs
+        end
+
+        def describes?(result, zoom_level)
+          result['promotion_name'] == promotion_name && super
+        end
+      end
     end
 
-    def group_by_promotion_name
-      @grouped_by_promotion_name ||= @data.group_by { |record| record[:promotion_name] }
+    def report_query
+      eligible_promotions =
+        Spree::PromotionAction
+          .joins(:promotion)
+          .joins(:adjustment)
+          .where(spree_adjustments: { created_at: @start_date..@end_date })
+          .select(
+            'spree_promotions.starts_at as promotion_start_date',
+            'spree_promotions.expires_at as promotion_end_date',
+            'spree_adjustments.amount as promotion_discount',
+            'spree_promotions.id as promotion_id',
+            'spree_promotions.name as promotion_name',
+            'spree_promotions.code as promotion_code',
+            *zoom_selects('spree_adjustments')
+          )
+
+      grouped_usage =
+        Spree::Report::QueryFragments
+          .from_subquery(eligible_promotions)
+          .group(*zoom_columns, :promotion_id, :promotion_name, :promotion_code, :promotion_start_date, :promotion_end_date)
+          .order(*zoom_columns_to_s)
+          .project(
+            *zoom_columns,
+            'promotion_name',
+            'promotion_code',
+            'promotion_start_date',
+            'promotion_end_date',
+            'SUM(promotion_discount) as promotion_discount',
+            'COUNT(promotion_id) as usage_count',
+            'promotion_id'
+          )
     end
 
-    def chart_data
-      {
-        months_name: group_by_promotion_name.first.try(:second).try(:map) { |record| record[:months_name] },
-        collection: group_by_promotion_name
-      }
-    end
-
-    def chart_json
-      {
-        chart: true,
-        charts: [
-          promotional_cost_chart_json,
-          usage_count_chart_json
-        ]
-      }
-    end
-
-    def promotional_cost_chart_json
-      {
-        id: 'promotional-cost',
-        json: {
-          chart: { type: 'column' },
-          title: {
-            useHTML: true,
-            text: "<span class='chart-title'>Promotional Cost</span><span class='fa fa-question-circle' data-toggle='tooltip' title=' Compare the costing for various promotions'></span>"
-          },
-          xAxis: { categories: chart_data[:months_name] },
-          yAxis: {
-            title: { text: 'Value($)' }
-          },
-          tooltip: { valuePrefix: '$' },
-          legend: {
-              layout: 'vertical',
-              align: 'right',
-              verticalAlign: 'middle',
-              borderWidth: 0
-          },
-          series: chart_data[:collection].map { |key, value| { type: 'column', name: key, data: value.map { |r| r[:promotion_discount].to_f } } }
-        }
-      }
-    end
-
-    def usage_count_chart_json
-      {
-        id: 'promotion-usage-count',
-        json: {
-          chart: { type: 'spline' },
-          title: {
-            useHTML: true,
-            text: "<span class='chart-title'>Promotion Usage Count</span><span class='fa fa-question-circle' data-toggle='tooltip' title='Compare the usage of individual promotions'></span>"
-          },
-          xAxis: { categories: chart_data[:months_name] },
-          yAxis: {
-            title: { text: 'Count' }
-          },
-          tooltip: { valuePrefix: '#' },
-          legend: {
-              layout: 'vertical',
-              align: 'right',
-              verticalAlign: 'middle',
-              borderWidth: 0
-          },
-          series: chart_data[:collection].map { |key, value| { name: key, data: value.map { |r| r[:usage_count].to_i } } }
-        }
-      }
-    end
-
-    def select_columns(dataset)
-      dataset
+    def get_results
+      @_results ||= ActiveRecord::Base.connection.execute(report_query.to_sql).to_a
     end
   end
 end

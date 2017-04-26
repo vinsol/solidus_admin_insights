@@ -9,19 +9,25 @@ module Spree
       super
       @email_cont = @search[:email_cont].present? ? "%#{ @search[:email_cont] }%" : '%'
       set_sortable_attributes(options, DEFAULT_SORTABLE_ATTRIBUTE)
-      @record_per_page = options['records_per_page']
-      @offset = options['offset']
-    end
-
-    def arel?
-      true
     end
 
     class Result < Spree::Report::Result
-      def build_report_from_query(query)
-        populate_results(query)
-        use_db_results_as_reports
+      class Observation < Spree::Report::Observation
+        observation_fields [:user_email, :last_purchased_order_number, :last_purchase_date, :purchase_count]
+
+        def last_purchase_date
+          @last_purchase_date.to_date.strftime("%B %d, %Y")
+        end
       end
+    end
+
+    def get_results
+      ActiveRecord::Base.connection.execute(paginated_report_query.to_sql)
+    end
+
+    def total_records
+      count_query = Spree::Report::QueryFragments.from_subquery(report_query).project(Arel.star.count)
+      ActiveRecord::Base.connection.execute(count_query.to_sql).first["count"].to_i
     end
 
     def report_query
@@ -53,12 +59,13 @@ module Spree
           "last_purchased_order_number",
           "last_purchase_date"
         )
-        .take(@record_per_page)
-        .skip(@offset)
     end
 
-    def select_columns(dataset)
-      dataset
+    def paginated_report_query
+      report_query
+        .take(records_per_page)
+        .skip(current_page)
     end
+
   end
 end

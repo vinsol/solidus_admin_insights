@@ -25,29 +25,28 @@ module Spree
     end
 
     def generate(options = {})
-      self.class::Result.new(report_query) do |report|
+      self.class::Result.new do |report|
         report.start_date = @start_date
         report.end_date   = @end_date
         report.zoom_level = @zoom_level
-        report.report_klass = self.class
-      end.to_a
+        report.report = self
+      end
     end
+
+    attr_accessor :total_records, :records_per_page, :current_page, :paginate
+    alias_method :paginate?, :paginate
 
     def initialize(options)
       @search = options.fetch(:search, {})
+      self.records_per_page = options[:records_per_page]
+      self.current_page = options[:offset]
+      self.paginate = options[:no_pagination].present? ? (options[:no_pagination].downcase == "true") : false
       extract_reporting_period
       determine_report_zoom
     end
 
     def header_sorted?(header)
       sortable_attribute.eql?(header)
-    end
-
-    class ReportQueryNotImplemented < StandardError
-    end
-
-    def report_query
-      raise ReportQueryNotImplemented
     end
 
     def set_sortable_attributes(options, default_sortable_attribute)
@@ -59,12 +58,16 @@ module Spree
       sortable_type.eql?(:desc) ? Sequel.desc(sortable_attribute) : Sequel.asc(sortable_attribute)
     end
 
-    def chart_json
-      { chart: false, charts: [] }
+    def total_pages
+      if paginated?
+        total_pages = total_records / records_per_page
+        total_pages -= 1 if total_records % records_per_page == 0
+        total_pages
+      end
     end
 
-    def zoom_selects
-      @_zoom_selects ||= QueryZoom.select(@zoom_level)
+    def zoom_selects(zoom_on = nil)
+      @_zoom_selects ||= QueryZoom.select(@zoom_level, zoom_on)
     end
 
     def zoom_columns
@@ -75,11 +78,15 @@ module Spree
       @_zoom_columns_to_s ||= zoom_columns.collect(&:to_s)
     end
 
+    def name
+      @_report_name ||= self.class.to_s.demodulize.underscore.gsub("_report", "")
+    end
+
     private def extract_reporting_period
       start_date = @search[:start_date]
       @start_date = start_date.present? ? Date.parse(start_date) :  Date.new(Date.current.year)
       end_date = @search[:end_date]
-      @end_date = (end_date.present? ? Date.parse(end_date).next_day  : Date.current.end_of_year)
+      @end_date = (end_date.present? ? Date.parse(end_date).next_day : Date.current.end_of_year)
     end
 
     private def determine_report_zoom
@@ -95,5 +102,6 @@ module Spree
           :yearly
         end
     end
+
   end
 end

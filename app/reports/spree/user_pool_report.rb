@@ -1,19 +1,28 @@
 module Spree
   class UserPoolReport < Spree::Report
     DEFAULT_SORTABLE_ATTRIBUTE = :orders__completed_at
-    HEADERS = { months_name: :string, guest_users: :integer, active_users: :integer, new_sign_ups: :integer }
+    HEADERS = { guest_users: :integer, active_users: :integer, new_sign_ups: :integer }
     SEARCH_ATTRIBUTES = { start_date: :users_created_from, end_date: :users_created_till }
     SORTABLE_ATTRIBUTES = []
 
+    class Result < Spree::Report::TimedResult
+      charts DistributionPieChart
 
-    class Result < Spree::Report::Result
-      def empty_slice
-        { active_users: 0, guest_users: 0, new_sign_ups: 0 }
+      class Observation < Spree::Report::TimedObservation
+        observation_fields active_users: 0, guest_users: 0, new_sign_ups: 0
       end
     end
 
     def paginated?
       false
+    end
+
+    def get_results
+      @_query_results ||= ActiveRecord::Base.connection.execute(report_query.to_sql).to_a
+    end
+
+    def total_records
+      ActiveRecord::Base.connection.execute(report_query.count(Arel.star).to_sql)
     end
 
     def report_query
@@ -55,67 +64,5 @@ module Spree
         )
     end
 
-    def select_columns(dataset)
-      dataset
-    end
-
-    # extract it in report.rb
-    def chart_data
-      unless @data
-        @data = Hash.new {|h, k| h[k] = [] }
-        generate.each do |object|
-          object.each_pair do |key, value|
-            @data[key].push(value)
-          end
-        end
-      end
-      @data
-    end
-
-    def chart_json
-      {
-        chart: true,
-        charts: [
-          {
-            id: 'user-pool',
-            json: {
-              chart: { type: 'column' },
-              title: {
-                useHTML: true,
-                text: %Q(<span class="chart-title">User Pool</span>
-                         <span class="fa fa-question-circle"
-                               data-toggle="tooltip"
-                               title=" Keep a track of different type of users such as guest users, registered users and newly signed up users">
-                         </span>)
-              },
-              xAxis: { categories: chart_data[:months_name] },
-              yAxis: {
-                title: { text: 'Count' }
-              },
-              legend: {
-                  layout: 'vertical',
-                  align: 'right',
-                  verticalAlign: 'middle',
-                  borderWidth: 0
-              },
-              series: [
-                {
-                  name: Spree.t('user_pool.new_sign_ups'),
-                  data: chart_data[:new_sign_ups].map(&:to_i)
-                },
-                {
-                  name: Spree.t('user_pool.active_users'),
-                  data: chart_data[:active_users].map(&:to_i)
-                },
-                {
-                  name: Spree.t('user_pool.guest_users'),
-                  data: chart_data[:guest_users].map(&:to_i)
-                }
-              ]
-            }
-          }
-        ]
-      }
-    end
   end
 end

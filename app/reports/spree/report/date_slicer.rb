@@ -1,48 +1,61 @@
 module Spree::Report::DateSlicer
-  def self.slice(start_date, end_date, zoom_level)
+  def self.slice_into(start_date, end_date, zoom_level, klass)
     case zoom_level
     when :hourly
-      slice_into_hours(start_date, end_date)
+      slice_hours_into(start_date, end_date, klass)
     when :daily
-      slice_into_days(start_date, end_date)
+      slice_days_into(start_date, end_date, klass)
     when :monthly
-      slice_into_months(start_date, end_date)
+      slice_months_into(start_date, end_date, klass)
     when :yearly
-      slice_into_years(start_date, end_date)
+      slice_years_into(start_date, end_date, klass)
     end
   end
 
-  def self.slice_into_hours(start_date, end_date)
+  def self.slice_hours_into(start_date, end_date, klass)
     current_date = start_date
     slices = []
     while current_date <= end_date
-      slices << (0..23).collect { |hour| { day: current_date.day, hour: hour } }
+      slices << (0..23).collect do |hour|
+        obj = klass.new
+        obj.date = current_date
+        obj.hour = hour
+        obj
+      end
       current_date = current_date.next_day
     end
     slices.flatten
   end
 
-  def self.slice_into_days(start_date, end_date)
+  def self.slice_days_into(start_date, end_date, klass)
     current_date = start_date
     slices = []
     while current_date <= end_date
-      slices << { day: current_date.day, month: current_date.month }
+      obj = klass.new
+      obj.date = current_date
+      slices << obj
       current_date = current_date.next_day
     end
     slices
   end
 
-  def self.slice_into_months(start_date, end_date)
+  def self.slice_months_into(start_date, end_date, klass)
     current_date = start_date
     slices = []
     while current_date <= end_date
-      slices << { year: current_date.year, month: current_date.month }
+      obj = klass.new
+      obj.date = current_date
+      slices << obj
       current_date = current_date.end_of_month.next_day
     end
     slices
   end
 
-  def self.slice_into_years(start_date, end_date)
-    (start_date.year..end_date.year).collect { |year| { year: year } }
+  def self.slice_years_into(start_date, end_date, klass)
+    (start_date.year..end_date.year).collect do |year|
+      obj = klass.new
+      obj.date = Date.new(year).end_of_year
+      obj
+    end
   end
 end

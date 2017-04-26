@@ -21,14 +21,6 @@ module Spree
       klass = Spree.const_get((report_name.to_s + '_report').classify)
       resource = klass.new(options)
       dataset = resource.generate
-      total_records = resource.select_columns(dataset).count
-      if resource.no_pagination? || resource.arel?
-        result_set = dataset
-      else
-        result_set = resource.select_columns(dataset.limit(options['records_per_page'], options['offset'])).all
-      end
-      options['no_pagination'] = resource.no_pagination?.to_s unless options['no_pagination'] == 'true'
-      [headers(klass, resource, report_name), result_set, total_pages(total_records, options['records_per_page'], options['no_pagination']), search_attributes(klass), resource.chart_json, resource]
     end
 
     def self.download(options = {}, headers, stats)

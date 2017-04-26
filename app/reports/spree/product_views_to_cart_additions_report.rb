@@ -17,42 +17,52 @@ module Spree
       }
     end
 
-    def generate(options = {})
-      cart_additions = SolidusAdminInsights::ReportDb[:spree_cart_events___cart_events].
-      join(:spree_variants___variants, id: :variant_id).
-      join(:spree_products___products, id: :product_id).
-      where(cart_events__activity: 'add').
-      where(cart_events__created_at: @start_date..@end_date). #filter by params
-      group(:product_name, :product_slug).
-      select{[
-        (:products__name___product_name),
-        (:products__slug___product_slug),
-        Sequel.as(sum(cart_events__quantity), :cart_additions)
-      ]}.as(:cart_additions)
-
-
-      total_views_results = ::SolidusAdminInsights::ReportDb[:spree_products___products].
-      join(:spree_page_events___page_events, target_id: :id).
-      where(page_events__target_type: 'Spree::Product', page_events__activity: 'view').
-      group(:product_name).
-      select{[
-        products__name.as(product_name),
-        count('*').as(views)
-      ]}
-
-      ::SolidusAdminInsights::ReportDb[total_views_results].
-        join(cart_additions, product_name: :product_name).
-        order(sortable_sequel_expression)
+    def paginated?
+      false
     end
 
-    def select_columns(dataset)
-      dataset.select{[
-        cart_additions__product_name,
-        cart_additions__product_slug,
-        views,
-        cart_additions__cart_additions,
-        Sequel.as(ROUND(cart_additions__cart_additions/ views, 2), :cart_to_view_ratio)
-      ]}
+    class Result < Spree::Report::Result
+      class Observation < Spree::Report::Observation
+        observation_fields [:product_name, :product_slug, :views, :cart_additions, :cart_to_view_ratio]
+      end
     end
+
+    def get_results
+      ActiveRecord::Base.connection.execute(report_query.to_sql).to_a
+    end
+
+    def report_query
+      cart_additions =
+        Spree::CartEvent
+          .added
+          .joins(:variant)
+          .joins(:product)
+          .where(created_at: @start_date..@end_date)
+          .group('spree_products.name', 'spree_products.slug')
+          .select(
+            'spree_products.name as product_name',
+            'spree_products.slug as product_slug',
+            'SUM(spree_cart_events.quantity) as cart_additions'
+          )
+      total_views =
+        Spree::Product
+          .joins(:page_view_events)
+          .group(:name)
+          .select(
+            'spree_products.name as product_name',
+            'COUNT(*) as views'
+          )
+
+      Spree::Report::QueryFragments
+        .from_join(cart_additions, total_views, "q1.product_name = q2.product_name")
+        .project(
+          'q1.product_name',
+          'q1.product_slug',
+          'q2.views',
+          'q1.cart_additions',
+          'ROUND(cart_additions/views, 2) as cart_to_view_ratio'
+        )
+    end
+
   end
 end

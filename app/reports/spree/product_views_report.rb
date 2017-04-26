@@ -18,33 +18,45 @@ module Spree
       }
     end
 
-    def generate
-      unique_session_results = ::SolidusAdminInsights::ReportDb[:spree_products___products].
-      join(:spree_page_events___page_events, target_id: :id).
-      where(page_events__target_type: 'Spree::Product', page_events__activity: 'view').
-      where(page_events__created_at: @start_date..@end_date).where(Sequel.ilike(:products__name, @name)).
-      group(:product_name, :product_slug, :page_events__actor_id, :page_events__session_id).
-      select{[
-        products__name.as(product_name),
-        products__slug.as(product_slug),
-        count('*').as(total_views_per_session),
-        page_events__session_id.as(session_id),
-        page_events__actor_id.as(actor_id)
-      ]}.as(:unique_session_results)
-
-      ::SolidusAdminInsights::ReportDb[unique_session_results].
-        group(:product_name, :product_slug, :actor_id, :session_id).
-        order(sortable_sequel_expression)
+    def paginated?
+      false
     end
 
-    def select_columns(dataset)
-      dataset.select{[
-        product_name,
-        product_slug,
-        sum(total_views_per_session).as(views),
-        count(DISTINCT actor_id).as(users),
-        (COUNT(DISTINCT session_id) - COUNT(actor_id)).as(guest_sessions)
-      ]}
+    class Result < Spree::Report::Result
+      class Observation < Spree::Report::Observation
+        observation_fields [:product_name, :product_slug, :views, :users, :guest_sessions]
+      end
     end
+
+    def get_results
+      @_results ||= ActiveRecord::Base.connection.execute(report_query.to_sql).to_a
+    end
+
+    def report_query
+      viewed_events =
+        Spree::Product
+          .where(Spree::Product.arel_table[:name].matches("%#{ @name }%"))
+          .joins(:page_view_events)
+          .where(spree_page_events: { created_at: @start_date..@end_date })
+          .group('product_name', 'product_slug', 'spree_page_events.actor_id', 'spree_page_events.session_id')
+          .select(
+            'spree_products.name as product_name',
+            'spree_products.slug as product_slug',
+            'COUNT(*) as total_views_per_session',
+            'spree_page_events.session_id as session_id',
+            'spree_page_events.actor_id as actor_id'
+          )
+      Spree::Report::QueryFragments
+        .from_subquery(viewed_events)
+        .group('product_name', 'product_slug')
+        .project(
+          'product_name',
+          'product_slug',
+          'SUM(total_views_per_session) AS views',
+          'COUNT(DISTINCT actor_id) AS users',
+          '(COUNT(DISTINCT session_id) - COUNT(actor_id)) AS guest_sessions'
+        )
+    end
+
   end
 end

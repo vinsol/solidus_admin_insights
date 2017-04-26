@@ -19,25 +19,40 @@ module Spree
       }
     end
 
-
-    def generate
-      ::SolidusAdminInsights::ReportDb[:spree_line_items___line_items].
-      join(:spree_orders___orders, id: :order_id).
-      join(:spree_variants___variants, variants__id: :line_items__variant_id).
-      join(:spree_products___products, products__id: :variants__product_id).
-      where(orders__state: 'complete').
-      where(orders__completed_at: @start_date..@end_date). #filter by params
-      group(:variant_id).
-      order(sortable_sequel_expression)
+    def paginated?
+      false
     end
 
-    def select_columns(dataset)
-      dataset.select{[
-        products__name.as(product_name),
-        products__slug.as(product_slug),
-        Sequel.as(IF(STRCMP(variants__sku, ''), variants__sku, products__name), :sku),
-        sum(quantity).as(sold_count)
-      ]}
+    class Result < Spree::Report::Result
+      class Observation < Spree::Report::Observation
+        observation_fields [:product_name, :product_slug, :sku, :sold_count]
+
+        def sku
+          @sku || @product_name
+        end
+      end
     end
+
+    def get_results
+      @_results ||= ActiveRecord::Base.connection.execute(report_query.to_sql).to_a
+    end
+
+    def report_query
+      data_query =
+        Spree::LineItem
+          .joins(:order)
+          .joins(:variant)
+          .joins(:product)
+          .where(spree_orders: { state: 'complete' })
+          .where(spree_orders: { completed_at: @start_date..@end_date })
+          .group(:variant_id, :product_name, :product_slug, 'spree_variants.sku')
+          .select(
+            'spree_products.name as product_name',
+            'spree_products.slug as product_slug',
+            'spree_variants.sku  as sku',
+            'sum(quantity) as sold_count'
+          ).order('sold_count DESC')
+    end
+
   end
 end

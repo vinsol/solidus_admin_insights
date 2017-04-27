@@ -33,7 +33,7 @@ module Spree
 
     def total_records
       count_query = Spree::Report::QueryFragments.from_subquery(report_query).project(Arel.star.count)
-      ActiveRecord::Base.connection.execute(count_query.to_sql).first["count"].to_i
+      ActiveRecord::Base.connection.select_value(count_query.to_sql)
     end
 
     def report_query

@@ -31,10 +31,6 @@ module Spree
       end
     end
 
-    def get_results
-      ActiveRecord::Base.connection.execute(report_query.to_sql)
-    end
-
     def report_query
       purchases_by_variant =
         Spree::LineItem

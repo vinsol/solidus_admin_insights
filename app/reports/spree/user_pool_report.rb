@@ -17,14 +17,6 @@ module Spree
       false
     end
 
-    def get_results
-      @_query_results ||= ActiveRecord::Base.connection.execute(report_query.to_sql).to_a
-    end
-
-    def total_records
-      ActiveRecord::Base.connection.execute(report_query.count(Arel.star).to_sql)
-    end
-
     def report_query
       Report::QueryFragments
         .from_union(grouped_sign_ups, grouped_visitors)

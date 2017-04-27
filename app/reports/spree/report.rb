@@ -57,9 +57,7 @@ module Spree
           report_query.to_sql
         end
 
-      i = ActiveRecord::Base.connection.execute(query_sql)
-      puts i.to_a
-      i
+      ActiveRecord::Base.connection.exec_query(query_sql)
     end
 
     def set_sortable_attributes(options, default_sortable_attribute)

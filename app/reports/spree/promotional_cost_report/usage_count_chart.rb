@@ -6,7 +6,9 @@ class Spree::PromotionalCostReport::UsageCountChart
     @grouped_by_promotion = result.observations.group_by(&:promotion_name)
     @time_dimension = result.time_dimension
     self.time = []
-    self.time   = @grouped_by_promotion.values.first.collect { |observation_value| observation_value.send(@time_dimension) }
+    if @grouped_by_promotion.values.first.present?
+      self.time   = @grouped_by_promotion.values.first.collect { |observation_value| observation_value.send(@time_dimension) }
+    end
     self.series = @grouped_by_promotion.collect { |promotion, values| { type: 'column', name: promotion, data: values.collect(&:usage_count) }  }
   end
 

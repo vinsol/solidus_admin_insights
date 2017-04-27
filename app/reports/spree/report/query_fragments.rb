@@ -31,14 +31,8 @@ module Spree::Report::QueryFragments
     extract_from_date(:hour, column, as)
   end
 
-  if Rails.configuration.database_configuration[Rails.env]['adapter'] == 'mysql2'
-    def self.extract_from_date(part, column, as)
-      "EXTRACT(#{ part } from #{ column }) AS #{ as }"
-    end
-  else
-    def self.extract_from_date(part, column, as)
-      "EXTRACT('#{ part }' from #{ column }) AS #{ as }"
-    end
+  def self.extract_from_date(part, column, as)
+    "EXTRACT(#{ part } from #{ column }) AS #{ as }"
   end
 
   def self.if_null(val, default_val)

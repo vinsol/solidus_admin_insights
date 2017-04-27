@@ -49,6 +49,16 @@ module Spree
       sortable_attribute.eql?(header)
     end
 
+    def get_results
+      query_sql =
+        if paginated?
+          paginated_report_query.to_sql
+        else
+          report_query.to_sql
+        end
+      ActiveRecord::Base.connection.execute(query_sql)
+    end
+
     def set_sortable_attributes(options, default_sortable_attribute)
       self.sortable_type ||= (options[:sort] && options[:sort][:type].eql?('desc')) ? :desc : :asc
       self.sortable_attribute = options[:sort] ? options[:sort][:attribute].to_sym : default_sortable_attribute

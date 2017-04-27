@@ -3,7 +3,7 @@ module Spree
 
     REPORTS = {
       finance_analysis:           [
-                                    :sales_performance, :payment_method_transactions, :payment_method_transactions_conversion_rate,
+                                    :payment_method_transactions, :payment_method_transactions_conversion_rate,
                                     :shipping_cost, :sales_tax
                                   ],
       product_analysis:           [

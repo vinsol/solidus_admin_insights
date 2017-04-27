@@ -32,7 +32,11 @@ module Spree
       end
 
       class Observation < Spree::Report::TimedObservation
-        observation_fields [:promotion_name, :usage_count, :promotion_discount, :promotion_code, :promotion_start_date, :promotion_end_date]
+        observation_fields [
+          :promotion_name, :usage_count,
+          :promotion_discount, :promotion_code,
+          :promotion_start_date, :promotion_end_date
+        ]
 
         def promotion_start_date
           @promotion_start_date.present? ? @promotion_start_date.to_date.strftime("%B %d %Y") : "-"
@@ -85,8 +89,5 @@ module Spree
           )
     end
 
-    def get_results
-      @_results ||= ActiveRecord::Base.connection.execute(report_query.to_sql).to_a
-    end
   end
 end

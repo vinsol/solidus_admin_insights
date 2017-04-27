@@ -36,10 +36,6 @@ module Spree
       ActiveRecord::Base.connection.execute(count_query.to_sql).first["count"].to_i
     end
 
-    def get_results
-      ActiveRecord::Base.connection.execute(paginated_report_query.to_sql)
-    end
-
     def report_query
       searches =
         Spree::PageEvent

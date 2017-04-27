@@ -51,7 +51,7 @@ module Spree
         define_method :chart_json do
           {
             chart: true,
-            charts: report_charts.collect { |report_chart| report_chart.new(self).to_h }
+            charts: report_charts.collect { |report_chart| report_chart.new(self).to_h }.flatten
           }
         end
       end

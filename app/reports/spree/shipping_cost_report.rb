@@ -1,109 +1,92 @@
 module Spree
   class ShippingCostReport < Spree::Report
-    HEADERS = { months_name: :string, name: :string, shipping_charge: :integer, revenue: :integer, shipping_cost_percentage: :integer }
+    HEADERS = { name: :string, shipping_charge: :integer, revenue: :integer, shipping_cost_percentage: :integer }
     SEARCH_ATTRIBUTES = { start_date: :start_date, end_date: :end_date }
     SORTABLE_ATTRIBUTES = []
 
-    def no_pagination?
-      true
+    def paginated?
+      false
     end
 
-    def generate(options = {})
-      order_join_shipments = SolidusAdminInsights::ReportDb[:spree_orders___orders].
-      exclude(completed_at: nil).
-      join(:spree_shipments___shipments, order_id: :id).
-      where(orders__created_at: @start_date..@end_date). #filter by params
-      select{[
-        Sequel.as(shipments__id, :shipment_id),
-        Sequel.as(orders__shipment_total, :shipping_charge),
-        Sequel.as(shipments__order_id, :order_id),
-        Sequel.as(orders__total, :order_total),
-        Sequel.as(MONTHNAME(:orders__created_at), :month_name),
-        Sequel.as(MONTH(:orders__created_at), :number),
-        Sequel.as(YEAR(:orders__created_at), :year)
-      ]}.as(:order_shipment)
+    class Result < Spree::Report::TimedResult
+      charts ShippingCostDistributionChart
 
-      order_shipment_join_shipment_rates = SolidusAdminInsights::ReportDb[order_join_shipments].
-      join(:spree_shipping_rates___shipping_rates, shipment_id: :order_shipment__shipment_id).
-      where(selected: true).
-      select{[
-        Sequel.as(SUM(shipping_charge), :shipping_charge),
-        Sequel.as(SUM(order_total), :revenue),
-        shipping_method_id,
-        month_name,
-        number,
-        year,
-        Sequel.as(concat(month_name, ' ', IFNULL(year, 2016)), :months_name),
-      ]}.
-      group(:year, :number, :months_name, :month_name, :shipping_method_id).
-      order(:year, :number).
-      as(:order_shipment_rates)
-
-      group_by_months = SolidusAdminInsights::ReportDb[order_shipment_join_shipment_rates].
-      join(:spree_shipping_methods, id: :order_shipment_rates__shipping_method_id).
-      select{[
-        spree_shipping_methods__id,
-        :revenue,
-        :shipping_charge,
-        shipping_method_id,
-        :months_name,
-        Sequel.as(ROUND((shipping_charge / revenue) * 100, 2), :shipping_cost_percentage),
-        number,
-        year,
-        name
-      ]}
-
-      grouped_by_method_name = group_by_months.all.group_by { |record| record[:name] }
-      data = []
-      grouped_by_method_name.each_pair do |name, collection|
-        data << fill_missing_values({ shipping_charge: 0, revenue: 0, name: name, shipping_cost_percentage: 0 }, collection)
+      def build_empty_observations
+        @_shipping_methods = @results.collect { |r| r['name'] }.uniq
+        super
+        @observations = @_shipping_methods.collect do |shipping_method|
+          @observations.collect do |observation|
+            _d_observation                          = observation.dup
+            _d_observation.name                     = shipping_method
+            _d_observation.revenue                  = 0
+            _d_observation.shipping_charge          = 0
+            _d_observation.shipping_cost_percentage = 0
+            _d_observation
+          end
+        end.flatten
       end
-      @data = data.flatten
+
+      class Observation < Spree::Report::TimedObservation
+        observation_fields [:name, :shipping_charge, :revenue, :shipping_cost_percentage]
+
+        def describes?(result, zoom_level)
+          (name = result['name']) && super
+        end
+
+        def shipping_cost_percentage
+          @shipping_cost_percentage.to_f
+        end
+      end
     end
 
-    def group_by_method_name
-      @grouped_by_method_name ||= @data.group_by { |record| record[:name] }
+    def report_query
+      order_with_shipments =
+        Spree::Order
+          .where.not(completed_at: nil)
+          .where(completed_at: @start_date..@end_date)
+          .joins(:shipments)
+          .select(
+            'spree_shipments.id as shipment_id',
+            'spree_orders.shipment_total as shipping_charge',
+            'spree_orders.id as order_id',
+            'spree_orders.total as order_total',
+            *zoom_selects('spree_orders')
+          )
+
+      ar_shipping_rates = Arel::Table.new(:spree_shipping_rates)
+      ar_subquery       = Arel::Table.new(:results)
+
+      with_rates =
+        Spree::Report::QueryFragments.from_subquery(order_with_shipments)
+          .join(ar_shipping_rates)
+          .on(ar_shipping_rates[:shipment_id].eq(ar_subquery[:shipment_id]))
+          .where(ar_shipping_rates[:selected].eq(true))
+          .project(
+            'SUM(shipping_charge) as shipping_charge',
+            'SUM(order_total) as revenue',
+            'shipping_method_id',
+            *zoom_columns,
+          )
+          .group(*zoom_columns, :shipping_method_id)
+          .order(*zoom_columns)
+
+      ar_shipping_methods = Arel::Table.new(:spree_shipping_methods)
+      ar_subquery_with_rates = Arel::Table.new(:with_rates)
+
+      Spree::Report::QueryFragments
+        .from_subquery(with_rates, as: 'with_rates')
+        .join(ar_shipping_methods)
+        .on(ar_shipping_methods[:id].eq(ar_subquery_with_rates[:shipping_method_id]))
+        .project(
+          ar_shipping_methods[:id],
+          'revenue',
+          'shipping_charge',
+          'shipping_method_id',
+          'name',
+          'ROUND((shipping_charge/revenue) * 100, 2) as shipping_cost_percentage',
+          *zoom_columns
+        )
     end
 
-    def chart_data
-      {
-        months_name: group_by_method_name.first.try(:second).try(:map) { |record| record[:months_name] },
-        collection: group_by_method_name
-      }
-    end
-
-    def chart_json
-      {
-        chart: true,
-        charts: [
-          {
-            id: 'shipping-cost-percentage-comparison',
-            json: {
-              chart: { type: 'spline' },
-              title: {
-                useHTML: true,
-                text: "<span class='chart-title'>Monthly Shipping Comparison</span><span class='fa fa-question-circle' data-toggle='tooltip' title='Compare the Shipping percentage (calculated on Revenue) among various shipment methods such as UPS, FedEx etc.'></span>"
-              },
-              xAxis: { categories: chart_data[:months_name] },
-              yAxis: {
-                title: { text: 'Percentage(%)' }
-              },
-              tooltip: { valueSuffix: '%' },
-              legend: {
-                  layout: 'vertical',
-                  align: 'right',
-                  verticalAlign: 'middle',
-                  borderWidth: 0
-              },
-              series: chart_data[:collection].map { |key, value| { name: key, data: value.map { |r| r[:shipping_cost_percentage].to_f } } }
-            }
-          }
-        ]
-      }
-    end
-
-    def select_columns(dataset)
-      dataset
-    end
   end
 end

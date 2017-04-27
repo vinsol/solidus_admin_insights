@@ -27,10 +27,6 @@ module Spree
       end
     end
 
-    def get_results
-      ActiveRecord::Base.connection.execute(report_query.to_sql).to_a
-    end
-
     def report_query
       cart_additions =
         Spree::CartEvent

@@ -28,10 +28,6 @@ module Spree
       end
     end
 
-    def get_results
-      @_results ||= ActiveRecord::Base.connection.execute(report_query.to_sql).to_a
-    end
-
     def report_query
       viewed_events =
         Spree::Product

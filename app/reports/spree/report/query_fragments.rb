@@ -1,6 +1,6 @@
 module Spree::Report::QueryFragments
-  def self.from_subquery(subquery)
-    Arel::SelectManager.new(Arel.sql("(#{subquery.to_sql}) as results"))
+  def self.from_subquery(subquery, as: 'results')
+    Arel::SelectManager.new(Arel.sql("(#{subquery.to_sql}) as #{ as }"))
   end
 
   def self.from_join(subquery1, subquery2, join_expr)

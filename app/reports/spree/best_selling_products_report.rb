@@ -47,7 +47,7 @@ module Spree
             'spree_products.slug as product_slug',
             'spree_variants.sku  as sku',
             'sum(quantity) as sold_count'
-          ).order('sold_count DESC')
+          )
     end
 
   end

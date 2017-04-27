@@ -2,6 +2,7 @@ module Spree
   class Report
 
     attr_accessor :sortable_attribute, :sortable_type
+    alias_method :sort_direction, :sortable_type
 
     TIME_SCALES = [:hourly, :daily, :monthly, :yearly]
 
@@ -43,20 +44,23 @@ module Spree
       self.paginate = options[:no_pagination].present? ? (options[:no_pagination].downcase == "true") : false
       extract_reporting_period
       determine_report_time_scale
+      set_sortable_attributes(options, self.class::DEFAULT_SORTABLE_ATTRIBUTE) if self.class::SORTABLE_ATTRIBUTES.present?
     end
 
     def header_sorted?(header)
-      sortable_attribute.eql?(header)
+      sortable_attribute.present? && sortable_attribute.eql?(header)
     end
 
     def get_results
-      query_sql =
+      query =
         if paginated?
-          paginated_report_query.to_sql
+          paginated_report_query
         else
-          report_query.to_sql
+          report_query
         end
 
+      query = query.order(active_record_sort) if sortable_attribute.present?
+      query_sql = query.to_sql
       ActiveRecord::Base.connection.exec_query(query_sql)
     end
 
@@ -67,6 +71,10 @@ module Spree
 
     def sortable_sequel_expression
       sortable_type.eql?(:desc) ? Sequel.desc(sortable_attribute) : Sequel.asc(sortable_attribute)
+    end
+
+    def active_record_sort
+      "#{ sortable_attribute } #{ sortable_type }"
     end
 
     def total_pages

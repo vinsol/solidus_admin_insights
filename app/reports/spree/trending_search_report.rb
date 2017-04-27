@@ -3,7 +3,7 @@ module Spree
     DEFAULT_SORTABLE_ATTRIBUTE = :occurrences
     HEADERS = { searched_term: :string, occurrences: :integer }
     SEARCH_ATTRIBUTES = { start_date: :start_date, end_date: :end_date, keywords_cont: :keyword }
-    SORTABLE_ATTRIBUTES = []
+    SORTABLE_ATTRIBUTES = [:occurrences]
 
     class Result < Spree::Report::Result
       charts FrequencyDistributionPieChart

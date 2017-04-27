@@ -1,6 +1,6 @@
 module Spree
   class UsersNotConvertedReport < Spree::Report
-    DEFAULT_SORTABLE_ATTRIBUTE = :orders__completed_at
+    DEFAULT_SORTABLE_ATTRIBUTE = :user_email
     HEADERS = { user_email: :string, signup_date: :date }
     SEARCH_ATTRIBUTES = { start_date: :users_created_from, end_date: :users_created_till, email_cont: :email }
     SORTABLE_ATTRIBUTES = [:user_email, :signup_date]

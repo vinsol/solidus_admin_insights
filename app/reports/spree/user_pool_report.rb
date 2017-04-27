@@ -1,6 +1,5 @@
 module Spree
   class UserPoolReport < Spree::Report
-    DEFAULT_SORTABLE_ATTRIBUTE = :orders__completed_at
     HEADERS = { guest_users: :integer, active_users: :integer, new_sign_ups: :integer }
     SEARCH_ATTRIBUTES = { start_date: :users_created_from, end_date: :users_created_till }
     SORTABLE_ATTRIBUTES = []

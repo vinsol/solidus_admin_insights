@@ -1,7 +1,6 @@
 module SolidusAdminInsights
   class Engine < Rails::Engine
     require 'spree/core'
-    require 'sequel'
     require 'wicked_pdf'
     require 'csv'
 
@@ -20,14 +19,9 @@ module SolidusAdminInsights
     end
 
     config.to_prepare &method(:activate).to_proc
+
     config.after_initialize do
-      sequel_config = (
-        ActiveRecord::Base.configurations[Rails.env] ||
-        Rails.configuration.database_configuration[Rails.env]
-      ).to_h.clone
-      sequel_config['adapter'] = 'sqlite' if sequel_config['adapter'] == 'sqlite3'
-      # Connect to applications DB using ruby's Sequel wrapper
-      ::SolidusAdminInsights::ReportDb = Sequel.connect(sequel_config)
+
     end
   end
 end

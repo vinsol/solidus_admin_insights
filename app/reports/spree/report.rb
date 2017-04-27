@@ -69,10 +69,6 @@ module Spree
       self.sortable_attribute = options[:sort] ? options[:sort][:attribute].to_sym : default_sortable_attribute
     end
 
-    def sortable_sequel_expression
-      sortable_type.eql?(:desc) ? Sequel.desc(sortable_attribute) : Sequel.asc(sortable_attribute)
-    end
-
     def active_record_sort
       "#{ sortable_attribute } #{ sortable_type }"
     end

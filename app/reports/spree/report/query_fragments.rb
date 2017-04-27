@@ -7,8 +7,8 @@ module Spree::Report::QueryFragments
     Arel::SelectManager.new(Arel.sql("((#{ subquery1.to_sql }) as q1 JOIN (#{ subquery2.to_sql }) as q2 ON #{ join_expr })"))
   end
 
-  def self.from_union(subquery1, subquery2)
-    Arel::SelectManager.new(Arel.sql("((#{ subquery1.to_sql }) UNION (#{ subquery2.to_sql })) as results"))
+  def self.from_union(subquery1, subquery2, as: 'results')
+    Arel::SelectManager.new(Arel.sql("((#{ subquery1.to_sql }) UNION (#{ subquery2.to_sql })) as #{ as }"))
   end
 
   def self.year(column, as='year')
@@ -31,11 +31,15 @@ module Spree::Report::QueryFragments
     extract_from_date(:hour, column, as)
   end
 
-  def self.when()
-
-  end
-
   def self.extract_from_date(part, column, as)
     "EXTRACT('#{ part }' from #{ column }) AS #{ as }"
+  end
+
+  def self.if_null(val, default_val)
+    Arel::Nodes::NamedFunction.new('COALESCE', [val, default_val])
+  end
+
+  def self.sum(node)
+    Arel::Nodes::NamedFunction.new('SUM', [node])
   end
 end

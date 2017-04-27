@@ -10,15 +10,34 @@ module Spree
       set_sortable_attributes(options, DEFAULT_SORTABLE_ATTRIBUTE)
     end
 
-    def generate
-      SolidusAdminInsights::ReportDb[:spree_return_authorizations].
-      join(:spree_return_items, return_authorization_id: :spree_return_authorizations__id).
-      join(:spree_inventory_units, spree_inventory_units__id: :inventory_unit_id).
-      join(:spree_variants, spree_variants__id: :variant_id).
-      join(:spree_products, id: :product_id).
-      where(spree_return_items__created_at: @start_date..@end_date).
-      group(:variant_id).
-      order(sortable_sequel_expression)
+    class Result < Spree::Report::Result
+      class Observation < Spree::Report::Observation
+        observation_fields [:sku, :product_name, :return_count]
+
+        def sku
+          @sku || @product_name
+        end
+      end
+    end
+
+    def paginated?
+      false
+    end
+
+    def report_query
+      Spree::ReturnAuthorization
+        .joins(:return_items)
+        .joins(:inventory_units)
+        .joins(:variants)
+        .joins(:products)
+        .where(spree_return_items: { created_at: @start_date..@end_date })
+        .group('spree_variants.id', 'spree_products.name', 'spree_products.slug', 'spree_variants.sku')
+        .select(
+          'spree_products.name as product_name',
+          'spree_products.slug as product_slug',
+          'spree_variants.sku as sku',
+          'COUNT(spree_variants.id) as return_count'
+        )
     end
 
     def deeplink_properties
@@ -28,13 +47,5 @@ module Spree
       }
     end
 
-    def select_columns(dataset)
-      dataset.select{[
-        spree_products__name.as(product_name),
-        spree_products__slug.as(product_slug),
-        Sequel.as(IF(STRCMP(spree_variants__sku, ''), spree_variants__sku, spree_products__name), :sku),
-        Sequel.as(count(:variant_id), :return_count)
-      ]}
-    end
   end
 end

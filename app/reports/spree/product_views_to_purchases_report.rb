@@ -10,6 +10,21 @@ module Spree
       set_sortable_attributes(options, DEFAULT_SORTABLE_ATTRIBUTE)
     end
 
+    def paginated?
+      false
+    end
+
+    class Result < Spree::Report::Result
+      class Observation < Spree::Report::Observation
+        observation_fields [:product_name, :product_slug, :views, :purchases, :purchase_to_view_ratio]
+
+        def purchase_to_view_ratio
+          # This is inconsistent across postgres and mysql
+          purchases.to_f / views.to_f
+        end
+      end
+    end
+
     def deeplink_properties
       {
         deeplinked: true,
@@ -17,35 +32,37 @@ module Spree
       }
     end
 
-    def generate(options = {})
-      line_items = ::SolidusAdminInsights::ReportDb[:spree_line_items___line_items].
-      join(:spree_orders___orders, id: :order_id).
-      join(:spree_variants___variants, variants__id: :line_items__variant_id).
-      join(:spree_products___products, products__id: :variants__product_id).
-      where(orders__state: 'complete').
-      where(orders__created_at: @start_date..@end_date). #filter by params
-      select{[
-      sum(quantity).as(purchases),
-      products__name.as(product_name),
-      products__slug.as(product_slug),
-      products__id.as(product_id)]}.
-      group(:products__name, :products__id).as(:line_items)
+    def report_query
+      page_events_ar         = Arel::Table.new(:spree_page_events)
+      purchase_line_items_ar = Arel::Table.new(:purchase_line_items)
 
-
-      ::SolidusAdminInsights::ReportDb[line_items].join(:spree_page_events___page_events, page_events__target_id: :product_id).
-        where(page_events__target_type: 'Spree::Product', page_events__activity: 'view').
-        group(:product_id).
-        order(sortable_sequel_expression)
+      Spree::Report::QueryFragments.from_subquery(purchase_line_items, as: :purchase_line_items)
+        .join(page_events_ar)
+        .on(page_events_ar[:target_id].eq(purchase_line_items_ar[:product_id]))
+        .where(page_events_ar[:target_type].eq(Arel::Nodes::Quoted.new('Spree::Product')))
+        .where(page_events_ar[:activity].eq(Arel::Nodes::Quoted.new('view')))
+        .group(purchase_line_items_ar[:product_id], purchase_line_items_ar[:product_name], purchase_line_items_ar[:product_slug], purchase_line_items_ar[:purchases])
+        .project(
+          'product_name',
+          'product_slug',
+          'COUNT(*) as views',
+          'purchases'
+        )
     end
 
-    def select_columns(dataset)
-      dataset.select{[
-        product_name,
-        product_slug,
-        count('*').as(views),
-        purchases,
-        Sequel.as(ROUND(purchases / count('*'), 2), :purchase_to_view_ratio)
-      ]}
+    def purchase_line_items
+      Spree::LineItem
+        .joins(:order)
+        .joins(:variant)
+        .joins(:product)
+        .where(spree_orders: { state: 'complete', created_at: @start_date..@end_date })
+        .group('spree_products.id', 'spree_products.name')
+        .select(
+          'SUM(quantity) as purchases',
+          'spree_products.name as product_name',
+          'spree_products.slug as product_slug',
+          'spree_products.id as product_id'
+        )
     end
   end
 end

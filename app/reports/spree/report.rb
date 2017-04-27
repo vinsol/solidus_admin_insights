@@ -56,7 +56,10 @@ module Spree
         else
           report_query.to_sql
         end
-      ActiveRecord::Base.connection.execute(query_sql)
+
+      i = ActiveRecord::Base.connection.execute(query_sql)
+      puts i.to_a
+      i
     end
 
     def set_sortable_attributes(options, default_sortable_attribute)
@@ -77,7 +80,7 @@ module Spree
     end
 
     def zoom_selects(zoom_on = nil)
-      @_zoom_selects ||= QueryZoom.select(@zoom_level, zoom_on)
+      QueryZoom.select(@zoom_level, zoom_on)
     end
 
     def zoom_columns

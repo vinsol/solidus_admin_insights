@@ -29,7 +29,8 @@ class Spree::Report::Observation
 
       define_method :populate do |result|
         records.each do |record|
-          self.send("#{ record }=", result[record.to_s])
+          record_name = record.to_s
+          self.send("#{ record }=", result[record_name]) if result[record_name]
         end
       end
 

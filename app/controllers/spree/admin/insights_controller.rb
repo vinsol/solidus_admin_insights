@@ -22,19 +22,19 @@ module Spree
       end
 
       def download
-        @headers, @stats = ReportGenerationService.generate_report(@report_name, params.merge(@pagination_hash))
+        report = ReportGenerationService.generate_report(@report_name, params.merge(@pagination_hash))
 
         respond_to do |format|
           format.csv do
-            send_data ReportGenerationService.download(@headers, @stats),
+            send_data ReportGenerationService.download(report),
               filename: "#{ @report_name.to_s }.csv"
           end
           format.xls do
-            send_data ReportGenerationService.download({ col_sep: "\t" }, @headers, @stats),
+            send_data ReportGenerationService.download(report, { col_sep: "\t" }),
               filename: "#{ @report_name.to_s }.xls"
           end
           format.text do
-            send_data ReportGenerationService.download(@headers, @stats),
+            send_data ReportGenerationService.download(report),
               filename: "#{ @report_name.to_s }.txt"
           end
           format.pdf do
@@ -48,13 +48,13 @@ module Spree
       private
         def ensure_report_exists
           @report_name = params[:id].to_sym
-          unless ReportGenerationService::REPORTS[get_reports_type].include? @report_name
+          unless ReportGenerationService.report_exists?(get_reports_type, @report_name)
             redirect_to admin_insights_path, alert: Spree.t(:not_found, scope: [:reports])
           end
         end
 
         def load_reports
-          @reports = ReportGenerationService::REPORTS[get_reports_type]
+          @reports = ReportGenerationService.reports_for_type(get_reports_type)
         end
 
         def shared_data
@@ -71,7 +71,7 @@ module Spree
           params[:type] = if params[:type]
             params[:type].to_sym
           else
-            session[:report_category].try(:to_sym) || ReportGenerationService::REPORTS.keys.first
+            session[:report_category].try(:to_sym) || ReportGenerationService.default_report_type
           end
           session[:report_category] = params[:type]
         end

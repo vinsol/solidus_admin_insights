@@ -6,7 +6,7 @@ module Spree
     SORTABLE_ATTRIBUTES = []
 
     class Result < Spree::Report::TimedResult
-      charts DistributionPieChart
+      charts DistributionColumnChart
 
       class Observation < Spree::Report::TimedObservation
         observation_fields active_users: 0, guest_users: 0, new_sign_ups: 0

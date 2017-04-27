@@ -27,7 +27,7 @@ module Spree
       class Observation < Spree::Report::TimedObservation
         observation_fields [:zone_name, :sales_tax]
 
-        def describes?(result, zoom_level)
+        def describes?(result, time_scale)
           (zone_name == result['zone_name']) && super
         end
 
@@ -49,15 +49,15 @@ module Spree
             'spree_adjustments.amount as sales_tax',
             'spree_zones.id as zone_id',
             'spree_zones.name as zone_name',
-            *zoom_selects('spree_adjustments')
+            *time_scale_selects('spree_adjustments')
           )
       Spree::Report::QueryFragments
         .from_subquery(adjustments)
-        .group(*zoom_columns_to_s, 'zone_name')
-        .order(*zoom_columns)
+        .group(*time_scale_columns_to_s, 'zone_name')
+        .order(*time_scale_columns)
         .project(
           'zone_name',
-          *zoom_columns,
+          *time_scale_columns,
           'SUM(sales_tax) as sales_tax'
         )
     end

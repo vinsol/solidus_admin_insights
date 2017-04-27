@@ -1,6 +1,6 @@
 module Spree::Report::DateSlicer
-  def self.slice_into(start_date, end_date, zoom_level, klass)
-    case zoom_level
+  def self.slice_into(start_date, end_date, time_scale, klass)
+    case time_scale
     when :hourly
       slice_hours_into(start_date, end_date, klass)
     when :daily

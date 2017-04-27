@@ -29,7 +29,7 @@ module Spree
       class Observation < Spree::Report::TimedObservation
         observation_fields [:name, :shipping_charge, :revenue, :shipping_cost_percentage]
 
-        def describes?(result, zoom_level)
+        def describes?(result, time_scale)
           (name = result['name']) && super
         end
 
@@ -50,7 +50,7 @@ module Spree
             'spree_orders.shipment_total as shipping_charge',
             'spree_orders.id as order_id',
             'spree_orders.total as order_total',
-            *zoom_selects('spree_orders')
+            *time_scale_selects('spree_orders')
           )
 
       ar_shipping_rates = Arel::Table.new(:spree_shipping_rates)
@@ -65,10 +65,10 @@ module Spree
             'SUM(shipping_charge) as shipping_charge',
             'SUM(order_total) as revenue',
             'shipping_method_id',
-            *zoom_columns,
+            *time_scale_columns,
           )
-          .group(*zoom_columns, :shipping_method_id)
-          .order(*zoom_columns)
+          .group(*time_scale_columns, :shipping_method_id)
+          .order(*time_scale_columns)
 
       ar_shipping_methods = Arel::Table.new(:spree_shipping_methods)
       ar_subquery_with_rates = Arel::Table.new(:with_rates)
@@ -84,7 +84,7 @@ module Spree
           'shipping_method_id',
           'name',
           'ROUND((shipping_charge/revenue) * 100, 2) as shipping_cost_percentage',
-          *zoom_columns
+          *time_scale_columns
         )
     end
 

@@ -3,7 +3,7 @@ module Spree
 
     attr_accessor :sortable_attribute, :sortable_type
 
-    ZOOM_LEVELS = [:hourly, :daily, :monthly, :yearly]
+    TIME_SCALES = [:hourly, :daily, :monthly, :yearly]
 
     def paginated?
       true
@@ -28,7 +28,7 @@ module Spree
       self.class::Result.new do |report|
         report.start_date = @start_date
         report.end_date   = @end_date
-        report.zoom_level = @zoom_level
+        report.time_scale = @time_scale
         report.report = self
       end
     end
@@ -42,7 +42,7 @@ module Spree
       self.current_page = options[:offset]
       self.paginate = options[:no_pagination].present? ? (options[:no_pagination].downcase == "true") : false
       extract_reporting_period
-      determine_report_zoom
+      determine_report_time_scale
     end
 
     def header_sorted?(header)
@@ -77,16 +77,16 @@ module Spree
       end
     end
 
-    def zoom_selects(zoom_on = nil)
-      QueryZoom.select(@zoom_level, zoom_on)
+    def time_scale_selects(time_scale_on = nil)
+      QueryTimeScale.select(@time_scale, time_scale_on)
     end
 
-    def zoom_columns
-      @_zoom_columns ||= QueryZoom.zoom_columns(@zoom_level)
+    def time_scale_columns
+      @_time_scale_columns ||= QueryTimeScale.time_scale_columns(@time_scale)
     end
 
-    def zoom_columns_to_s
-      @_zoom_columns_to_s ||= zoom_columns.collect(&:to_s)
+    def time_scale_columns_to_s
+      @_time_scale_columns_to_s ||= time_scale_columns.collect(&:to_s)
     end
 
     def name
@@ -100,8 +100,8 @@ module Spree
       @end_date = (end_date.present? ? Date.parse(end_date).next_day : Date.current.end_of_year)
     end
 
-    private def determine_report_zoom
-      @zoom_level =
+    private def determine_report_time_scale
+      @time_scale =
         case (@end_date - @start_date).to_i
         when 0..1
           :hourly

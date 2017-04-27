@@ -36,7 +36,7 @@ module Spree
           end
         end
 
-        def describes?(result, zoom_level)
+        def describes?(result, time_scale)
           (result['payment_method_name'] == payment_method_name) && super
         end
       end
@@ -51,16 +51,16 @@ module Spree
             'spree_payment_methods.id as payment_method_id',
             'name as payment_method_name',
             'state as payment_state',
-            *zoom_selects('spree_payments')
+            *time_scale_selects('spree_payments')
           )
 
       grouped =
         Spree::Report::QueryFragments
           .from_subquery(payment_methods)
-          .group(*zoom_columns_to_s, 'payment_method_name', 'payment_state')
-          .order(*zoom_columns)
+          .group(*time_scale_columns_to_s, 'payment_method_name', 'payment_state')
+          .order(*time_scale_columns)
           .project(
-            *zoom_columns,
+            *time_scale_columns,
             'payment_method_name',
             'payment_state',
             'COUNT(payment_method_id) as count'

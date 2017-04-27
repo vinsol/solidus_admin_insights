@@ -7,7 +7,7 @@ module Spree
 
     def initialize(options)
       super
-      @zoom_on = 'spree_payments'
+      @time_scale_on = 'spree_payments'
     end
 
     def paginated?
@@ -33,7 +33,7 @@ module Spree
       class Observation < Spree::Report::TimedObservation
         observation_fields [:payment_method_name, :payment_amount]
 
-        def describes?(result, zoom_level)
+        def describes?(result, time_scale)
           (result['payment_method_name'] == payment_method_name) && super
         end
 
@@ -52,15 +52,15 @@ module Spree
           .select(
             'spree_payment_methods.name as payment_method_name',
             'spree_payments.amount as payment_amount',
-            *zoom_selects(@zoom_on)
+            *time_scale_selects(@time_scale_on)
           )
 
       Spree::Report::QueryFragments
         .from_subquery(payments)
-        .group(*zoom_columns_to_s, 'payment_method_name')
-        .order(*zoom_columns)
+        .group(*time_scale_columns_to_s, 'payment_method_name')
+        .order(*time_scale_columns)
         .project(
-          *zoom_columns,
+          *time_scale_columns,
           'payment_method_name',
           'SUM(payment_amount) as payment_amount'
         )

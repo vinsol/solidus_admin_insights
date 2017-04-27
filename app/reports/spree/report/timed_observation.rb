@@ -11,8 +11,8 @@ class Spree::Report::TimedObservation < Spree::Report::Observation
     self.hour = 0
   end
 
-  def describes?(result, zoom_level)
-    case zoom_level
+  def describes?(result, time_scale)
+    case time_scale
     when :hourly
       result['hour'] == hour && result['day'] == day
     when :daily

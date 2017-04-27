@@ -42,10 +42,10 @@ module Spree
     def report_query
       q = Spree::Report::QueryFragments
       q.from_union(order_with_line_items_grouped_by_time, promotions_grouped_by_time)
-        .group(*zoom_columns_to_s)
-        .order(*zoom_columns)
+        .group(*time_scale_columns_to_s)
+        .order(*time_scale_columns)
         .project(
-          *zoom_columns,
+          *time_scale_columns,
           'SUM(sale_price) as sale_price',
           'SUM(cost_price) as cost_price',
           'SUM(profit_loss) as profit_loss',
@@ -58,10 +58,10 @@ module Spree
       q = Spree::Report::QueryFragments
 
       q.from_subquery(promotion_adjustments_with_time)
-        .group(*zoom_columns_to_s, 'sale_price', 'cost_price')
-        .order(*zoom_columns)
+        .group(*time_scale_columns_to_s, 'sale_price', 'cost_price')
+        .order(*time_scale_columns)
         .project(
-          *zoom_columns,
+          *time_scale_columns,
           '0 as sale_price',
           '0 as cost_price',
           'SUM(promotion_discount) * -1 as profit_loss',
@@ -76,7 +76,7 @@ module Spree
         .where(created_at: @start_date..@end_date)
         .select(
           'abs(amount) as promotion_discount',
-          *zoom_selects('spree_adjustments')
+          *time_scale_selects('spree_adjustments')
         )
     end
 
@@ -85,10 +85,10 @@ module Spree
       order_with_line_items_ar = Arel::Table.new(:order_with_line_items)
       zero = Arel::Nodes.build_quoted(0.0)
       q.from_subquery(order_with_line_items, as: :order_with_line_items)
-        .group(*zoom_columns_to_s)
-        .order(*zoom_columns)
+        .group(*time_scale_columns_to_s)
+        .order(*time_scale_columns)
         .project(
-          *zoom_columns,
+          *time_scale_columns,
           q.if_null(q.sum(order_with_line_items_ar[:sale_price]), zero).as('sale_price'),
           q.if_null(q.sum(order_with_line_items_ar[:cost_price]), zero).as('cost_price'),
           q.if_null(q.sum(order_with_line_items_ar[:profit_loss]), zero).as('profit_loss'),
@@ -104,9 +104,9 @@ module Spree
         .where.not(completed_at: nil)
         .where(created_at: @start_date..@end_date)
         .joins(:line_items)
-        .group('spree_orders.id', *zoom_columns_to_s)
+        .group('spree_orders.id', *time_scale_columns_to_s)
         .select(
-          *zoom_selects('spree_orders'),
+          *time_scale_selects('spree_orders'),
           "spree_orders.item_total as sale_price",
           "SUM(#{ q.if_null(line_item_ar[:cost_price], line_item_ar[:price]).to_sql } * spree_line_items.quantity) as cost_price",
           "(spree_orders.item_total - SUM(#{ q.if_null(line_item_ar[:cost_price], line_item_ar[:price]).to_sql } * spree_line_items.quantity)) as profit_loss"

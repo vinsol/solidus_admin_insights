@@ -1,7 +1,7 @@
 module Spree
   class Report
     class Result
-      attr_accessor :start_date, :end_date, :zoom_level, :report
+      attr_accessor :start_date, :end_date, :time_scale, :report
       attr_reader   :observations
 
       def initialize
@@ -82,7 +82,7 @@ module Spree
       end
 
       def time_dimension
-        case zoom_level
+        case time_scale
         when :hourly
           :hour_name
         when :daily

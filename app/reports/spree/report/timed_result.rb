@@ -1,7 +1,7 @@
 module Spree
   class Report
     class TimedResult < Result
-      attr_accessor :zoom_level
+      attr_accessor :time_scale
 
       def build_report_observations
         query_results
@@ -10,7 +10,7 @@ module Spree
       end
 
       def build_empty_observations
-        @observations = Spree::Report::DateSlicer.slice_into(start_date, end_date, zoom_level, self.class::Observation)
+        @observations = Spree::Report::DateSlicer.slice_into(start_date, end_date, time_scale, self.class::Observation)
       end
 
       def populate_observations
@@ -19,7 +19,7 @@ module Spree
         @results.each do |result|
           if current_observation.present?
             begin
-              until current_observation.describes? result, zoom_level
+              until current_observation.describes? result, time_scale
                 current_observation = observation_iter.next
               end
 

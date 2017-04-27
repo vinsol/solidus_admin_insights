@@ -12,7 +12,7 @@ module Spree
     def initialize(options)
       super
       set_sortable_attributes(options, DEFAULT_SORTABLE_ATTRIBUTE)
-      @zoom_on = 'spree_adjustments'
+      @time_scale_on = 'spree_adjustments'
     end
 
     class Result < Spree::Report::TimedResult
@@ -50,7 +50,7 @@ module Spree
           @promotion_discount.to_f.abs
         end
 
-        def describes?(result, zoom_level)
+        def describes?(result, time_scale)
           result['promotion_name'] == promotion_name && super
         end
       end
@@ -69,16 +69,16 @@ module Spree
             'spree_promotions.id as promotion_id',
             'spree_promotions.name as promotion_name',
             'spree_promotions.code as promotion_code',
-            *zoom_selects('spree_adjustments')
+            *time_scale_selects('spree_adjustments')
           )
 
       grouped_usage =
         Spree::Report::QueryFragments
           .from_subquery(eligible_promotions)
-          .group(*zoom_columns, :promotion_id, :promotion_name, :promotion_code, :promotion_start_date, :promotion_end_date)
-          .order(*zoom_columns_to_s)
+          .group(*time_scale_columns, :promotion_id, :promotion_name, :promotion_code, :promotion_start_date, :promotion_end_date)
+          .order(*time_scale_columns_to_s)
           .project(
-            *zoom_columns,
+            *time_scale_columns,
             'promotion_name',
             'promotion_code',
             'promotion_start_date',

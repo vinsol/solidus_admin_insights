@@ -74,7 +74,7 @@ module Spree
       Spree::Report::QueryFragments.from_subquery(order_with_shipments)
         .join(ar_shipping_rates)
         .on(ar_shipping_rates[:shipment_id].eq(ar_subquery[:shipment_id]))
-        .where(ar_shipping_rates[:selected].eq(true))
+        .where(ar_shipping_rates[:selected].eq(Arel::Nodes::Quoted.new(true)))
         .group(*time_scale_columns, :shipping_method_id)
         .order(*time_scale_columns)
         .project(

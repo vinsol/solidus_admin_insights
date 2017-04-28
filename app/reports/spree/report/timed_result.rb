@@ -1,7 +1,6 @@
 module Spree
   class Report
     class TimedResult < Result
-      attr_accessor :time_scale
 
       def build_report_observations
         query_results
@@ -44,7 +43,6 @@ module Spree
           sortable: false
         }
       end
-
     end
   end
 end

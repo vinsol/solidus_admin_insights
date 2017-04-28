@@ -2,7 +2,10 @@ class Spree::PaymentMethodTransactionsReport::PaymentMethodRevenueDistributionCh
   def initialize(result)
     @time_dimension = result.time_dimension
     @grouped_by_payment_method = result.observations.group_by(&:payment_method_name)
-    @time_series = @grouped_by_payment_method.values.first.collect { |observation| observation.send(@time_dimension) }
+    @time_series = []
+    if @grouped_by_payment_method.values.first.present?
+      @time_series = @grouped_by_payment_method.values.first.collect { |observation| observation.send(@time_dimension) }
+    end
   end
 
   def to_h

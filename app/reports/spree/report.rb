@@ -65,7 +65,7 @@ module Spree
 
       query = query.order(active_record_sort) if sortable_attribute.present?
       query_sql = query.to_sql
-      ActiveRecord::Base.connection.exec_query(query_sql)
+      r = ActiveRecord::Base.connection.exec_query(query_sql)
     end
 
     def set_sortable_attributes(options, default_sortable_attribute)
@@ -107,10 +107,10 @@ module Spree
 
     private def extract_reporting_period
       start_date = @search[:start_date]
-      @start_date = start_date.present? ? Date.parse(start_date) :  Date.new(Date.current.year)
+      @start_date = start_date.present? ? Date.parse(start_date) :  Date.current.beginning_of_year
       end_date = @search[:end_date]
       @end_date = (end_date.present? ? Date.parse(end_date).next_day : Date.current.end_of_year)
-      self.reporting_period = @start_date..@end_date
+      self.reporting_period = (@start_date.beginning_of_day)..(@end_date.end_of_day)
     end
 
     private def determine_report_time_scale

@@ -1,36 +1,21 @@
 module Spree
   class ProductViewsToPurchasesReport < Spree::Report
     DEFAULT_SORTABLE_ATTRIBUTE = :product_name
-    HEADERS = { product_name: :string, views: :integer, purchases: :integer, purchase_to_view_ratio: :integer }
-    SEARCH_ATTRIBUTES = { start_date: :product_view_from, end_date: :product_view_till }
-    SORTABLE_ATTRIBUTES = [:product_name, :views, :purchases]
-
-    def initialize(options)
-      super
-      set_sortable_attributes(options, DEFAULT_SORTABLE_ATTRIBUTE)
-    end
-
-    def paginated?
-      false
-    end
+    HEADERS                    = { product_name: :string, views: :integer, purchases: :integer, purchase_to_view_ratio: :integer }
+    SEARCH_ATTRIBUTES          = { start_date: :product_view_from, end_date: :product_view_till }
+    SORTABLE_ATTRIBUTES        = [:product_name, :views, :purchases]
 
     class Result < Spree::Report::Result
       class Observation < Spree::Report::Observation
         observation_fields [:product_name, :product_slug, :views, :purchases, :purchase_to_view_ratio]
 
-        def purchase_to_view_ratio
-          # This is inconsistent across postgres and mysql
-          purchases.to_f / views.to_f
+        def purchase_to_view_ratio # This is inconsistent across postgres and mysql
+          (purchases.to_f / views.to_f).round(2)
         end
       end
     end
 
-    def deeplink_properties
-      {
-        deeplinked: true,
-        product_name: { template: %Q{<a href="/admin/products/{%# o.product_slug %}" target="_blank">{%# o.product_name %}</a>} }
-      }
-    end
+    deeplink product_name: { template: %Q{<a href="/admin/products/{%# o.product_slug %}" target="_blank">{%# o.product_name %}</a>} }
 
     def report_query
       page_events_ar         = Arel::Table.new(:spree_page_events)
@@ -41,7 +26,8 @@ module Spree
         .on(page_events_ar[:target_id].eq(purchase_line_items_ar[:product_id]))
         .where(page_events_ar[:target_type].eq(Arel::Nodes::Quoted.new('Spree::Product')))
         .where(page_events_ar[:activity].eq(Arel::Nodes::Quoted.new('view')))
-        .group(purchase_line_items_ar[:product_id], purchase_line_items_ar[:product_name], purchase_line_items_ar[:product_slug], purchase_line_items_ar[:purchases])
+        .group(purchase_line_items_ar[:product_id], purchase_line_items_ar[:product_name],
+               purchase_line_items_ar[:product_slug], purchase_line_items_ar[:purchases])
         .project(
           'product_name',
           'product_slug',
@@ -50,18 +36,18 @@ module Spree
         )
     end
 
-    def purchase_line_items
+    private def purchase_line_items
       Spree::LineItem
         .joins(:order)
         .joins(:variant)
         .joins(:product)
-        .where(spree_orders: { state: 'complete', created_at: @start_date..@end_date })
+        .where(spree_orders: { state: 'complete', created_at: reporting_period })
         .group('spree_products.id', 'spree_products.name')
         .select(
-          'SUM(quantity) as purchases',
-          'spree_products.name as product_name',
-          'spree_products.slug as product_slug',
-          'spree_products.id as product_id'
+          'SUM(quantity)        as purchases',
+          'spree_products.name  as product_name',
+          'spree_products.slug  as product_slug',
+          'spree_products.id    as product_id'
         )
     end
   end

@@ -1,25 +1,16 @@
 module Spree
   class PaymentMethodTransactionsReport < Spree::Report
     DEFAULT_SORTABLE_ATTRIBUTE = :payment_method_name
-    HEADERS = { payment_method_name: :string, payment_amount: :integer }
-    SEARCH_ATTRIBUTES = { start_date: :payments_created_from, end_date: :payments_created_till }
-    SORTABLE_ATTRIBUTES = []
-
-    def initialize(options)
-      super
-      @time_scale_on = 'spree_payments'
-    end
-
-    def paginated?
-      false
-    end
+    HEADERS                    = { payment_method_name: :string, payment_amount: :integer }
+    SEARCH_ATTRIBUTES          = { start_date: :payments_created_from, end_date: :payments_created_till }
+    SORTABLE_ATTRIBUTES        = []
 
     class Result < Spree::Report::TimedResult
       charts PaymentMethodRevenueDistributionChart
 
       def build_empty_observations
-        @_payment_methods = @results.collect { |result| result['payment_method_name'] }.uniq
         super
+        @_payment_methods = @results.collect { |result| result['payment_method_name'] }.uniq
         @observations = @_payment_methods.collect do |payment_method_name|
           @observations.collect do |observation|
             _d_observation = observation.dup
@@ -40,21 +31,10 @@ module Spree
         def payment_amount
           @payment_amount.to_f
         end
-
       end
     end
 
     def report_query
-      payments =
-        Spree::PaymentMethod
-          .joins(:payments)
-          .where(spree_payments: { created_at: @start_date..@end_date })
-          .select(
-            'spree_payment_methods.name as payment_method_name',
-            'spree_payments.amount as payment_amount',
-            *time_scale_selects(@time_scale_on)
-          )
-
       Spree::Report::QueryFragments
         .from_subquery(payments)
         .group(*time_scale_columns_to_s, 'payment_method_name')
@@ -66,5 +46,15 @@ module Spree
         )
     end
 
+    private def payments
+      Spree::PaymentMethod
+        .joins(:payments)
+        .where(spree_payments: { created_at: reporting_period })
+        .select(
+          *time_scale_selects('spree_payments'),
+          'spree_payment_methods.name  as payment_method_name',
+          'spree_payments.amount       as payment_amount',
+        )
+    end
   end
 end

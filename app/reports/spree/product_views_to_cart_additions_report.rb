@@ -1,25 +1,11 @@
 module Spree
   class ProductViewsToCartAdditionsReport < Spree::Report
     DEFAULT_SORTABLE_ATTRIBUTE = :product_name
-    HEADERS = { product_name: :string, views: :integer, cart_additions: :integer, cart_to_view_ratio: :string }
-    SEARCH_ATTRIBUTES = { start_date: :product_view_from, end_date: :product_view_till }
-    SORTABLE_ATTRIBUTES = [:product_name, :views, :cart_additions]
+    HEADERS                    = { product_name: :string, views: :integer, cart_additions: :integer, cart_to_view_ratio: :string }
+    SEARCH_ATTRIBUTES          = { start_date: :product_view_from, end_date: :product_view_till }
+    SORTABLE_ATTRIBUTES        = [:product_name, :views, :cart_additions]
 
-    def initialize(options)
-      super
-      set_sortable_attributes(options, DEFAULT_SORTABLE_ATTRIBUTE)
-    end
-
-    def deeplink_properties
-      {
-        deeplinked: true,
-        product_name: { template: %Q{<a href="/admin/products/{%# o.product_slug %}" target="_blank">{%# o.product_name %}</a>} }
-      }
-    end
-
-    def paginated?
-      false
-    end
+    deeplink product_name: { template: %Q{<a href="/admin/products/{%# o.product_slug %}" target="_blank">{%# o.product_name %}</a>} }
 
     class Result < Spree::Report::Result
       class Observation < Spree::Report::Observation
@@ -33,20 +19,20 @@ module Spree
           .added
           .joins(:variant)
           .joins(:product)
-          .where(created_at: @start_date..@end_date)
+          .where(created_at: reporting_period)
           .group('spree_products.name', 'spree_products.slug')
           .select(
-            'spree_products.name as product_name',
-            'spree_products.slug as product_slug',
-            'SUM(spree_cart_events.quantity) as cart_additions'
+            'spree_products.name              as product_name',
+            'spree_products.slug              as product_slug',
+            'SUM(spree_cart_events.quantity)  as cart_additions'
           )
       total_views =
         Spree::Product
           .joins(:page_view_events)
           .group(:name)
           .select(
-            'spree_products.name as product_name',
-            'COUNT(*) as views'
+            'spree_products.name  as product_name',
+            'COUNT(*)             as views'
           )
 
       Spree::Report::QueryFragments

@@ -1,28 +1,32 @@
 module Spree
   class Report
 
-    attr_accessor :sortable_attribute, :sortable_type
-    alias_method :sort_direction, :sortable_type
+    attr_accessor :sortable_attribute, :sortable_type, :total_records,
+                  :records_per_page, :current_page, :paginate, :search, :reporting_period
+    alias_method  :sort_direction, :sortable_type
+    alias_method  :paginate?, :paginate
+
 
     TIME_SCALES = [:hourly, :daily, :monthly, :yearly]
 
     def paginated?
-      true
+      false
     end
 
     def no_pagination?
       !paginated?
     end
 
-    def arel?
-      false
-    end
-
     def deeplink_properties
       {
-        deeplinked: false,
-        base_url: ''
+        deeplinked: false
       }
+    end
+
+    def self.deeplink(template_for_headers = {})
+      define_method :deeplink_properties do
+        { deeplinked: true }.merge(template_for_headers)
+      end
     end
 
     def generate(options = {})
@@ -34,17 +38,17 @@ module Spree
       end
     end
 
-    attr_accessor :total_records, :records_per_page, :current_page, :paginate
-    alias_method :paginate?, :paginate
 
     def initialize(options)
-      @search = options.fetch(:search, {})
+      self.search = options.fetch(:search, {})
       self.records_per_page = options[:records_per_page]
       self.current_page = options[:offset]
       self.paginate = options[:no_pagination].present? ? (options[:no_pagination].downcase == "true") : false
       extract_reporting_period
       determine_report_time_scale
-      set_sortable_attributes(options, self.class::DEFAULT_SORTABLE_ATTRIBUTE) if self.class::SORTABLE_ATTRIBUTES.present?
+      if self.class::SORTABLE_ATTRIBUTES.present?
+        set_sortable_attributes(options, self.class::DEFAULT_SORTABLE_ATTRIBUTE)
+      end
     end
 
     def header_sorted?(header)
@@ -71,6 +75,10 @@ module Spree
 
     def active_record_sort
       "#{ sortable_attribute } #{ sortable_type }"
+    end
+
+    def total_records
+      ActiveRecord::Base.connection.select_value(record_count_query.to_sql)
     end
 
     def total_pages
@@ -102,6 +110,7 @@ module Spree
       @start_date = start_date.present? ? Date.parse(start_date) :  Date.new(Date.current.year)
       end_date = @search[:end_date]
       @end_date = (end_date.present? ? Date.parse(end_date).next_day : Date.current.end_of_year)
+      self.reporting_period = @start_date..@end_date
     end
 
     private def determine_report_time_scale

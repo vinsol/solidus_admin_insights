@@ -1,19 +1,15 @@
 module Spree
   class SalesTaxReport < Spree::Report
-    HEADERS = { zone_name: :string, sales_tax: :integer }
-    SEARCH_ATTRIBUTES = { start_date: :taxation_from, end_date: :taxation_till }
+    HEADERS             = { zone_name: :string, sales_tax: :integer }
+    SEARCH_ATTRIBUTES   = { start_date: :taxation_from, end_date: :taxation_till }
     SORTABLE_ATTRIBUTES = []
-
-    def paginated?
-      false
-    end
 
     class Result < Spree::Report::TimedResult
       charts MonthlySalesTaxComparisonChart
 
       def build_empty_observations
-        @_zones = @results.collect { |r| r['zone_name'] }.uniq
         super
+        @_zones = @results.collect { |r| r['zone_name'] }.uniq
         @observations = @_zones.collect do |zone|
           @observations.collect do |observation|
             _d_observation = observation.dup
@@ -39,26 +35,28 @@ module Spree
 
 
     def report_query
-      adjustments =
-        Spree::TaxRate
-          .joins(:adjustments)
-          .joins(:zone)
-          .where(spree_adjustments: { adjustable_type: 'Spree::LineItem' } )
-          .where(spree_adjustments: { created_at: @start_date..@end_date })
-          .select(
-            'spree_adjustments.amount as sales_tax',
-            'spree_zones.id as zone_id',
-            'spree_zones.name as zone_name',
-            *time_scale_selects('spree_adjustments')
-          )
       Spree::Report::QueryFragments
-        .from_subquery(adjustments)
+        .from_subquery(tax_adjustments)
         .group(*time_scale_columns_to_s, 'zone_name')
         .order(*time_scale_columns)
         .project(
           'zone_name',
           *time_scale_columns,
           'SUM(sales_tax) as sales_tax'
+        )
+    end
+
+    private def tax_adjustments
+      Spree::TaxRate
+        .joins(:adjustments)
+        .joins(:zone)
+        .where(spree_adjustments: { adjustable_type: 'Spree::LineItem' } )
+        .where(spree_adjustments: { created_at: reporting_period })
+        .select(
+          'spree_adjustments.amount  as sales_tax',
+          'spree_zones.id            as zone_id',
+          'spree_zones.name          as zone_name',
+          *time_scale_selects('spree_adjustments')
         )
     end
 

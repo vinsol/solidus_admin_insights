@@ -1,9 +1,13 @@
 module Spree
   class UsersNotConvertedReport < Spree::Report
     DEFAULT_SORTABLE_ATTRIBUTE = :user_email
-    HEADERS = { user_email: :string, signup_date: :date }
-    SEARCH_ATTRIBUTES = { start_date: :users_created_from, end_date: :users_created_till, email_cont: :email }
-    SORTABLE_ATTRIBUTES = [:user_email, :signup_date]
+    HEADERS                    = { user_email: :string, signup_date: :date }
+    SEARCH_ATTRIBUTES          = { start_date: :users_created_from, end_date: :users_created_till, email_cont: :email }
+    SORTABLE_ATTRIBUTES        = [:user_email, :signup_date]
+
+    def paginated?
+      true
+    end
 
     class Result < Spree::Report::Result
       class Observation < Spree::Report::Observation
@@ -15,26 +19,29 @@ module Spree
       end
     end
 
-    def initialize(options)
-      super
-      @sortable_type = :desc if options[:sort].blank?
-      @email_cont = @search[:email_cont].present? ? "%#{ @search[:email_cont] }%" : '%'
+    def paginated_report_query
+      report_query
+        .limit(records_per_page)
+        .offset(current_page)
     end
 
-    def paginated?
-      false
+    def record_count_query
+      Spree::Report::QueryFragments.from_subquery(report_query).project(Arel.star.count)
     end
 
     def report_query
       Spree::User
-        .where(created_at: @start_date..@end_date)
-        .where(Spree::User.arel_table[:email].matches("%#{ @email_cont }%"))
+        .where(created_at: reporting_period)
+        .where(Spree::User.arel_table[:email].matches(email_search))
         .left_joins(:spree_orders)
         .where(spree_orders: { completed_at: nil, number: nil })
-        .select("spree_users.email as  user_email", "spree_users.created_at as signup_date")
-        .limit(records_per_page)
-        .offset(current_page)
-        .order(sortable_attribute) # Missing order direction
+        .select(
+          "spree_users.email       as  user_email",
+          "spree_users.created_at  as signup_date")
+    end
+
+    private def email_search
+      search[:email_cont].present? ? "%#{ search[:email_cont] }%" : '%'
     end
 
   end

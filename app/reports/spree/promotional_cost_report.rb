@@ -1,26 +1,16 @@
 module Spree
   class PromotionalCostReport < Spree::Report
     DEFAULT_SORTABLE_ATTRIBUTE = :promotion_name
-    HEADERS = { promotion_name: :string, usage_count: :integer, promotion_discount: :integer, promotion_code: :string, promotion_start_date: :date, promotion_end_date: :date }
-    SEARCH_ATTRIBUTES = { start_date: :promotion_created_from, end_date: :promotion_created_till }
-    SORTABLE_ATTRIBUTES = [:promotion_name, :usage_count, :promotion_discount, :promotion_code, :promotion_start_date, :promotion_end_date]
-
-    def paginated?
-      false
-    end
-
-    def initialize(options)
-      super
-      set_sortable_attributes(options, DEFAULT_SORTABLE_ATTRIBUTE)
-      @time_scale_on = 'spree_adjustments'
-    end
+    HEADERS                    = { promotion_name: :string, usage_count: :integer, promotion_discount: :integer, promotion_code: :string, promotion_start_date: :date, promotion_end_date: :date }
+    SEARCH_ATTRIBUTES          = { start_date: :promotion_created_from, end_date: :promotion_created_till }
+    SORTABLE_ATTRIBUTES        = [:promotion_name, :usage_count, :promotion_discount, :promotion_code, :promotion_start_date, :promotion_end_date]
 
     class Result < Spree::Report::TimedResult
       charts PromotionalCostChart, UsageCountChart
 
       def build_empty_observations
-        @_promotions = @results.collect { |result| result['promotion_name'] }.uniq
         super
+        @_promotions = @results.collect { |result| result['promotion_name'] }.uniq
         @observations = @_promotions.collect do |promotion_name|
           @observations.collect do |observation|
             _d_observation = observation.dup
@@ -57,36 +47,37 @@ module Spree
     end
 
     def report_query
-      eligible_promotions =
-        Spree::PromotionAction
-          .joins(:promotion)
-          .joins(:adjustment)
-          .where(spree_adjustments: { created_at: @start_date..@end_date })
-          .select(
-            'spree_promotions.starts_at as promotion_start_date',
-            'spree_promotions.expires_at as promotion_end_date',
-            'spree_adjustments.amount as promotion_discount',
-            'spree_promotions.id as promotion_id',
-            'spree_promotions.name as promotion_name',
-            'spree_promotions.code as promotion_code',
-            *time_scale_selects('spree_adjustments')
-          )
+      Spree::Report::QueryFragments
+        .from_subquery(eligible_promotions)
+        .group(*time_scale_columns, :promotion_id, :promotion_name,
+               :promotion_code, :promotion_start_date, :promotion_end_date)
+        .order(*time_scale_columns_to_s)
+        .project(
+          *time_scale_columns,
+          'promotion_name',
+          'promotion_code',
+          'promotion_start_date',
+          'promotion_end_date',
+          'SUM(promotion_discount)  as promotion_discount',
+          'COUNT(promotion_id)      as usage_count',
+          'promotion_id'
+        )
+    end
 
-      grouped_usage =
-        Spree::Report::QueryFragments
-          .from_subquery(eligible_promotions)
-          .group(*time_scale_columns, :promotion_id, :promotion_name, :promotion_code, :promotion_start_date, :promotion_end_date)
-          .order(*time_scale_columns_to_s)
-          .project(
-            *time_scale_columns,
-            'promotion_name',
-            'promotion_code',
-            'promotion_start_date',
-            'promotion_end_date',
-            'SUM(promotion_discount) as promotion_discount',
-            'COUNT(promotion_id) as usage_count',
-            'promotion_id'
-          )
+    private def eligible_promotions
+      Spree::PromotionAction
+        .joins(:promotion)
+        .joins(:adjustment)
+        .where(spree_adjustments: { created_at: reporting_period })
+        .select(
+          'spree_promotions.starts_at   as promotion_start_date',
+          'spree_promotions.expires_at  as promotion_end_date',
+          'spree_adjustments.amount     as promotion_discount',
+          'spree_promotions.id          as promotion_id',
+          'spree_promotions.name        as promotion_name',
+          'spree_promotions.code        as promotion_code',
+          *time_scale_selects('spree_adjustments')
+        )
     end
 
   end

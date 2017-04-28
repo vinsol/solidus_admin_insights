@@ -23,7 +23,8 @@ module Spree
         end
 
         def profit_loss_percent
-          @profit_loss_percent.to_f
+          return (profit_loss * 100 / cost_price).round(2) unless cost_price.zero?
+          0.0
         end
 
         def promotion_discount
@@ -43,7 +44,6 @@ module Spree
           'SUM(sale_price) as sale_price',
           'SUM(cost_price) as cost_price',
           'SUM(profit_loss) as profit_loss',
-          'ROUND((SUM(profit_loss) / SUM(cost_price)) * 100, 2) as profit_loss_percent',
           'SUM(promotion_discount) as promotion_discount'
         )
     end
@@ -58,7 +58,6 @@ module Spree
           '0 as sale_price',
           '0 as cost_price',
           'SUM(promotion_discount) * -1 as profit_loss',
-          '0 as profit_loss_percent',
           'SUM(promotion_discount) as promotion_discount'
         )
     end
@@ -85,7 +84,6 @@ module Spree
           Spree::Report::QueryFragments.if_null(Spree::Report::QueryFragments.sum(order_with_line_items_ar[:sale_price]), zero).as('sale_price'),
           Spree::Report::QueryFragments.if_null(Spree::Report::QueryFragments.sum(order_with_line_items_ar[:cost_price]), zero).as('cost_price'),
           Spree::Report::QueryFragments.if_null(Spree::Report::QueryFragments.sum(order_with_line_items_ar[:profit_loss]), zero).as('profit_loss'),
-          "((#{ Spree::Report::QueryFragments.if_null(Spree::Report::QueryFragments.sum(order_with_line_items_ar[:profit_loss]), zero).to_sql } / SUM(cost_price)) * 100) as profit_loss_percent",
           '0 as promotion_discount'
         )
     end

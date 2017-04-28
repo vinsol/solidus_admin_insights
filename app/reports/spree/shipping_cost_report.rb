@@ -30,7 +30,7 @@ module Spree
         end
 
         def shipping_cost_percentage
-          @shipping_cost_percentage.to_f
+          ((@shipping_charge.to_f * 100) / @revenue.to_f).round(2)
         end
       end
     end
@@ -49,8 +49,7 @@ module Spree
           'revenue',
           'shipping_charge',
           'shipping_method_id',
-          'name',
-          'ROUND((shipping_charge/revenue) * 100, 2) as shipping_cost_percentage'
+          'name'
         )
     end
 

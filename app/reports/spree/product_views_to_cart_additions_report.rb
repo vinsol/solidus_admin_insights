@@ -10,6 +10,10 @@ module Spree
     class Result < Spree::Report::Result
       class Observation < Spree::Report::Observation
         observation_fields [:product_name, :product_slug, :views, :cart_additions, :cart_to_view_ratio]
+
+        def cart_to_view_ratio
+          (cart_additions.to_f / views.to_f).round(2)
+        end
       end
     end
 
@@ -41,8 +45,7 @@ module Spree
           'q1.product_name',
           'q1.product_slug',
           'q2.views',
-          'q1.cart_additions',
-          'ROUND(cart_additions/views, 2) as cart_to_view_ratio'
+          'q1.cart_additions'
         )
     end
 

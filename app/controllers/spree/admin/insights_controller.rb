@@ -22,19 +22,19 @@ module Spree
       end
 
       def download
-        report = ReportGenerationService.generate_report(@report_name, params.merge(@pagination_hash))
+        @report = ReportGenerationService.generate_report(@report_name, params.merge(@pagination_hash))
 
         respond_to do |format|
           format.csv do
-            send_data ReportGenerationService.download(report),
+            send_data ReportGenerationService.download(@report),
               filename: "#{ @report_name.to_s }.csv"
           end
           format.xls do
-            send_data ReportGenerationService.download(report, { col_sep: "\t" }),
+            send_data ReportGenerationService.download(@report, { col_sep: "\t" }),
               filename: "#{ @report_name.to_s }.xls"
           end
           format.text do
-            send_data ReportGenerationService.download(report),
+            send_data ReportGenerationService.download(@report),
               filename: "#{ @report_name.to_s }.txt"
           end
           format.pdf do

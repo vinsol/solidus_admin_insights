@@ -10,16 +10,16 @@
 <table class="table table-bordered" id="admin-insight" data-hook>
   <thead>
     <tr>
-      <% @headers.each do |_header_| %>
+      <% @report.headers.each do |_header_| %>
         <th><%= Spree.t(_header_[:value], scope: [:insight, @report_name], default: _header_[:name]) %></th>
       <% end %>
     </tr>
   </thead>
   <tbody>
-    <% @stats.each do |stat| %>
+    <% @report.observations.each do |stat| %>
       <tr>
-        <% @headers.each do |head|%>
-          <td><%= stat[head[:value]] %></td>
+        <% @report.headers.each do |head|%>
+          <td><%= stat.public_send(head[:value]) %></td>
         <% end %>
       </tr>
     <% end %>

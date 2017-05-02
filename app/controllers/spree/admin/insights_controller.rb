@@ -2,6 +2,7 @@ module Spree
   module Admin
     class InsightsController < Spree::Admin::BaseController
       before_action :ensure_report_exists, :set_default_pagination, only: [:show, :download]
+      before_action :set_reporting_period, only: [:index, :show, :download]
       before_action :load_reports, only: [:index, :show]
 
       def index
@@ -74,6 +75,19 @@ module Spree
             session[:report_category].try(:to_sym) || ReportGenerationService.default_report_type
           end
           session[:report_category] = params[:type]
+        end
+
+        def set_reporting_period
+          if params[:search].present?
+            params[:search][:start_date] = params[:search][:start_date].presence || session[:search_start_date]
+            params[:search][:end_date] = params[:search][:end_date].presence || session[:search_end_date]
+          else
+            params[:search] = {}
+            params[:search][:start_date] = session[:search_start_date]
+            params[:search][:end_date] = session[:search_end_date]
+          end
+          session[:search_start_date] = params[:search][:start_date]
+          session[:search_end_date] = params[:search][:end_date]
         end
 
         def set_default_pagination

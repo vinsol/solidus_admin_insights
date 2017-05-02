@@ -32,7 +32,7 @@ module Spree
           deeplink:            report.deeplink_properties,
           total_pages:         report.total_pages,
           per_page:            report.records_per_page,
-          pagination_required: report.paginated?,
+          pagination_required: report.pagination_required?,
           headers:             headers,
           search_attributes:   search_attributes,
           stats:               observations.collect(&:to_h),
@@ -61,7 +61,7 @@ module Spree
       end
 
       def total_pages # O indexed
-        if report.paginated?
+        if report.pagination_required?
           total_pages = report.total_records / report.records_per_page
           if report.total_records % report.records_per_page == 0
             total_pages -= 1

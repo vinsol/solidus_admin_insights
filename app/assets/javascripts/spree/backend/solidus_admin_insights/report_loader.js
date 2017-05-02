@@ -114,9 +114,9 @@ ReportLoader.prototype.toggleDownloadLinks = function(event, element) {
 ReportLoader.prototype.resetFilters = function(event) {
   event.preventDefault();
   var $element = $(event.target),
-      noPagination = this.removePaginationButton.closest('span').hasClass('hide');
-  $element.attr('href', this.perPageSelector.data('url') + '&no_pagination=' + noPagination);
-  $element.data('url', this.perPageSelector.data('url') + '&no_pagination=' + noPagination);
+      paginate = this.removePaginationButton.closest('span').hasClass('hide');
+  $element.attr('href', this.perPageSelector.data('url') + '&paginate=' + paginate);
+  $element.data('url', this.perPageSelector.data('url') + '&paginate=' + paginate);
   this.loadChart($element);
 };
 
@@ -156,7 +156,8 @@ ReportLoader.prototype.fetchChartData = function(url, $selectedOption) {
       (_this.isStatePushable ? _this.populateInsightsData(data) : _this.populateInsightsDataWithoutState(data))
       if(data.headers != undefined) {
         _this.tableHelpers.removeClass('hide');
-        if(data.pagination_required == false) {
+
+        if(!data.pagination_required) {
           _this.pageSelector.addClass('hide');
           $.each(_this.pageHelpers.find('.col-md-2'), function(index, object) {
             $(object).removeClass('col-md-2').addClass('col-md-3');
@@ -218,7 +219,7 @@ ReportLoader.prototype.populateInsightsData = function(data) {
 ReportLoader.prototype.setDownloadLinksPath = function($selectedOption) {
   var _this = this;
   $.each(this.downloadLinks, function() {
-    $(this).attr('href', $(this).data('url') + '?id=' + _this.$selectList.val() + '&no_pagination=true');
+    $(this).attr('href', $(this).data('url') + '?id=' + _this.$selectList.val() + '&paginate=false');
   });
 };
 

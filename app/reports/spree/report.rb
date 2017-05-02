@@ -13,8 +13,8 @@ module Spree
       false
     end
 
-    def no_pagination?
-      !paginated?
+    def pagination_required?
+      paginated? && paginate?
     end
 
     def deeplink_properties
@@ -43,7 +43,7 @@ module Spree
       self.search = options.fetch(:search, {})
       self.records_per_page = options[:records_per_page]
       self.current_page = options[:offset]
-      self.paginate = options[:no_pagination].present? ? (options[:no_pagination].downcase == "true") : false
+      self.paginate = options[:paginate]
       extract_reporting_period
       determine_report_time_scale
       if self.class::SORTABLE_ATTRIBUTES.present?
@@ -57,7 +57,7 @@ module Spree
 
     def get_results
       query =
-        if paginated?
+        if pagination_required?
           paginated_report_query
         else
           report_query
@@ -82,7 +82,7 @@ module Spree
     end
 
     def total_pages
-      if paginated?
+      if pagination_required?
         total_pages = total_records / records_per_page
         total_pages -= 1 if total_records % records_per_page == 0
         total_pages

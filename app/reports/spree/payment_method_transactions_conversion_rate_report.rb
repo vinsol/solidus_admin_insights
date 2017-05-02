@@ -12,11 +12,19 @@ module Spree
         super
         @_payment_methods = @results.collect { |result| result['payment_method_name'] }.uniq
         @observations = @_payment_methods.collect do |payment_method_name|
-          @observations.collect do |observation|
-            _d_observation = observation.dup
-            _d_observation.payment_method_name =  payment_method_name
-            _d_observation.count = 0
-            _d_observation
+          payment_states = @results
+                             .select  { |result| result['payment_method_name'] == payment_method_name }
+                             .collect { |result| result['payment_state'] }
+                             .uniq
+
+          payment_states.collect do |state|
+            @observations.collect do |observation|
+              _d_observation = observation.dup
+              _d_observation.payment_method_name =  payment_method_name
+              _d_observation.payment_state = state
+              _d_observation.count = 0
+              _d_observation
+            end
           end
         end.flatten
       end
@@ -26,14 +34,14 @@ module Spree
 
         def payment_state
           if @payment_state == 'pending'
-            'pending'
+            @payment_state
           else
             "capturing #{ @payment_state }"
           end
         end
 
         def describes?(result, time_scale)
-          (result['payment_method_name'] == payment_method_name) && super
+          (result['payment_method_name'] == payment_method_name && result['payment_state'] == @payment_state) && super
         end
       end
     end

@@ -168,7 +168,7 @@ ReportLoader.prototype.fetchChartData = function(url, $selectedOption) {
             $(object).removeClass('col-md-3').addClass('col-md-2');
           });
         }
-        _this.perPageSelector.data('url', data['request_path'] + '?type=' + data['report_type']);
+        _this.perPageSelector.data('url', data['request_path'] + '?report_category=' + data['report_category']);
         _this.setDownloadLinksPath();
         _this.searcherObject.refreshSearcher($selectedOption, data);
         _this.paginatorObject.refreshPaginator(data);

@@ -1,7 +1,10 @@
 module Spree
   class ReportGenerationService
 
-    REPORTS = DEFAULT_ADMIN_INSIGHT_REPORTS
+    class << self
+      delegate :reports, :report_exists?, :reports_for_category, :default_report_category, to: :configuration
+      delegate :configuration, to: SolidusAdminInsights::Config
+    end
 
     def self.generate_report(report_name, options)
       klass = Spree.const_get((report_name.to_s + '_report').classify)
@@ -18,26 +21,6 @@ module Spree
           csv << headers.map { |head| record.public_send(head[:value]) }
         end
       end
-    end
-
-    def self.report_exists?(type, name)
-      REPORTS.key?(type) && REPORTS[type].include?(name)
-    end
-
-    def self.reports_for_type(type)
-      REPORTS[type]
-    end
-
-    def self.default_report_type
-      REPORTS.keys.first
-    end
-
-    def self.register_report_category(category)
-      REPORTS[category] = []
-    end
-
-    def self.register_report(category, report_name)
-      REPORTS[category] << report_name
     end
 
   end

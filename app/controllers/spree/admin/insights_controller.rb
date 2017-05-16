@@ -49,32 +49,32 @@ module Spree
       private
         def ensure_report_exists
           @report_name = params[:id].to_sym
-          unless ReportGenerationService.report_exists?(get_reports_type, @report_name)
+          unless ReportGenerationService.report_exists?(get_report_category, @report_name)
             redirect_to admin_insights_path, alert: Spree.t(:not_found, scope: [:reports])
           end
         end
 
         def load_reports
-          @reports = ReportGenerationService.reports_for_type(get_reports_type)
+          @reports = ReportGenerationService.reports_for_category(get_report_category)
         end
 
         def shared_data
           {
             current_page:      params[:page] || 0,
-            report_type:       params[:type],
+            report_category:   params[:report_category],
             request_path:      request.path,
             url:               request.url,
             searched_fields:   params[:search],
           }
         end
 
-        def get_reports_type
-          params[:type] = if params[:type]
-            params[:type].to_sym
+        def get_report_category
+          params[:report_category] = if params[:report_category]
+            params[:report_category].to_sym
           else
-            session[:report_category].try(:to_sym) || ReportGenerationService.default_report_type
+            session[:report_category].try(:to_sym) || ReportGenerationService.default_report_category
           end
-          session[:report_category] = params[:type]
+          session[:report_category] = params[:report_category]
         end
 
         def set_reporting_period

@@ -1,8 +1,13 @@
 module SolidusAdminInsights
   module Generators
     class InstallGenerator < Rails::Generators::Base
-
+      source_root(File.expand_path(File.dirname(__FILE__)))
       class_option :auto_run_migrations, :type => :boolean, :default => false
+
+      def copy_initializer
+        copy_file 'solidus_admin_insights.rb', 'config/initializers/solidus_admin_insights.rb'
+      end
+
 
       def add_javascripts
         append_file 'vendor/assets/javascripts/spree/frontend/all.js', "//= require spree/frontend/solidus_admin_insights\n"

@@ -1,4 +1,4 @@
-REPORT_TABS = [:insights, *Spree::ReportGenerationService::REPORTS.keys.collect(&:to_sym)]
+REPORT_TABS = [:insights, *Spree::ReportGenerationService.reports.keys.collect(&:to_sym)]
 
 Spree::Backend::Config.configure do |config|
   config.menu_items << config.class::MenuItem.new(

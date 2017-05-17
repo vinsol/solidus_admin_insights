@@ -1,7 +1,7 @@
 Gem::Specification.new do |s|
   s.platform    = Gem::Platform::RUBY
   s.name        = 'solidus_admin_insights'
-  s.version     = '2.1.0'
+  s.version     = '2.1.1'
   s.summary     = "Dashboard for querying and viewing you solidus store's metrics"
   s.description = 'Add (optional) gem description here'
   s.required_ruby_version = '>= 2.1.0'

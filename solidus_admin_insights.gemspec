@@ -1,14 +1,14 @@
 Gem::Specification.new do |s|
   s.platform    = Gem::Platform::RUBY
   s.name        = 'solidus_admin_insights'
-  s.version     = '3.0.7'
-  s.summary     = 'Add gem summary here'
+  s.version     = '2.1.0'
+  s.summary     = "Dashboard for querying and viewing you solidus store's metrics"
   s.description = 'Add (optional) gem description here'
   s.required_ruby_version = '>= 2.1.0'
 
-  s.author    = 'You'
-  s.email     = 'you@example.com'
-  # s.homepage  = 'http://www.spreecommerce.com'
+  s.author    =  ["Nimish Mehta", "Tanmay Sinha", "Nimish Gupta", "+ Vinsol Team"]
+  s.email     = 'info@vinsol.com'
+  s.homepage  = 'http://vinsol.com'
 
   s.files       = `git ls-files`.split("\n")
   s.test_files  = `git ls-files -- {test,spec,features}/*`.split("\n")
@@ -18,6 +18,7 @@ Gem::Specification.new do |s|
   solidus_version = '~> 2.1'
 
   s.add_dependency 'solidus_core', solidus_version
+  s.add_dependency 'solidus_events_tracker', '~> 2.1'
 
   s.add_development_dependency 'shoulda-matchers', '~> 2.6.2'
   s.add_development_dependency 'rspec-activemodel-mocks'

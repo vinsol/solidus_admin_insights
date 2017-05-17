@@ -17,6 +17,7 @@ Bundle your dependencies and run the installation generator:
 ```shell
 bundle
 bundle exec rails g solidus_admin_insights:install
+bundle exec rails g solidus_events_tracker:install
 ```
 
 Adding new reports

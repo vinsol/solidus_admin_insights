@@ -18,7 +18,7 @@ Gem::Specification.new do |s|
   solidus_version = '~> 2.1'
 
   s.add_dependency 'solidus_core', solidus_version
-  s.add_dependency 'solidus_events_tracker', '~> 2.1'
+  s.add_dependency 'solidus_events_tracker', '>= 2.1.1'
 
   s.add_development_dependency 'shoulda-matchers', '~> 2.6.2'
   s.add_development_dependency 'rspec-activemodel-mocks'

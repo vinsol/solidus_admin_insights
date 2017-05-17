@@ -91,7 +91,7 @@ Paginator.prototype.removePagination = function(currentElement) {
       sorted_attributes = this.tableSorter.fetchSortedAttribute(),
       attribute = sorted_attributes[0],
       sortOrder = sorted_attributes[1],
-      requestUrl = $element.data('url') + '&sort%5Battribute%5D=' + attribute + '&sort%5Btype%5D=' + sortOrder + '&' + $('#filter-search').serialize() + '&no_pagination=true';
+      requestUrl = $element.data('url') + '&sort%5Battribute%5D=' + attribute + '&sort%5Btype%5D=' + sortOrder + '&' + $('#filter-search').serialize() + '&paginate=false';
   $(currentElement).attr('href', requestUrl);
   _this.reportLoader.requestUrl = requestUrl;
   $element.val('');

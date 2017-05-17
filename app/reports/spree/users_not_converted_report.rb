@@ -1,29 +1,48 @@
 module Spree
   class UsersNotConvertedReport < Spree::Report
-    DEFAULT_SORTABLE_ATTRIBUTE = :orders__completed_at
-    HEADERS = { user_email: :string, signup_date: :date }
-    SEARCH_ATTRIBUTES = { start_date: :users_created_from, end_date: :users_created_till, email_cont: :email }
-    SORTABLE_ATTRIBUTES = [:user_email, :signup_date]
+    DEFAULT_SORTABLE_ATTRIBUTE = :user_email
+    HEADERS                    = { user_email: :string, signup_date: :date }
+    SEARCH_ATTRIBUTES          = { start_date: :users_created_from, end_date: :users_created_till, email_cont: :email }
+    SORTABLE_ATTRIBUTES        = [:user_email, :signup_date]
 
-    def initialize(options)
-      super
-      @sortable_type = :desc if options[:sort].blank?
-      @email_cont = @search[:email_cont].present? ? "%#{ @search[:email_cont] }%" : '%'
+    def paginated?
+      true
     end
 
-    def generate(options = {})
-      SolidusAdminInsights::ReportDb[:spree_users___users].
-      left_join(:spree_orders___orders, user_id: :id).
-      where(orders__completed_at: nil, orders__number: nil).
-      where(users__created_at: @start_date..@end_date).where(Sequel.ilike(:users__email, @email_cont)). #filter by params
-      order(sortable_sequel_expression)
+    class Result < Spree::Report::Result
+      class Observation < Spree::Report::Observation
+        observation_fields [:user_email, :signup_date]
+
+        def signup_date
+          @signup_date.to_date.strftime("%B %d, %Y")
+        end
+      end
     end
 
-    def select_columns(dataset)
-      dataset.select{[
-        users__email.as(user_email),
-        users__created_at.as(signup_date)
-      ]}
+    def paginated_report_query
+      report_query
+        .limit(records_per_page)
+        .offset(current_page)
     end
+
+    def record_count_query
+      Spree::Report::QueryFragments.from_subquery(report_query).project(Arel.star.count)
+    end
+
+    def report_query
+      Spree::User
+        .where(created_at: reporting_period)
+        .where(Spree::User.arel_table[:email].matches(email_search))
+        .left_joins(:spree_orders)
+        .where(spree_orders: { completed_at: nil, number: nil })
+        .select(
+          "spree_users.email       as  user_email",
+          "spree_users.created_at  as signup_date")
+    end
+
+    private def email_search
+      search[:email_cont].present? ? "%#{ search[:email_cont] }%" : '%'
+    end
+
   end
 end

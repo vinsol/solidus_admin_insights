@@ -5,6 +5,7 @@
 function ReportLoader(inputs) {
   this.$selectList = inputs.reportsSelectBox;
   this.$insightsTableList = inputs.insightsDiv;
+  this.$narrowDownData = inputs.narrowDownData;
   this.tableHelpers = inputs.tableHelpers;
   this.pageSelector = inputs.tableHelpers.find('#page-selector');
   this.perPageSelector = this.tableHelpers.find('#per_page');
@@ -79,7 +80,22 @@ ReportLoader.prototype.bindEvents = function() {
 
   this.downloadButton.on('click', function() {
     _this.toggleDownloadLinks(event, this);
-  })
+  });
+
+  this.$narrowDownData.on('keyup', function() {
+    var value = $(this).val();
+    var pattern = new RegExp(value, "i");
+
+    _this.$insightsTableList.find('tbody > tr').each(function() {
+      if (!($(this).find('td').text().search(pattern) >= 0)) {
+        $(this).hide();
+      }
+      if (($(this).find('td').text().search(pattern) >= 0)) {
+        $(this).show();
+      }
+    });
+
+  });
 
   $('body').on('click', function(event) {
     _this.downloadButton.removeClass('open');
@@ -98,9 +114,9 @@ ReportLoader.prototype.toggleDownloadLinks = function(event, element) {
 ReportLoader.prototype.resetFilters = function(event) {
   event.preventDefault();
   var $element = $(event.target),
-      noPagination = this.removePaginationButton.closest('span').hasClass('hide');
-  $element.attr('href', this.perPageSelector.data('url') + '&no_pagination=' + noPagination);
-  $element.data('url', this.perPageSelector.data('url') + '&no_pagination=' + noPagination);
+      paginate = this.removePaginationButton.closest('span').hasClass('hide');
+  $element.attr('href', this.perPageSelector.data('url') + '&paginate=' + paginate);
+  $element.data('url', this.perPageSelector.data('url') + '&paginate=' + paginate);
   this.loadChart($element);
 };
 
@@ -140,7 +156,8 @@ ReportLoader.prototype.fetchChartData = function(url, $selectedOption) {
       (_this.isStatePushable ? _this.populateInsightsData(data) : _this.populateInsightsDataWithoutState(data))
       if(data.headers != undefined) {
         _this.tableHelpers.removeClass('hide');
-        if(data.pagination_required == false) {
+
+        if(!data.pagination_required) {
           _this.pageSelector.addClass('hide');
           $.each(_this.pageHelpers.find('.col-md-2'), function(index, object) {
             $(object).removeClass('col-md-2').addClass('col-md-3');
@@ -151,7 +168,7 @@ ReportLoader.prototype.fetchChartData = function(url, $selectedOption) {
             $(object).removeClass('col-md-3').addClass('col-md-2');
           });
         }
-        _this.perPageSelector.data('url', data['request_path'] + '?type=' + data['report_type']);
+        _this.perPageSelector.data('url', data['request_path'] + '?report_category=' + data['report_category']);
         _this.setDownloadLinksPath();
         _this.searcherObject.refreshSearcher($selectedOption, data);
         _this.paginatorObject.refreshPaginator(data);
@@ -202,7 +219,7 @@ ReportLoader.prototype.populateInsightsData = function(data) {
 ReportLoader.prototype.setDownloadLinksPath = function($selectedOption) {
   var _this = this;
   $.each(this.downloadLinks, function() {
-    $(this).attr('href', $(this).data('url') + '?id=' + _this.$selectList.val() + '&no_pagination=true');
+    $(this).attr('href', $(this).data('url') + '?id=' + _this.$selectList.val() + '&paginate=false');
   });
 };
 
@@ -235,6 +252,7 @@ $(function() {
       tableHelpers: $('#table-helpers'),
       filterDiv: $('#search-div'),
       paginatorDiv: $('#paginator-div'),
+      narrowDownData: $('#narrow-down-report-data'),
       chartContainer: $('#chart-container'),
       downloadLinks: $('.download-link'),
       downloadButton: $('.toggle-btn')

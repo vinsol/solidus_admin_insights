@@ -1,6 +1,10 @@
 en:
   spree:
     admin:
+      day_name: Day
+      hour_name: Hour
+      month_name: Month
+      year: Year
       tab:
         insights: Insights
         finance_analysis: Finance Analysis

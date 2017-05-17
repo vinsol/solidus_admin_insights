@@ -1,206 +1,107 @@
 module Spree
   class SalesPerformanceReport < Spree::Report
-    HEADERS = { months_name: :string, sale_price: :integer, cost_price: :integer, promotion_discount: :integer, profit_loss: :integer, profit_loss_percent: :integer }
-    SEARCH_ATTRIBUTES = { start_date: :orders_created_from, end_date: :orders_created_till }
+    HEADERS             = { sale_price: :integer, cost_price: :integer, promotion_discount: :integer, profit_loss: :integer, profit_loss_percent: :integer }
+    SEARCH_ATTRIBUTES   = { start_date: :orders_created_from, end_date: :orders_created_till }
     SORTABLE_ATTRIBUTES = []
 
-    def no_pagination?
-      true
-    end
+    class Result < Spree::Report::TimedResult
+      charts ProfitLossChart, ProfitLossPercentChart, SaleCostPriceChart
 
-    def generate(options = {})
-      order_join_line_item = SolidusAdminInsights::ReportDb[:spree_orders___orders].
-      exclude(completed_at: nil).
-      where(orders__created_at: @start_date..@end_date). #filter by params
-      join(:spree_line_items___line_items, order_id: :id).
-      group(:line_items__order_id).
-      select{[
-        Sequel.as(SUM(IFNULL(line_items__cost_price, line_items__price) * line_items__quantity), :cost_price),
-        Sequel.as(orders__item_total, :sale_price),
-        Sequel.as(orders__item_total - SUM(IFNULL(line_items__cost_price, line_items__price) * line_items__quantity), :profit_loss),
-        Sequel.as(MONTHNAME(:orders__created_at), :month_name),
-        Sequel.as(MONTH(:orders__created_at), :number),
-        Sequel.as(YEAR(:orders__created_at), :year)
-      ]}
+      class Observation < Spree::Report::TimedObservation
+        observation_fields cost_price: 0, sale_price: 0, profit_loss: 0, profit_loss_percent: 0, promotion_discount: 0
 
-      group_by_months = SolidusAdminInsights::ReportDb[order_join_line_item].
-      group(:year, :number, :months_name).
-      order(:year, :number).
-      select{[
-        number,
-        Sequel.as(IFNULL(year, 2016), :year),
-        Sequel.as(concat(month_name, ' ', IFNULL(year, 2016)), :months_name),
-        Sequel.as(IFNULL(SUM(sale_price), 0), :sale_price),
-        Sequel.as(IFNULL(SUM(cost_price), 0), :cost_price),
-        Sequel.as(IFNULL(SUM(profit_loss), 0), :profit_loss),
-        Sequel.as((IFNULL(SUM(profit_loss), 0) / SUM(cost_price)) * 100, :profit_loss_percent),
-        Sequel.as(0, :promotion_discount)
-      ]}
+        def cost_price
+          @cost_price.to_f
+        end
 
-      adjustments_with_month_name = SolidusAdminInsights::ReportDb[:spree_adjustments___adjustments].
-      where(adjustments__source_type: "Spree::PromotionAction").
-      where(adjustments__created_at: @start_date..@end_date). #filter by params
-      select{[
-        Sequel.as(abs(:amount), :promotion_discount),
-        Sequel.as(MONTHNAME(:adjustments__created_at), :month_name),
-        Sequel.as(YEAR(:adjustments__created_at), :year),
-        Sequel.as(MONTH(:adjustments__created_at), :number)
-      ]}
+        def sale_price
+          @sale_price.to_f
+        end
 
-      promotions_group_by_months = SolidusAdminInsights::ReportDb[adjustments_with_month_name].
-      group(:year, :number, :months_name, :sale_price, :cost_price).
-      order(:year, :number).
-      select{[
-        number,
-        year,
-        Sequel.as(concat(month_name, ' ', year), :months_name),
-        Sequel.as(0, :sale_price),
-        Sequel.as(0, :cost_price),
-        Sequel.as(SUM(promotion_discount) * (-1), :profit_loss),
-        Sequel.as(0, :profit_loss_percent),
-        Sequel.as(SUM(promotion_discount), :promotion_discount)
-      ]}
+        def profit_loss
+          @profit_loss.to_f
+        end
 
-      union_stats = SolidusAdminInsights::ReportDb[group_by_months.union(promotions_group_by_months)].
-      group(:year, :number, :months_name).
-      order(:year, :number).
-      select{[
-        number,
-        year,
-        months_name,
-        Sequel.as(SUM(sale_price), :sale_price),
-        Sequel.as(SUM(cost_price), :cost_price),
-        Sequel.as(SUM(profit_loss), :profit_loss),
-        Sequel.as(ROUND((SUM(profit_loss) / SUM(cost_price)) * 100, 2), :profit_loss_percent),
-        Sequel.as(SUM(promotion_discount), :promotion_discount)
-      ]}
-      fill_missing_values({ cost_price: 0, sale_price: 0, profit_loss: 0, profit_loss_percent: 0, promotion_discount: 0 }, union_stats.all)
-    end
+        def profit_loss_percent
+          return (profit_loss * 100 / cost_price).round(2) unless cost_price.zero?
+          0.0
+        end
 
-    def select_columns(dataset)
-      dataset
-    end
-
-    def chart_json
-      {
-        chart: true,
-        charts: [
-          profit_loss_chart_json,
-          profit_loss_percent_chart_json,
-          sale_cost_price_chart_json
-        ]
-      }
-    end
-
-    # extract it in report.rb
-    def chart_data
-      unless @data
-        @data = Hash.new {|h, k| h[k] = [] }
-        generate.each do |object|
-          object.each_pair do |key, value|
-            @data[key].push(value)
-          end
+        def promotion_discount
+          @promotion_discount.to_f
         end
       end
-      @data
+
     end
 
-    # ---------------------------------------------------- Graph Jsons --------------------------------------------------
-
-    def profit_loss_chart_json
-      {
-        id: 'profit-loss',
-        json: {
-          title: {
-            useHTML: true,
-            text: "<span class='chart-title'>Profit/Loss</span><span class='fa fa-question-circle' data-toggle='tooltip' title='Track the profit or loss value'></span>"
-          },
-          xAxis: { categories: chart_data[:months_name] },
-          yAxis: {
-            title: { text: 'Value($)' }
-          },
-          legend: {
-              layout: 'vertical',
-              align: 'right',
-              verticalAlign: 'middle',
-              borderWidth: 0
-          },
-          series: [
-            {
-              name: 'Profit Loss',
-              tooltip: { valuePrefix: '$' },
-              data: chart_data[:profit_loss].map(&:to_f)
-            }
-          ]
-        }
-      }
+    private def report_query
+      Spree::Report::QueryFragments
+        .from_union(order_with_line_items_grouped_by_time, promotions_grouped_by_time)
+        .group(*time_scale_columns_to_s)
+        .order(*time_scale_columns)
+        .project(
+          *time_scale_columns,
+          'SUM(sale_price) as sale_price',
+          'SUM(cost_price) as cost_price',
+          'SUM(profit_loss) as profit_loss',
+          'SUM(promotion_discount) as promotion_discount'
+        )
     end
 
-    def profit_loss_percent_chart_json
-      {
-        id: 'profit-loss',
-        json: {
-          title: {
-            useHTML: true,
-            text: "<span class='chart-title'>Profit/Loss %</span><span class='fa fa-question-circle' data-toggle='tooltip' title='Track the profit or loss %age to create a projection'></span>"
-          },
-          xAxis: { categories: chart_data[:months_name] },
-          yAxis: {
-            title: { text: 'Percentage(%)' }
-          },
-          legend: {
-              layout: 'vertical',
-              align: 'right',
-              verticalAlign: 'middle',
-              borderWidth: 0
-          },
-          series: [
-            {
-              name: 'Profit Loss Percent(%)',
-              tooltip: { valueSuffix: '%' },
-              data: chart_data[:profit_loss_percent].map(&:to_f)
-            }
-          ]
-        }
-      }
+    private def promotions_grouped_by_time
+      Spree::Report::QueryFragments
+        .from_subquery(promotion_adjustments_with_time)
+        .group(*time_scale_columns_to_s, 'sale_price', 'cost_price')
+        .order(*time_scale_columns)
+        .project(
+          *time_scale_columns,
+          '0 as sale_price',
+          '0 as cost_price',
+          'SUM(promotion_discount) * -1 as profit_loss',
+          'SUM(promotion_discount) as promotion_discount'
+        )
     end
 
-    def sale_cost_price_chart_json
-      {
-        id: 'sale-price',
-        json: {
-          chart: { type: 'column' },
-          title: {
-            useHTML: true,
-            text: "<span class='chart-title'>Sales Performance %</span><span class='fa fa-question-circle' data-toggle='tooltip' title='Compare the Selling price, cost price and promotional cost over a period of time'></span>"
-          },
-          xAxis: { categories: chart_data[:months_name] },
-          yAxis: {
-            title: { text: 'Value($)' }
-          },
-          tooltip: { valuePrefix: '$' },
-          legend: {
-              layout: 'vertical',
-              align: 'right',
-              verticalAlign: 'middle',
-              borderWidth: 0
-          },
-          series: [
-            {
-              name: 'Sale Price',
-              data: chart_data[:sale_price].map(&:to_f)
-            },
-            {
-              name: 'Cost Price',
-              data: chart_data[:cost_price].map(&:to_f)
-            },
-            {
-              name: 'Promotional Cost',
-              data: chart_data[:promotion_discount].map(&:to_f)
-            }
-          ]
-        }
-      }
+    private def promotion_adjustments_with_time
+      Spree::Adjustment
+        .promotion
+        .where(created_at: reporting_period)
+        .select(
+          'abs(amount) as promotion_discount',
+          *time_scale_selects('spree_adjustments')
+        )
     end
+
+    private def order_with_line_items_grouped_by_time
+      order_with_line_items_ar = Arel::Table.new(:order_with_line_items)
+      zero = Arel::Nodes.build_quoted(0.0)
+      Spree::Report::QueryFragments
+        .from_subquery(order_with_line_items, as: :order_with_line_items)
+        .group(*time_scale_columns_to_s)
+        .order(*time_scale_columns)
+        .project(
+          *time_scale_columns,
+          Spree::Report::QueryFragments.if_null(Spree::Report::QueryFragments.sum(order_with_line_items_ar[:sale_price]), zero).as('sale_price'),
+          Spree::Report::QueryFragments.if_null(Spree::Report::QueryFragments.sum(order_with_line_items_ar[:cost_price]), zero).as('cost_price'),
+          Spree::Report::QueryFragments.if_null(Spree::Report::QueryFragments.sum(order_with_line_items_ar[:profit_loss]), zero).as('profit_loss'),
+          '0 as promotion_discount'
+        )
+    end
+
+    private def order_with_line_items
+      line_item_ar = Spree::LineItem.arel_table
+      Spree::Order
+        .where.not(completed_at: nil)
+        .where(created_at: reporting_period)
+        .joins(:line_items)
+        .group('spree_orders.id', *time_scale_columns_to_s)
+        .select(
+          *time_scale_selects('spree_orders'),
+          "spree_orders.item_total as sale_price",
+          "SUM(#{ Spree::Report::QueryFragments.if_null(line_item_ar[:cost_price], line_item_ar[:price]).to_sql } * spree_line_items.quantity) as cost_price",
+          "(spree_orders.item_total - SUM(#{ Spree::Report::QueryFragments.if_null(line_item_ar[:cost_price], line_item_ar[:price]).to_sql } * spree_line_items.quantity)) as profit_loss"
+        )
+    end
+
   end
 end

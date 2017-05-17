@@ -1,93 +1,74 @@
 module Spree
   class PaymentMethodTransactionsConversionRateReport < Spree::Report
     DEFAULT_SORTABLE_ATTRIBUTE = :payment_method_name
-    HEADERS = { payment_method_name: :string, payment_state: :string, months_name: :string, count: :integer }
-    SEARCH_ATTRIBUTES = { start_date: :payments_created_from, end_date: :payments_created_to }
-    SORTABLE_ATTRIBUTES = [:payment_method_name, :successful_payments_count, :failed_payments_count, :pending_payments_count, :invalid_payments_count]
+    HEADERS                    = { payment_method_name: :string, payment_state: :string, months_name: :string, count: :integer }
+    SEARCH_ATTRIBUTES          = { start_date: :payments_created_from, end_date: :payments_created_to }
+    SORTABLE_ATTRIBUTES        = [:payment_method_name, :successful_payments_count, :failed_payments_count, :pending_payments_count, :invalid_payments_count]
 
-    def no_pagination?
-      true
-    end
+    class Result < Spree::Report::TimedResult
+      charts PaymentMethodStateDistributionChart
 
-    def generate
-      payment_methods = SolidusAdminInsights::ReportDb[:spree_payment_methods___payment_methods].
-      join(:spree_payments___payments, payment_method_id: :id).
-      where(payments__created_at: @start_date..@end_date). #filter by params
-      select{[
-        payment_method_id,
-        Sequel.as(name, :payment_method_name),
-        Sequel.as(IF(STRCMP(state, 'pending'), state, concat('capturing ', state)), :payment_state),
-        Sequel.as(MONTHNAME(:payments__created_at), :month_name),
-        Sequel.as(MONTH(:payments__created_at), :number),
-        Sequel.as(YEAR(:payments__created_at), :year)
-      ]}
+      def build_empty_observations
+        super
+        @_payment_methods = @results.collect { |result| result['payment_method_name'] }.uniq
+        @observations = @_payment_methods.collect do |payment_method_name|
+          payment_states = @results
+                             .select  { |result| result['payment_method_name'] == payment_method_name }
+                             .collect { |result| result['payment_state'] }
+                             .uniq
 
-      group_by_months = SolidusAdminInsights::ReportDb[payment_methods].
-      group(:year, :number, :months_name, :payment_method_name, :payment_state).
-      order(:year, :number).
-      select{[
-        payment_method_name,
-        number,
-        payment_state,
-        year,
-        Sequel.as(concat(month_name, ' ', year), :months_name),
-        Sequel.as(COUNT(payment_method_id), :count),
-      ]}
+          payment_states.collect do |state|
+            @observations.collect do |observation|
+              _d_observation = observation.dup
+              _d_observation.payment_method_name =  payment_method_name
+              _d_observation.payment_state = state
+              _d_observation.count = 0
+              _d_observation
+            end
+          end
+        end.flatten
+      end
 
-      grouped_by_payment_method_name = group_by_months.all.group_by { |record| record[:payment_method_name] }
-      data = []
-      grouped_by_payment_method_name.each_pair do |name, collection|
-        collection.group_by { |r| r[:payment_state] }.each_pair do |state, collection|
-          data << fill_missing_values({ payment_method_name: name, payment_state: state, count: 0 }, collection)
+      class Observation < Spree::Report::TimedObservation
+        observation_fields [:payment_method_name, :payment_state, :count]
+
+        def payment_state
+          if @payment_state == 'pending'
+            @payment_state
+          else
+            "capturing #{ @payment_state }"
+          end
+        end
+
+        def describes?(result, time_scale)
+          (result['payment_method_name'] == payment_method_name && result['payment_state'] == @payment_state) && super
         end
       end
-      @data = data.flatten
     end
 
-    def group_by_payment_method_name
-      @grouped_by_payment_method_name ||= @data.group_by { |record| record[:payment_method_name] }
+    def report_query
+      Spree::Report::QueryFragments
+        .from_subquery(payment_methods)
+        .group(*time_scale_columns_to_s, 'payment_method_name', 'payment_state')
+        .order(*time_scale_columns)
+        .project(
+          *time_scale_columns,
+          'payment_method_name',
+          'payment_state',
+          'COUNT(payment_method_id) as count'
+        )
     end
 
-    def chart_data
-      {
-        months_name: group_by_payment_method_name.first.try(:second).try(:map) { |record| record[:months_name] },
-        collection: group_by_payment_method_name
-      }
-    end
-
-    def chart_json
-      {
-        chart: true,
-        charts: chart_data[:collection].map do |method_name, collection|
-          {
-            id: 'payment-state-' + method_name,
-            json: {
-              chart: { type: 'column' },
-              title: {
-                useHTML: true,
-                text: "<span class='chart-title'>#{ method_name } Conversion Status</span><span class='fa fa-question-circle' data-toggle='tooltip' title=' Tracks the status of Payments made from different payment methods such as CC, Check etc.'></span>"
-              },
-
-              xAxis: { categories: chart_data[:months_name] },
-              yAxis: {
-                title: { text: 'Count' }
-              },
-              tooltip: { valuePrefix: '#' },
-              legend: {
-                  layout: 'vertical',
-                  align: 'right',
-                  verticalAlign: 'middle',
-                  borderWidth: 0
-              },
-              series: collection.group_by { |r| r[:payment_state] }.map { |key, value| { name: key, data: value.map { |r| r[:count].to_i } } }
-            }
-          }
-        end
-      }
-    end
-
-    def select_columns(dataset)
-      dataset
+    private def payment_methods
+      Spree::PaymentMethod
+        .joins(:payments)
+        .where(spree_payments: { created_at: reporting_period })
+        .select(
+          'spree_payment_methods.id as payment_method_id',
+          'name as payment_method_name',
+          'state as payment_state',
+          *time_scale_selects('spree_payments')
+        )
     end
   end
 end

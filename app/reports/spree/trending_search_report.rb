@@ -1,86 +1,50 @@
 module Spree
   class TrendingSearchReport < Spree::Report
     DEFAULT_SORTABLE_ATTRIBUTE = :occurrences
-    HEADERS = { searched_term: :string, occurrences: :integer }
-    SEARCH_ATTRIBUTES = { start_date: :start_date, end_date: :end_date, keywords_cont: :keyword }
-    SORTABLE_ATTRIBUTES = []
+    HEADERS                    = { searched_term: :string, occurrences: :integer }
+    SEARCH_ATTRIBUTES          = { start_date: :start_date, end_date: :end_date, keywords_cont: :keyword }
+    SORTABLE_ATTRIBUTES        = [:occurrences]
 
-    def deeplink_properties
-      {
-        deeplinked: true,
-        searched_term: { template: %Q{<a href='/products?utf8=%E2%9C%93&keywords={%# o['searched_term'] %}' target="_blank">{%# o['searched_term'] %}</a>} }
-      }
+    def paginated?
+      true
     end
 
-    def initialize(options)
-      super
-      @search_keywords_cont = @search[:keywords_cont].present? ? "%#{ @search[:keywords_cont] }%" : '%'
-      @sortable_type = :desc if options[:sort].blank?
-      set_sortable_attributes(options, DEFAULT_SORTABLE_ATTRIBUTE)
+    class Result < Spree::Report::Result
+      charts FrequencyDistributionPieChart
+
+      class Observation < Spree::Report::Observation
+        observation_fields [:searched_term, :occurrences]
+      end
     end
 
-    def generate(options = {})
-      top_searches = SolidusAdminInsights::ReportDb[:spree_page_events___page_events].
-      where(page_events__activity: 'search').
-      where(page_events__created_at: @start_date..@end_date).where(Sequel.ilike(:page_events__search_keywords, @search_keywords_cont)). #filter by params
-      group(:searched_term).
-      order(Sequel.desc(:occurrences)).
-      limit(20)
+    deeplink searched_term: { template: %Q{<a href='/products?utf8=%E2%9C%93&keywords={%# o['searched_term'] %}' target="_blank">{%# o['searched_term'] %}</a>} }
 
-      top_searches
+    def paginated_report_query
+      report_query
+        .take(records_per_page)
+        .skip(current_page)
     end
 
-    def select_columns(dataset)
-      dataset.select{[
-        search_keywords.as(searched_term),
-        Sequel.as(count(:search_keywords), :occurrences)
-      ]}
+    def record_count_query
+      Spree::Report::QueryFragments.from_subquery(report_query).project(Arel.star.count)
     end
 
-    def chart_data
-      top_searches = select_columns(generate)
-      total_occurrences = SolidusAdminInsights::ReportDb[top_searches].sum(:occurrences)
-      SolidusAdminInsights::ReportDb[top_searches].
-      select{[
-        Sequel.as((occurrences / total_occurrences) * 100, :y),
-        Sequel.as(searched_term, :name)
-      ]}.all.map { |obj| obj.merge({ y: obj[:y].to_f })} # to convert percentage into float value from string
+    def report_query
+      Spree::Report::QueryFragments.from_subquery(searches)
+        .project("count(searched_term) as occurrences", "searched_term")
+        .group("searched_term")
     end
 
-    def chart_json
-      {
-        chart: true,
-        charts: [
-          {
-            name: 'trending-search',
-            json: {
-              chart: { type: 'pie' },
-              title: {
-                useHTML: true,
-                text: "<span class='chart-title'>Trending Search Keywords(Top 20)</span><span class='fa fa-question-circle' data-toggle='tooltip' title='Track the most trending keywords searched by users'></span>"
-              },
-              tooltip: {
-                  pointFormat: 'Search %: <b>{point.percentage:.1f}%</b>'
-              },
-              plotOptions: {
-                  pie: {
-                      allowPointSelect: true,
-                      cursor: 'pointer',
-                      dataLabels: {
-                          enabled: false
-                      },
-                      showInLegend: true
-                  }
-              },
-              series: [{
-                  name: 'Hits',
-                  data: chart_data
-              }]
-            }
-          }
-        ]
-      }
+    private def searches
+      Spree::PageEvent
+        .where(activity: 'search')
+        .where(created_at: reporting_period)
+        .where(Spree::PageEvent.arel_table[:search_keywords].matches(keyword_search))
+        .select("search_keywords as searched_term")
     end
 
+    private def keyword_search
+      search[:keywords_cont].present? ? "%#{ search[:keywords_cont] }%" : '%'
+    end
   end
 end

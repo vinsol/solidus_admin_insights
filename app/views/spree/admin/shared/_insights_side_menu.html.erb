@@ -1,5 +1,5 @@
 <ul class="admin-subnav" data-hook="admin_insight_sub_tabs">
-  <% Spree::ReportGenerationService::REPORTS.each do |report_key, report_value|%>
-    <%= tab report_key, url: admin_insight_path(type: report_key, id: report_value.first) %>
+  <% Spree::ReportGenerationService.reports.each do |report_key, report_value|%>
+    <%= tab report_key, url: admin_insight_path(report_category: report_key, id: report_value.first) %>
   <% end %>
 </ul>

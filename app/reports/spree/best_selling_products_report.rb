@@ -1,43 +1,42 @@
 module Spree
   class BestSellingProductsReport < Spree::Report
     DEFAULT_SORTABLE_ATTRIBUTE = :sold_count
-    HEADERS = { sku: :string, product_name: :string, sold_count: :integer }
-    SEARCH_ATTRIBUTES = { start_date: :orders_completed_from, end_date: :orders_completed_to }
-    SORTABLE_ATTRIBUTES = [:product_name, :sku, :sold_count]
+    HEADERS                    = { sku: :string, product_name: :string, sold_count: :integer }
+    SEARCH_ATTRIBUTES          = { start_date: :orders_completed_from, end_date: :orders_completed_to }
+    SORTABLE_ATTRIBUTES        = [:product_name, :sku, :sold_count]
 
-    def initialize(options)
-      super
-      @name = @search[:name].present? ? "%#{ @search[:name] }%" : '%'
-      @sortable_type = :desc if options[:sort].blank?
-      set_sortable_attributes(options, DEFAULT_SORTABLE_ATTRIBUTE)
+    deeplink product_name: { template: %Q{<a href="/admin/products/{%# o.product_slug %}" target="_blank">{%# o.product_name %}</a>} }
+
+    class Result < Spree::Report::Result
+      class Observation < Spree::Report::Observation
+        observation_fields [:product_name, :product_slug, :sku, :sold_count]
+
+        def sku
+          @sku.presence || @product_name
+        end
+      end
     end
 
-    def deeplink_properties
-      {
-        deeplinked: true,
-        product_name: { template: %Q{<a href="/admin/products/{%# o.product_slug %}" target="_blank">{%# o.product_name %}</a>} }
-      }
+    def report_query
+      Spree::LineItem
+        .joins(:order)
+        .joins(:variant)
+        .joins(:product)
+        .where(Spree::Product.arel_table[:name].matches(search_name))
+        .where(spree_orders: { state: 'complete' })
+        .where(spree_orders: { completed_at: reporting_period })
+        .group(:variant_id, :product_name, :product_slug, 'spree_variants.sku')
+        .select(
+          'spree_products.name as product_name',
+          'spree_products.slug as product_slug',
+          'spree_variants.sku  as sku',
+          'sum(quantity)       as sold_count'
+        )
     end
 
-
-    def generate
-      ::SolidusAdminInsights::ReportDb[:spree_line_items___line_items].
-      join(:spree_orders___orders, id: :order_id).
-      join(:spree_variants___variants, variants__id: :line_items__variant_id).
-      join(:spree_products___products, products__id: :variants__product_id).
-      where(orders__state: 'complete').
-      where(orders__completed_at: @start_date..@end_date). #filter by params
-      group(:variant_id).
-      order(sortable_sequel_expression)
+    private def search_name
+      search[:name].present? ? "%#{ search[:name] }%" : '%'
     end
 
-    def select_columns(dataset)
-      dataset.select{[
-        products__name.as(product_name),
-        products__slug.as(product_slug),
-        Sequel.as(IF(STRCMP(variants__sku, ''), variants__sku, products__name), :sku),
-        sum(quantity).as(sold_count)
-      ]}
-    end
   end
 end

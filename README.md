@@ -6,13 +6,10 @@ Dashboard for querying and viewing you solidus store's metrics. Use SolidusEvent
 Installation
 ------------
 
-Ensure [SolidusEventTracker](https://github.com/vinsol/solidus_events_tracker) is installed.
-
-
 Add solidus_admin_insights to your Gemfile:
 
 ```ruby
-gem 'solidus_admin_insights', github: 'vinsol/solidus_admin_insights'
+gem 'solidus_admin_insights'
 ```
 
 Bundle your dependencies and run the installation generator:
@@ -21,6 +18,33 @@ Bundle your dependencies and run the installation generator:
 bundle
 bundle exec rails g solidus_admin_insights:install
 ```
+
+Adding new reports
+-------------------
+
+Create a class that inherits from `Spree::Report` and define a `report_query` method. If the report is to be paginated. it should define also define a method called `paginated` and set it to return `true` alongwith defining `paginated_report_query` and `record_count_query`. the `_query` methods should return objects that respond to `to_sql` which returns sql string for reporting query.
+
+All reports need to define the following constants:
+1.  `SORTABLE_ATTRIBUTES`: Other attributes based on which reports can be sorted.
+2.  `DEFAULT_SORTABLE_ATTRIBUTE`: The attribute which is used by default to sort the report results.
+3.  `HEADERS`: The static header fields for report. Note time based fields are automatically added. Any field not declared here but available in observation will be ignored while displaying the report.
+4.  `SEARCH_ATTRIBUTES`: A hash containing the attributes and their name on frontend based on which report result can be filtered.
+
+Additionally they need to define two nested classes. `Result` and `Result::Observation`.
+
+`Result` class can inherit from `Spree::Report::Result` if it is a basic report or from `Spree::Report::TimedResult` if the result can be time scaled(i.e. changing reporting period changes the scale of report).
+
+Similarly Observation class needs to inherit either from `Spree::Report::Observation` or `Spree::Report::TimedObservation`. It defines a macro call `observation_fields` which can be passed an array or hash with default values of fields which form one report item. Create a method of same name in Observation class for virtual fields which are not returned by queries. ie. average or for formatting db results.
+
+`TimedResult` has 2 lifecycle methods which can be overriden for customizing the report output.
+1. `build_empty_observations`: Generates empty observations which are later filled with datapoints returned by report query.
+2. `populate_observations`: Fill the empty observations with data returned via query.
+
+`TimedObservation` defines a describes? method which can be overriden to change where the query results gets copied to.
+
+You can add charts to reports by calling `charts` with a list of classes representing the chart. Each chart implementing class gets the results in it's initializer and need to implement to_h method returning the json representation of chart.
+
+Finally, register the report in initializer `solidus_admin_insights.rb` in its appropriate category or make a new category to make it available in admin dashboard.
 
 Testing
 -------
@@ -44,4 +68,4 @@ Credits
 
 [![vinsol.com: Ruby on Rails, iOS and Android developers](http://vinsol.com/vin_logo.png "Ruby on Rails, iOS and Android developers")](http://vinsol.com)
 
-Copyright (c) 2016 [vinsol.com](http://vinsol.com "Ruby on Rails, iOS and Android developers"), released under the New MIT License
+Copyright (c) 2017 [vinsol.com](http://vinsol.com "Ruby on Rails, iOS and Android developers"), released under the New MIT License

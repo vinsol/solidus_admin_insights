@@ -5,7 +5,7 @@
         {% for(var i = 0; i < o['headers'].length; i++) { %}
           <th>
             {% if(o['headers'][i].sortable) { %}
-            <a href="{%= o['request_path'] %}?type={%= o['report_type'] %}&sort%5Battribute%5D={%= o['headers'][i].value %}&sort%5Btype%5D={%= (o['headers'][i].sorted == 'asc') ? 'desc' : 'asc' %}" class="sortable-link {%= o['headers'][i].sorted %}" data-attribute="{%= o['headers'][i].value %}">{%= o['headers'][i].name %}
+            <a href="{%= o['request_path'] %}?report_category={%= o['report_category'] %}&sort%5Battribute%5D={%= o['headers'][i].value %}&sort%5Btype%5D={%= (o['headers'][i].sorted == 'asc') ? 'desc' : 'asc' %}" class="sortable-link {%= o['headers'][i].sorted %}" data-attribute="{%= o['headers'][i].value %}">{%= o['headers'][i].name %}
             </a>
             {% if(o['headers'][i].sorted != undefined) { %}
               <span class="sortable-arrow {%= (o['headers'][i].sorted == 'asc') ? 'fa fa-chevron-down' : 'fa fa-chevron-up' %}"></span>

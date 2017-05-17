@@ -28,11 +28,11 @@ Searcher.prototype.refreshSearcher = function($selectedInsight, data) {
   _this.setFormActions(_this.$filterForm, requestPath);
 
   _this.$filterForm.on('submit', function() {
-   var noPagination = _this.reportLoader.removePaginationButton.closest('span').hasClass('hide');
+   var paginate = !_this.reportLoader.removePaginationButton.closest('span').hasClass('hide');
    $.ajax({
      type: "GET",
      url: _this.$filterForm.attr('action'),
-     data: _this.$filterForm.serialize() + "&per_page=" + _this.reportLoader.pageSelector.find(':selected').attr('value') + '&no_pagination=' + noPagination,
+     data: _this.$filterForm.serialize() + "&per_page=" + _this.reportLoader.pageSelector.find(':selected').attr('value') + '&paginate=' + paginate,
      dataType: 'json',
      success: function(data) {
       _this.reportLoader.requestUrl = this.url;

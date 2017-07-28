@@ -15,7 +15,7 @@ module Spree::Report::DateSlicer
   def self.slice_hours_into(start_date, end_date, klass)
     current_date = start_date
     slices = []
-    while current_date < end_date
+    while current_date <= end_date
       slices << (0..23).collect do |hour|
         obj = klass.new
         obj.date = current_date
@@ -30,7 +30,7 @@ module Spree::Report::DateSlicer
   def self.slice_days_into(start_date, end_date, klass)
     current_date = start_date
     slices = []
-    while current_date < end_date
+    while current_date <= end_date
       obj = klass.new
       obj.date = current_date
       slices << obj
@@ -42,7 +42,7 @@ module Spree::Report::DateSlicer
   def self.slice_months_into(start_date, end_date, klass)
     current_date = start_date
     slices = []
-    while current_date < end_date
+    while current_date <= end_date
       obj = klass.new
       obj.date = current_date
       slices << obj

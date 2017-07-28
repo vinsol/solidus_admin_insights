@@ -13,21 +13,9 @@ module Spree
       end
 
       def populate_observations
-        observation_iter = @observations.each
-        current_observation = @observations.present? ? observation_iter.next : nil
         @results.each do |result|
-          if current_observation.present?
-            begin
-              until current_observation.describes? result, time_scale
-                current_observation = observation_iter.next
-              end
-
-              current_observation.populate(result)
-              current_observation = observation_iter.next
-            rescue StopIteration
-              break
-            end
-          end
+          matching_observation = @observations.find { |observation| observation.describes? result, time_scale }
+          matching_observation.populate result
         end
       end
 

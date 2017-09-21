@@ -65,7 +65,7 @@ module Spree
 
       query = query.order(active_record_sort) if sortable_attribute.present?
       query_sql = query.to_sql
-      r = ActiveRecord::Base.connection.exec_query(query_sql)
+      ActiveRecord::Base.connection.exec_query(query_sql)
     end
 
     def set_sortable_attributes(options, default_sortable_attribute)

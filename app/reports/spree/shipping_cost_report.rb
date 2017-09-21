@@ -26,7 +26,7 @@ module Spree
         observation_fields [:name, :shipping_charge, :revenue, :shipping_cost_percentage]
 
         def describes?(result, time_scale)
-          (name = result['name']) && super
+          (name == result['name']) && super
         end
 
         def shipping_cost_percentage
@@ -50,7 +50,7 @@ module Spree
           'shipping_charge',
           'shipping_method_id',
           'name'
-        )
+        ).order('shipping_method_id', *time_scale_columns)
     end
 
     private def order_with_shipments

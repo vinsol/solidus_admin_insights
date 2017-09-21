@@ -37,6 +37,6 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'pg', '~> 0.18.0'
   s.add_development_dependency 'chartkick', '~> 1.4.0'
 
-  s.add_dependency 'wicked_pdf', '~> 1.0.6'
+  s.add_dependency 'wicked_pdf', '~> 1.1.0'
   s.add_dependency 'wkhtmltopdf-binary', '~> 0.12.3.1'
 end
